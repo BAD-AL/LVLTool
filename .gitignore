@@ -1,0 +1,9 @@
+obj/
+*.suo
+bin/Debug/
+
+# Folder to not ignore
+!/bin/Release/
+
+
+
