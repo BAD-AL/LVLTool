@@ -69,6 +69,7 @@
             this.mBrowseLVL.TabIndex = 15;
             this.mBrowseLVL.Text = "...";
             this.mBrowseLVL.UseVisualStyleBackColor = true;
+            this.mBrowseLVL.Click += new System.EventHandler(this.mBrowseLVL_Click);
             // 
             // mLVLFileTextBox
             // 

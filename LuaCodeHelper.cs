@@ -25,7 +25,7 @@ namespace LVLTool
             if ( (body.Length -1) == sz )
             {
                 retVal += "\n-- ********* LUAC Code Size MATCH!!! ***********";
-                byte[] b = File.ReadAllBytes(".\\tmp.luac");
+                byte[] b = File.ReadAllBytes(Program.TmpDir + "tmp.luac");
                 
                 int i = 0;
                 for (i = 0; i < body.Length-1; i++)
@@ -93,10 +93,10 @@ namespace LVLTool
         public static int LuacCodeSize(string luaSourceFile)
         {
             int retVal = -1;
-            string result = Program.RunCommand(Program.Luac, " -s -o tmp.luac " + luaSourceFile, true);
+            string result = Program.RunCommand(Program.Luac, " -s -o "+ Program.TmpDir +" tmp.luac " + luaSourceFile, true);
             if (result.Length < 10)
             {
-                FileInfo info = new FileInfo(".\\tmp.luac");
+                FileInfo info = new FileInfo(Program.TmpDir +  "tmp.luac");
                 retVal = (int)info.Length;
             }
             return retVal;
@@ -105,8 +105,12 @@ namespace LVLTool
         internal static string GetLuacListing(Chunk c)
         {
             byte[] bodyData = c.GetBodyData();
-            string fileName = ".\\decompile.luac";
-            File.WriteAllBytes(fileName, bodyData);
+            string fileName = Program.TmpDir + "decompile.luac";
+            //File.WriteAllBytes(fileName, bodyData);
+            FileStream fs = new FileStream(fileName, FileMode.Create);
+            fs.Write(bodyData, 0, bodyData.Length-1); // For Lua 4.0, this is necessary. Lua 5 handles the extra byte and is fine with it gone
+            fs.Close();
+            
             string output = Program.RunCommand(Program.Luac, " -l " + fileName, true);
             string retVal = string.Format("\n-- {0}\n-- luac -l listing \n{1}", c.Name, output);
             return retVal;
@@ -114,22 +118,51 @@ namespace LVLTool
 
         internal static string Decompile(Chunk c)
         {
-            string targetFile = ".\\tmp.lua";
+            string retVal = null;
+            string targetFile = Program.TmpDir + "tmp.lua";
             if( File.Exists(targetFile))
                 File.Delete(targetFile);
 
             byte[] bodyData = c.GetBodyData();
-            string fileName = ".\\tmp.luac";
-            File.WriteAllBytes(fileName, bodyData);
-            string prog = "SWBF2CodeHelper.exe";
-            string args = " " + fileName;
+            string fileName = Program.TmpDir + "tmp.luac";
+            FileStream fs = new FileStream(fileName, FileMode.Create);
+            fs.Write(bodyData, 0, bodyData.Length - 1); // For Lua 4.0, this is necessary. Lua 5 handles the extra byte and is fine with it gone
+            fs.Close();
+            if (Program.Luac.IndexOf("BFBuilder") > -1)
+            {
+                retVal = DecompileBF1Code(fileName);
+            }
+            else
+            {
+                string prog = "SWBF2CodeHelper.exe";
+                string args = " " + fileName;
+                string output = Program.RunCommand(prog, args, true);
+                
+                if (!File.Exists(targetFile))
+                    return "Error! Could not find output!\n" + output;
+                retVal = File.ReadAllText(targetFile);
+            }
+            return retVal;
+        }
+
+        private static string DecompileBF1Code(string fileName)
+        {
+            // at this point Temp\tmp.luac has been written 
+            // first get the listing, then run the listing through Phantom's tool
+
+            string prog = Program.Luac;
+            string args = " -l " + fileName;
             string output = Program.RunCommand(prog, args, true);
-            if (output.IndexOf("Error", StringComparison.InvariantCultureIgnoreCase) > -1)
-                return output;
-            if (!File.Exists(targetFile))
-                return "Error! Could not find output!";
-            string content = File.ReadAllText(targetFile);
-            return content;
+            
+            string listFile = Program.TmpDir + "luac.list";
+            File.WriteAllText(listFile, output);
+
+            prog = "LuaDC1.exe";
+            args = " -file " + listFile +" -o "+ Program.TmpDir + "tmp.lua";
+            output = Program.RunCommand(prog, args, true);
+
+            string retVal = File.ReadAllText(Program.TmpDir + "tmp.lua");
+            return retVal;
         }
     }
 }

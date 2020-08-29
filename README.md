@@ -7,12 +7,12 @@ If the item doesn't show up in the listbox, then LVLTool doesn't know how to rep
 ### Major Features:
 1. Extract all contents of a .lvl to the 'Munged' items that compose a .lvl file (.script, .texture ...)
 2. Replace an item in the .lvl file. Choose an already munged file or a .lua or .tga file.
-..*If you choose a .lua file, the program will execute ScriptMunge and add it (if successful).
-..*If you choose a .tga file, you'll be prompted for the platform and then the program will run
-..*the texturemunge program and add the resulting .texture file (if succesful).
+..* If you choose a .lua file, the program will execute ScriptMunge and add it (if successful).
+..* If you choose a .tga file, you'll be prompted for the platform and then the program will run
+..* The texturemunge program and add the resulting .texture file (if succesful).
 3. Add an item to the end of the .lvl file, same rules apply as for replacing an item.
-4. Show Lua code listing.
-5. Attempt to show decompiled lua code (relies on SWBF2CodeHelper.exe, currently Lua 5.0.2 only)
+4. Show Lua code listing (SWBF & SWBFII).
+5. Attempt to show decompiled lua code (relies on SWBF2CodeHelper.exe and Phantom5674's LuaDc1.exe https://github.com/phantom567459/BF1LuaDC)
 
 
 ### Important usage notes:

@@ -150,9 +150,8 @@ namespace LVLTool
 
         public static void PrintHelp()
         {
-            string help =
-@"LVLTool.exe
-Use without arguments for the GUI.
+            string help = "LVLTool.exe  Version: "+Version +"\n"+
+@"Use without arguments for the GUI.
 Use at the command line with the following arguments:
 -file <lvl file>  The file to operate on
 -r <munged or mungable file(s)>  to replace munged files in the target .lvl file.

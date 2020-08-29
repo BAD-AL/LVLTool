@@ -11,22 +11,14 @@ namespace LVLTool
     public class UcfbHelper
     {
         byte[] mData = null;
-        string mExtractDir = "";
-        static byte[] UCFB = new byte[]{(byte)'u', (byte)'c', (byte)'f', (byte)'b'};
-        static byte[] UCFT = new byte[]{(byte)'u', (byte)'c', (byte)'f', (byte)'t'};
-        static byte[] NAME = new byte[]{(byte)'N', (byte)'A', (byte)'M', (byte)'E'};
-        static byte[] INFO = new byte[]{(byte)'I', (byte)'N', (byte)'F', (byte)'O'};
-        static byte[] BODY = new byte[]{(byte)'B', (byte)'O', (byte)'D', (byte)'Y'};
-        static byte[] tex_ = new byte[]{(byte)'t', (byte)'e', (byte)'x', (byte)'_' };
-        static byte[] mcfg = new byte[]{(byte)'m', (byte)'c', (byte)'f', (byte)'g' };
+        static byte[] UCFB = new byte[] { (byte)'u', (byte)'c', (byte)'f', (byte)'b'};
+        static byte[] NAME = new byte[] { (byte)'N', (byte)'A', (byte)'M', (byte)'E' };
+        static byte[] INFO = new byte[] { (byte)'I', (byte)'N', (byte)'F', (byte)'O' };
 
         /// <summary>
         /// Default constructor
         /// </summary>
-        public UcfbHelper()
-        {
-        }
-
+        public UcfbHelper() { }
 
         private string mFileName = "";
         /// <summary>
@@ -385,9 +377,18 @@ namespace LVLTool
             string ct = PeekChunkType();
             if (string.IsNullOrEmpty(ct))
                 return null; // Early Return 
-            
-            uint chunkLen = PeekNumber(mCurrentPos + 4);
-            string name = PeekName(mCurrentPos + 8, ct);
+            uint chunkLen = 0;
+            string name = null;
+            try
+            {
+                chunkLen = PeekNumber(mCurrentPos + 4);
+                name = PeekName(mCurrentPos + 8, ct);
+            }
+            catch (Exception e)
+            {
+                Console.Error.WriteLine("RipChunk Error: " + e.Message);
+                return null;
+            }
             //Console.WriteLine("ChunkTyle:{0}; size:{1} bytes; name:{2}", ct, chunkLen, name);
 
             retVal = new Chunk();
@@ -569,14 +570,7 @@ namespace LVLTool
             bigData.AddRange(newData);
 
             // throw away the first 8 bytes of munged data
-            bigData.RemoveAt(newDataStart);
-            bigData.RemoveAt(newDataStart);
-            bigData.RemoveAt(newDataStart);
-            bigData.RemoveAt(newDataStart);
-            bigData.RemoveAt(newDataStart);
-            bigData.RemoveAt(newDataStart);
-            bigData.RemoveAt(newDataStart);
-            bigData.RemoveAt(newDataStart);
+            bigData.RemoveRange(newDataStart, 8);
             
             mData = bigData.ToArray();
 

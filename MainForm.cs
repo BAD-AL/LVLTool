@@ -306,5 +306,16 @@ namespace LVLTool
             }
         }
 
+        private void mBrowseLVL_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog dlg = new OpenFileDialog();
+            dlg.RestoreDirectory = true;
+            if (dlg.ShowDialog() == DialogResult.OK)
+            {
+                mLVLFileTextBox.Text = dlg.FileName;
+            }
+            dlg.Dispose();
+        }
+
     }
 }
