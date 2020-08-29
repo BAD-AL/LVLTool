@@ -1,4 +1,6 @@
 ﻿## LVLTool
+https://github.com/BAD-AL/LVLTool (MIT License)
+
 LVLTool is a program useful for Star Wars Battlefront (2004) and Star Wars Battlefront (2005).
 It takes apart, adds to, replaces items from the .lvl files that these games use.
 
@@ -16,6 +18,7 @@ If the item doesn't show up in the listbox, then LVLTool doesn't know how to rep
 3. Add an item to the end of the .lvl file, same rules apply as for replacing an item.
 4. Show Lua code listing (SWBF & SWBFII).
 5. Attempt to show decompiled lua code (relies on SWBF2CodeHelper.exe and Phantom5674's LuaDc1.exe https://github.com/phantom567459/BF1LuaDC)
+   * Code changes that I made to this program can be found at: https://github.com/BAD-AL/BF1LuaDC
 
 
 ### Important usage notes:
