@@ -15,6 +15,14 @@ namespace LVLTool
             return index == hexNumber.Length;
         }
 
+        private static bool Find(byte[] hexNumber, long location, List<byte> data)
+        {
+            int index = 0;
+            while (index < hexNumber.Length && (int)hexNumber[index] == (int)data[(int)(location + index)])
+                ++index;
+            return index == hexNumber.Length;
+        }
+
         /// <summary>
         /// Searched through 'data' for the givenBytes.
         /// </summary>
@@ -26,6 +34,23 @@ namespace LVLTool
         {
             long retVal = -1L;
             long num = (long)(data.Length - givenBytes.Length);
+            for (long location = startLocation; location < num; ++location)
+            {
+                if (Find(givenBytes, location, data))
+                {
+                    retVal = location;
+                    break;
+                }
+                else if (maxDistance < location - startLocation)
+                    break;
+            }
+            return retVal;
+        }
+
+        public static long GetLocationOfGivenBytes(long startLocation, byte[] givenBytes, List<byte> data, long maxDistance)
+        {
+            long retVal = -1L;
+            long num = (long)(data.Count - givenBytes.Length);
             for (long location = startLocation; location < num; ++location)
             {
                 if (Find(givenBytes, location, data))
@@ -57,7 +82,31 @@ namespace LVLTool
             }
             return b.ToString();
         }
+        // The number/length is stored in reverse least significant --> most significant
+        // This function gets the number at the specified location and gives it to you good ;
+        public static UInt16 Get2ByteNumberAtLocation(int loc, List<byte> data)
+        {
+            byte b0, b1;
+            b0 = data[loc];
+            b1 = data[loc + 1];
 
+            UInt16 retVal = (UInt16)(b0 + (b1 << 8));
+            return retVal;
+        }
+
+        // The number/length is stored in reverse least significant --> most significant
+        // This function gets the number at the specified location and gives it to you good ;
+        public static uint GetNumberAtLocation(int loc, List<byte> data)
+        {
+            byte b0, b1, b2, b3;
+            b0 = data[loc];
+            b1 = data[loc + 1];
+            b2 = data[loc + 2];
+            b3 = data[loc + 3];
+
+            uint retVal = (uint)(b0 + (b1 << 8) + (b2 << 16) + (b3 << 24));
+            return retVal;
+        }
 
         // The number/length is stored in reverse least significant --> most significant
         // This function gets the number at the specified location and gives it to you good ;
@@ -83,6 +132,28 @@ namespace LVLTool
             data[loc + 1] = encodedNumber[1];
             data[loc + 2] = encodedNumber[2];
             data[loc + 3] = encodedNumber[3];
+        }
+
+        // The number/length is stored in reverse least significant --> most significant
+        // This function sets the number at the specified location
+        public static void WriteNumberAtLocation(int loc, UInt32 num, List<byte> data)
+        {
+            byte[] encodedNumber = EncodeNumber((int)num);
+
+            data[loc] = encodedNumber[0];
+            data[loc + 1] = encodedNumber[1];
+            data[loc + 2] = encodedNumber[2];
+            data[loc + 3] = encodedNumber[3];
+        }
+
+        // The number/length is stored in reverse least significant --> most significant
+        // This function sets the number at the specified location
+        public static void Write2ByteNumberAtLocation(int loc, UInt16 num, List<byte> data)
+        {
+            byte[] encodedNumber = EncodeNumber((int)num);
+
+            data[loc] = encodedNumber[0];
+            data[loc + 1] = encodedNumber[1];
         }
 
         public static byte[] EncodeNumber(int num)

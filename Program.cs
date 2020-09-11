@@ -195,7 +195,15 @@ LVLTool.exe -file shell.lvl -r mode_icon_con.tga -p xbox
 
         public static string ModToolsDir = "C:\\BF2_ModTools\\";
 
-        public static string TmpDir = ".\\Temp\\";
+        public static string TmpDir {
+            get
+            {
+                string retVal = ".\\Temp\\";
+                if (!Directory.Exists(retVal))
+                    Directory.CreateDirectory(retVal);
+                return retVal;
+            }
+        }
 
         public static string Version { get { return System.Reflection.Assembly.GetEntryAssembly().GetName().Version.ToString(); } }
 

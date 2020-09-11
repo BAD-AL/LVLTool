@@ -98,18 +98,18 @@ namespace LVLTool
             if (withDir)
                 prefix = GetExtractDir();
 
-            string fileName = name + suffix;
+            string fileName = prefix +  name + suffix;
             int num = 0;
             while (mManifest.IndexOf(fileName) > -1)
             {
                 num++;
-                fileName = name+"_" + num + suffix;
+                fileName = prefix + name + "_" + num + suffix;
             }
             if (fileName.IndexOf("xml.shader") > -1)
             {
                 fileName = fileName.Replace("xml.shader", "shader");
             }
-            retVal = prefix + fileName;
+            retVal = fileName;
             return retVal;
         }
 
@@ -136,7 +136,7 @@ namespace LVLTool
             }
             catch (Exception ex)
             {
-                Program.MessageUser("Error Saving file: " + name);
+                Program.MessageUser("Error Saving file: " + name +"\n" + ex.Message);
             }
             finally
             {
@@ -254,19 +254,11 @@ namespace LVLTool
                 if (nameLen == 3 && (hexNameTypes.IndexOf(chunkType) > -1 || HasBadCharacters(name)))//sf__
                 {
                     uint hash = BinUtils.GetNumberAtLocation(loc + 8, mData);
-                    string msg = ""; 
                     string str = HashHelper.GetStringFromHash(hash);
                     if (str != null)
-                    {
                         name = str;
-                        msg = "Name lookup successful: '" + name +"'";
-                    }
                     else
-                    {
                         name = String.Format("0x{0:X}", hash);
-                        msg = "Name lookup not successful: using hash:'" + name + "'";
-                    }
-                    Console.WriteLine(msg);
                 }
             }
             return name;
@@ -389,14 +381,12 @@ namespace LVLTool
                 Console.Error.WriteLine("RipChunk Error: " + e.Message);
                 return null;
             }
-            //Console.WriteLine("ChunkTyle:{0}; size:{1} bytes; name:{2}", ct, chunkLen, name);
 
             retVal = new Chunk();
             retVal.Type = ct;
             retVal.Length = chunkLen;
             retVal.Name = name;
             retVal.Start = mCurrentPos;
-            retVal.Data = mData;
 
             byte[] data;
 
@@ -409,6 +399,7 @@ namespace LVLTool
             {
                 data = ReadBytes(chunkLen + 8);
             }
+            retVal.Data = data;
 
             AlignHead();
             string fileName = GetFileName(name, ct, true);
@@ -426,25 +417,21 @@ namespace LVLTool
                 Console.WriteLine("Warning: overwriting file "+ fileName);
             }
             mManifest.Add(fileName);
-
-            //string ct2 = PeekChunkType();
-            //string test = PeekName(mCurrentPos,ct2);
-            //if (string.IsNullOrEmpty( ct2)  )
-            //    retVal = false;
             return retVal;
         }
 
         public void ReplaceUcfbChunk(Chunk chk, string mungedFileName)
         {
             byte[] mungedFileBytes = File.ReadAllBytes(mungedFileName);
-            string chunkType = GetChunkType(mungedFileName);
-            string chunkName = GetChunkName(mungedFileName);
+            ReplaceUcfbChunk(chk, mungedFileBytes);
+        }
 
+        public void ReplaceUcfbChunk(Chunk chk, byte[] mungedFileBytes)
+        {
             uint bytesLeftInFile = InitializeRead();
             string curType = PeekChunkType();
             string curName = PeekName(mCurrentPos + 8, curType);
             string cur = curName + "." + curType;
-            //string target = chunkName + "." + chunkType;
             string target = chk.Name + "." + chk.Type;
 
             while ( !target.Equals(cur, StringComparison.CurrentCultureIgnoreCase) )
@@ -467,7 +454,7 @@ namespace LVLTool
                 int difference = (int)(chunk_len - (mungedContentLength));
                 int newLength = mData.Length - difference;
                 byte[] newData = new byte[newLength];
-                Array.Copy(mData, 0, newData, 0, chunk_start - 1); // copy first chunk
+                Array.Copy(mData, 0, newData, 0, chunk_start /*- 1*/); // copy first chunk
                 Array.Copy(mungedFileBytes, 8, newData, chunk_start, mungedFileBytes.Length - 8); //splice
                 long next_start = chunk_start + mungedFileBytes.Length - 8;// MAYBE +1 ? 
                 if (mData.Length - chunk_end != 0)
@@ -502,59 +489,57 @@ namespace LVLTool
             File.WriteAllBytes(fileName, mData);
         }
 
-        private bool MatchType(string cur, string ct)
-        {
-            if ( (cur == "snd_") && (ct == "mcfg") )
-                return true;
-            else
-                return cur == ct;
-        }
+        //private bool MatchType(string cur, string ct)
+        //{
+        //    if ( (cur == "snd_") && (ct == "mcfg") )
+        //        return true;
+        //    else
+        //        return cur == ct;
+        //}
 
+        //private string GetChunkName(string filename)
+        //{
+        //    string retVal = null;
+        //    int slashIndex = filename.LastIndexOf(Path.DirectorySeparatorChar);
+        //    int dotIndex = filename.LastIndexOf('.');
+        //    if (slashIndex > 0 && dotIndex > 0)
+        //    {
+        //        retVal = filename.Substring(slashIndex+1, dotIndex - (slashIndex+1)); //TODO: check this 
+        //    }
+        //    return retVal;
+        //}
 
-        private string GetChunkName(string filename)
-        {
-            string retVal = null;
-
-            int slashIndex = filename.LastIndexOf(Path.DirectorySeparatorChar);
-            int dotIndex = filename.LastIndexOf('.');
-            if (slashIndex > 0 && dotIndex > 0)
-            {
-                retVal = filename.Substring(slashIndex+1, dotIndex - (slashIndex+1)); //TODO: check this 
-            }
-            return retVal;
-        }
-
-        private string GetChunkType(string filename)
-        {
-            string retVal = null;
-            string ext = "";
-            int index = filename.LastIndexOf('.');
-            if (index > -1)
-            {
-                ext = filename.Substring(index);
-                switch (ext)
-                {
-                    case ".config": retVal = "mcfg"; break;
-                    //case ".config": retVal = "snd_"; break;
-                    case ".zafbin": retVal = "zaf_"; break;
-                    case ".zaabin": retVal = "zaa_"; break;
-                    case ".lvl":    retVal = "lvl_"; break;
-                    case ".loc":    retVal = "Locl"; break;
-                    case ".texture":retVal = "tex_"; break;
-                    case ".script": retVal = "scr_"; break;
-                    case ".shader": retVal = "SHDR"; break;
-                    case ".class":  retVal = "entc"; break;
-                    case ".model":  retVal = "skel"; break;
-                    case ".anims": retVal = "ANIM"; break;
-                    case ".boundary": retVal = "bnd_"; break;
-                    case ".congraph": retVal = "plan"; break;
-                    case ".envfx": retVal = "fx__"; break;
-                    case ".light": retVal = "lght"; break;
-                    case ".world": retVal = "wrld"; break;
-                }
-            }
-            return retVal;
-        }
+        //private string GetChunkType(string filename)
+        //{
+        //    string retVal = null;
+        //    string ext = "";
+        //    int index = filename.LastIndexOf('.');
+        //    if (index > -1)
+        //    {
+        //        ext = filename.Substring(index);
+        //        switch (ext)
+        //        {
+        //            case ".config": retVal = "mcfg"; break;
+        //            //case ".config": retVal = "snd_"; break;
+        //            case ".zafbin": retVal = "zaf_"; break;
+        //            case ".zaabin": retVal = "zaa_"; break;
+        //            case ".lvl":    retVal = "lvl_"; break;
+        //            case ".loc":    retVal = "Locl"; break;
+        //            case ".texture":retVal = "tex_"; break;
+        //            case ".script": retVal = "scr_"; break;
+        //            case ".shader": retVal = "SHDR"; break;
+        //            case ".class":  retVal = "entc"; break;
+        //            case ".model":  retVal = "skel"; break;
+        //            case ".anims": retVal = "ANIM"; break;
+        //            case ".boundary": retVal = "bnd_"; break;
+        //            case ".congraph": retVal = "plan"; break;
+        //            case ".envfx": retVal = "fx__"; break;
+        //            case ".light": retVal = "lght"; break;
+        //            case ".world": retVal = "wrld"; break;
+        //        }
+        //    }
+        //    return retVal;
+        //}
 
         /// <summary>
         /// Throws exception if file isn't ucfb
@@ -590,6 +575,8 @@ namespace LVLTool
         public uint   Start  { get; set; }
         public byte[] Data   { get; set; } // reference to the lvl file data
 
+        public LocHelper LocHelper { get; set; }
+
         public override string ToString()
         {
             string retVal = String.Format("{0}.{1}",Name, Type);
@@ -598,15 +585,13 @@ namespace LVLTool
 
         public byte[] GetAssetData()
         {
-            byte[] retVal = new byte[Length];
-            Array.Copy(Data, Start, retVal, 0, Length);
-            return retVal;
+            return Data;
         }
 
         public byte[] GetBodyData()
         {
             byte[] BodyBytes = { 0x42, 0x4f, 0x44, 0x59 }; 
-            long loc = BinUtils.GetLocationOfGivenBytes(Start, BodyBytes, Data, 80);
+            long loc = BinUtils.GetLocationOfGivenBytes(0, BodyBytes, Data, 80);
             if (loc > -1)
             {
                 uint bodyLen = BinUtils.GetNumberAtLocation( loc + 4, Data);

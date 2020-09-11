@@ -1,0 +1,12 @@
+my.string.1="This is the correct format to add strings with LVLTool.exe "
+my.string.2="it goes: begining of line, string.id, equals-sign, double-quote, string-content, double-quote"
+mapname.description.ABC="Your map description! Multiple lines are OK!
+Just need to make sure it ends with a douple-quote symbol.
+
+"
+escapt.quote.description.CHA=" You can use a double quote inside a string if you 'escape' it Like this: \" "
+mapname.description.ABC="ABC, easy as 123 "
+mapname.description.CHA="One two, cha cha cha  "
+0x391b3ef0="If you don't know the actual string id, hashes (like this one) work too!"
+my.help.str.1="If the string id already exists, the content will be replaced with what you specify"
+my.help.str.2="If the string id does not already exist, A new string will be added to the end of the Locl file."

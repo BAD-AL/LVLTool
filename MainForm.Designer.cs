@@ -48,10 +48,19 @@
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.viewToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.refreshLvlListBoxToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.localizationMenu = new System.Windows.Forms.ToolStripMenuItem();
+            this.showAllStringsToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.applyStringsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.getToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.setStringMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutProgramToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.aboutToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.mModToolsLabel = new System.Windows.Forms.Label();
             this.mStatusLabel = new System.Windows.Forms.Label();
+            this.addStringToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.saveToFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.dumpFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.mMainTextBox = new LVLTool.SearchTextBox();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -231,6 +240,7 @@
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.fileToolStripMenuItem,
             this.viewToolStripMenuItem,
+            this.localizationMenu,
             this.aboutToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
@@ -250,14 +260,14 @@
             // enterBF2ToolsDirToolStripMenuItem
             // 
             this.enterBF2ToolsDirToolStripMenuItem.Name = "enterBF2ToolsDirToolStripMenuItem";
-            this.enterBF2ToolsDirToolStripMenuItem.Size = new System.Drawing.Size(171, 22);
-            this.enterBF2ToolsDirToolStripMenuItem.Text = "Enter BF2 Tools Dir";
+            this.enterBF2ToolsDirToolStripMenuItem.Size = new System.Drawing.Size(177, 22);
+            this.enterBF2ToolsDirToolStripMenuItem.Text = "Enter Mod Tools Dir";
             this.enterBF2ToolsDirToolStripMenuItem.Click += new System.EventHandler(this.enterBF2ToolsDirToolStripMenuItem_Click);
             // 
             // exitToolStripMenuItem
             // 
             this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            this.exitToolStripMenuItem.Size = new System.Drawing.Size(171, 22);
+            this.exitToolStripMenuItem.Size = new System.Drawing.Size(177, 22);
             this.exitToolStripMenuItem.Text = "E&xit";
             this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
             // 
@@ -276,10 +286,54 @@
             this.refreshLvlListBoxToolStripMenuItem.Text = "Refresh lvl list box";
             this.refreshLvlListBoxToolStripMenuItem.Click += new System.EventHandler(this.refreshLvlListBoxToolStripMenuItem_Click);
             // 
+            // localizationMenu
+            // 
+            this.localizationMenu.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.showAllStringsToolStripMenuItem1,
+            this.applyStringsToolStripMenuItem,
+            this.getToolStripMenuItem,
+            this.setStringMenuItem,
+            this.saveToFileToolStripMenuItem,
+            this.dumpFileToolStripMenuItem,
+            this.addStringToolStripMenuItem});
+            this.localizationMenu.Enabled = false;
+            this.localizationMenu.Name = "localizationMenu";
+            this.localizationMenu.Size = new System.Drawing.Size(82, 20);
+            this.localizationMenu.Text = "Localization";
+            // 
+            // showAllStringsToolStripMenuItem1
+            // 
+            this.showAllStringsToolStripMenuItem1.Name = "showAllStringsToolStripMenuItem1";
+            this.showAllStringsToolStripMenuItem1.Size = new System.Drawing.Size(159, 22);
+            this.showAllStringsToolStripMenuItem1.Text = "Show All Strings";
+            this.showAllStringsToolStripMenuItem1.Click += new System.EventHandler(this.showAllStringsToolStripMenuItem_Click);
+            // 
+            // applyStringsToolStripMenuItem
+            // 
+            this.applyStringsToolStripMenuItem.Name = "applyStringsToolStripMenuItem";
+            this.applyStringsToolStripMenuItem.Size = new System.Drawing.Size(159, 22);
+            this.applyStringsToolStripMenuItem.Text = "Apply Strings";
+            this.applyStringsToolStripMenuItem.Click += new System.EventHandler(this.applyStringsToolStripMenuItem_Click);
+            // 
+            // getToolStripMenuItem
+            // 
+            this.getToolStripMenuItem.Name = "getToolStripMenuItem";
+            this.getToolStripMenuItem.Size = new System.Drawing.Size(159, 22);
+            this.getToolStripMenuItem.Text = "Get String";
+            this.getToolStripMenuItem.Click += new System.EventHandler(this.getStringToolStripMenuItem_Click);
+            // 
+            // setStringMenuItem
+            // 
+            this.setStringMenuItem.Name = "setStringMenuItem";
+            this.setStringMenuItem.Size = new System.Drawing.Size(159, 22);
+            this.setStringMenuItem.Text = "SetString";
+            this.setStringMenuItem.Click += new System.EventHandler(this.setStringMenuItem_Click);
+            // 
             // aboutToolStripMenuItem
             // 
             this.aboutToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.aboutProgramToolStripMenuItem});
+            this.aboutProgramToolStripMenuItem,
+            this.aboutToolStripMenuItem1});
             this.aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
             this.aboutToolStripMenuItem.Size = new System.Drawing.Size(52, 20);
             this.aboutToolStripMenuItem.Text = "About";
@@ -287,27 +341,60 @@
             // aboutProgramToolStripMenuItem
             // 
             this.aboutProgramToolStripMenuItem.Name = "aboutProgramToolStripMenuItem";
-            this.aboutProgramToolStripMenuItem.Size = new System.Drawing.Size(156, 22);
+            this.aboutProgramToolStripMenuItem.Size = new System.Drawing.Size(182, 22);
             this.aboutProgramToolStripMenuItem.Text = "About Program";
             this.aboutProgramToolStripMenuItem.Click += new System.EventHandler(this.aboutProgramToolStripMenuItem_Click);
+            // 
+            // aboutToolStripMenuItem1
+            // 
+            this.aboutToolStripMenuItem1.Name = "aboutToolStripMenuItem1";
+            this.aboutToolStripMenuItem1.Size = new System.Drawing.Size(182, 22);
+            this.aboutToolStripMenuItem1.Text = "About List Box types";
+            this.aboutToolStripMenuItem1.Click += new System.EventHandler(this.aboutToolStripMenuItem1_Click);
             // 
             // mModToolsLabel
             // 
             this.mModToolsLabel.AutoSize = true;
+            this.mModToolsLabel.BackColor = System.Drawing.Color.White;
             this.mModToolsLabel.Location = new System.Drawing.Point(183, 27);
             this.mModToolsLabel.Name = "mModToolsLabel";
             this.mModToolsLabel.Size = new System.Drawing.Size(70, 13);
             this.mModToolsLabel.TabIndex = 21;
             this.mModToolsLabel.Text = "ModToolsDir:";
+            this.mModToolsLabel.DoubleClick += new System.EventHandler(this.enterBF2ToolsDirToolStripMenuItem_Click);
             // 
             // mStatusLabel
             // 
             this.mStatusLabel.AutoSize = true;
+            this.mStatusLabel.ForeColor = System.Drawing.Color.SteelBlue;
             this.mStatusLabel.Location = new System.Drawing.Point(6, 24);
             this.mStatusLabel.Name = "mStatusLabel";
             this.mStatusLabel.Size = new System.Drawing.Size(37, 13);
             this.mStatusLabel.TabIndex = 22;
             this.mStatusLabel.Text = "Status";
+            // 
+            // addStringToolStripMenuItem
+            // 
+            this.addStringToolStripMenuItem.Name = "addStringToolStripMenuItem";
+            this.addStringToolStripMenuItem.Size = new System.Drawing.Size(159, 22);
+            this.addStringToolStripMenuItem.Text = "Add String";
+            this.addStringToolStripMenuItem.Visible = false;
+            this.addStringToolStripMenuItem.Click += new System.EventHandler(this.addStringToolStripMenuItem_Click);
+            // 
+            // saveToFileToolStripMenuItem
+            // 
+            this.saveToFileToolStripMenuItem.Name = "saveToFileToolStripMenuItem";
+            this.saveToFileToolStripMenuItem.Size = new System.Drawing.Size(159, 22);
+            this.saveToFileToolStripMenuItem.Text = "SaveToFile";
+            this.saveToFileToolStripMenuItem.Visible = false;
+            // 
+            // dumpFileToolStripMenuItem
+            // 
+            this.dumpFileToolStripMenuItem.Name = "dumpFileToolStripMenuItem";
+            this.dumpFileToolStripMenuItem.Size = new System.Drawing.Size(159, 22);
+            this.dumpFileToolStripMenuItem.Text = "Dump File";
+            this.dumpFileToolStripMenuItem.Visible = false;
+            this.dumpFileToolStripMenuItem.Click += new System.EventHandler(this.dumpFileToolStripMenuItem_Click);
             // 
             // mMainTextBox
             // 
@@ -377,6 +464,15 @@
         private System.Windows.Forms.RadioButton mSummaryRadioButton;
         private System.Windows.Forms.Label mModToolsLabel;
         private System.Windows.Forms.Label mStatusLabel;
+        private System.Windows.Forms.ToolStripMenuItem localizationMenu;
+        private System.Windows.Forms.ToolStripMenuItem showAllStringsToolStripMenuItem1;
+        private System.Windows.Forms.ToolStripMenuItem applyStringsToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem getToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem aboutToolStripMenuItem1;
+        private System.Windows.Forms.ToolStripMenuItem setStringMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem saveToFileToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem dumpFileToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem addStringToolStripMenuItem;
     }
 }
 

@@ -128,7 +128,7 @@ namespace LVLTool
             FileStream fs = new FileStream(fileName, FileMode.Create);
             fs.Write(bodyData, 0, bodyData.Length - 1); // For Lua 4.0, this is necessary. Lua 5 handles the extra byte and is fine with it gone
             fs.Close();
-            if (Program.Luac.IndexOf("BFBuilder") > -1)
+            if (Program.Luac.IndexOf("BFBuilder",  StringComparison.InvariantCultureIgnoreCase) > -1)
             {
                 retVal = DecompileBF1Code(fileName);
             }
@@ -158,7 +158,7 @@ namespace LVLTool
             File.WriteAllText(listFile, output);
 
             prog = "LuaDC1.exe";
-            args = " -file " + listFile +" -o "+ Program.TmpDir + "tmp.lua";
+            args = listFile +" -o "+ Program.TmpDir + "tmp.lua";
             output = Program.RunCommand(prog, args, true);
 
             string retVal = File.ReadAllText(Program.TmpDir + "tmp.lua");

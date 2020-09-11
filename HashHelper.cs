@@ -8,6 +8,8 @@ namespace LVLTool
 {
     public class HashHelper
     {
+        const string DictionaryFile = "Dictionary.txt";
+
         public static UInt32 HashString(string input)
         {
             UInt32 FNV_prime = 16777619;
@@ -45,16 +47,51 @@ namespace LVLTool
             return retVal;
         }
 
+        public static void AddStringsToDictionary(List<string> stringsToAdd)
+        {
+            uint hashId = 0;
+            StringBuilder sb = new StringBuilder(500);
+            foreach (string str in stringsToAdd)
+            {
+                hashId = HashString(str);
+                if (!sHashes.ContainsKey(hashId))
+                {
+                    AddHashedString(str);
+                    sb.Append(str);
+                    sb.Append("\r\n");
+                }
+            }
+            if (sb.Length > 0)
+            {
+                StreamWriter wr = null;
+                try
+                {
+                    wr = new StreamWriter(DictionaryFile, true);
+                    wr.Write(sb.ToString());
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("Error updating " + DictionaryFile +"\n"+
+                        e.Message);
+                }
+                finally
+                {
+                    if( wr != null)
+                        wr.Close();
+                }
+            }
+        }
+
         private static void ReadDictionary()
         {
-            string fileName = "Dictionary.txt";
+            
             StreamReader reader = null;
             string line = "";
             sHashes = new Dictionary<uint, string>(500);
             try
             {
                 Console.WriteLine("Reading dictionary...");
-                reader = new StreamReader(fileName);
+                reader = new StreamReader(DictionaryFile);
                 while ((line = reader.ReadLine()) != null)
                 {
                     AddHashedString(line);
@@ -62,7 +99,7 @@ namespace LVLTool
             }
             catch (Exception e)
             {
-                Console.WriteLine("Error processing file " + fileName + "\n" + e.Message );
+                Console.WriteLine("Error processing file " + DictionaryFile + "\n" + e.Message );
             }
             finally
             {

@@ -18,6 +18,7 @@ namespace LVLTool
             InitializeComponent();
             State0();
             UpdateModToolsLabel();
+            mMainTextBox.StatusControl = mStatusLabel;
         }
 
         private void textBox_DragOver(object sender, DragEventArgs e)
@@ -66,6 +67,7 @@ namespace LVLTool
         {
             if (File.Exists(mLVLFileTextBox.Text))
             {
+                mMainTextBox.Clear();
                 mExtractor = new UcfbHelper();
                 mExtractor.FileName = mLVLFileTextBox.Text;
                 PopulateListBox();
@@ -108,14 +110,25 @@ namespace LVLTool
         {
             mMainTextBox.Clear();
             int index = mAssetListBox.SelectedIndex;
+            localizationMenu.Enabled = false;
+            groupBox1.Enabled = false;
             if (index > -1)
             {
                 Chunk c = mAssetListBox.Items[index] as Chunk;
                 if (c != null)
                 {
                     mMainTextBox.Text = GetItemText(c);
-                    if (c.Type == "scr_" && (pcLuaCodeButton.Checked || decompileButton.Checked))
+                    if (c.Type == "scr_")
+                    {
+                        groupBox1.Enabled = true;
+                        if(pcLuaCodeButton.Checked || decompileButton.Checked)
                         ColorizeText();
+                    }
+                    else if (c.Type.ToLower().StartsWith("loc"))
+                    {
+                        localizationMenu.Enabled = true;
+                        //ShowAllStrings(c);
+                    }
                 }
             }
         }
@@ -155,8 +168,15 @@ namespace LVLTool
             dlg.FileName = mLVLFileTextBox.Text;
             if (dlg.ShowDialog() == DialogResult.OK)
             {
-                mExtractor.SaveData(dlg.FileName);
-                mStatusLabel.Text =  "File Saved.";
+                try
+                {
+                    mExtractor.SaveData(dlg.FileName);
+                    mStatusLabel.Text = "File Saved.";
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Error Saving File! " + ex.Message);
+                }
             }
             dlg.Dispose();
         }
@@ -169,7 +189,8 @@ namespace LVLTool
         private void aboutProgramToolStripMenuItem_Click(object sender, EventArgs e)
         {
             MessageBox.Show("LVLTool.exe Version " + Program.Version +
-                "\nReplace or add to .lvl files"
+                "\nReplace or add to .lvl files\n" +
+                "https://github.com/BAD-AL/LVLTool"
                 );
         }
 
@@ -315,6 +336,155 @@ namespace LVLTool
                 mLVLFileTextBox.Text = dlg.FileName;
             }
             dlg.Dispose();
+        }
+
+        private void showAllStringsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (mAssetListBox.SelectedIndex > -1)
+            {
+                Chunk c = mAssetListBox.Items[mAssetListBox.SelectedIndex] as Chunk;
+                ShowAllStrings(c);
+            }
+        }
+
+        private void ShowAllStrings(Chunk c)
+        {
+            if (c.Type.ToLower().StartsWith("loc"))
+            {
+                if (c.LocHelper == null)
+                    c.LocHelper = new LocHelper(c.GetAssetData());
+                mMainTextBox.Text = c.LocHelper.GetAllStrings();
+            }
+        }
+
+        private void getStringToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            string stringId =  StringInputDlg.GetString("Enter string id",
+                "It can be a hex number (starting with '0x') or the '.' seperated words like 'cheats.ammo_off'");
+            if (!String.IsNullOrEmpty( stringId ) )
+            {
+                if (mAssetListBox.SelectedIndex > -1)
+                {
+                    Chunk c = mAssetListBox.Items[mAssetListBox.SelectedIndex] as Chunk;
+                    if (c.Type.ToLower().StartsWith("loc"))
+                    {
+                        LocHelper lc = new LocHelper(c.GetAssetData());
+                        string result = lc.GetString(stringId);
+                        if (!String.IsNullOrEmpty(result))
+                            mMainTextBox.Text = result;
+                        else 
+                            mMainTextBox.Text = String.Format("StringId '{0}', not found", stringId);
+                    }
+                }
+            }
+        }
+
+        private void aboutToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show(
+@"Displayed extension   munged extension 
+    '.mcfg'                 '.config'
+    '.snd_'                 '.config'
+    '.zaf_'                 '.zafbin'
+    '.zaa_'                 '.zaabin'
+    '.lvl_'                 '.lvl'
+    '.Locl'                 '.loc'
+    '.tex_'                 '.texture'
+    '.scr_'                 '.script'
+    '.SHDR'                 '.shader'
+    '.entc'                 '.class'
+    '.skel'                 '.model'
+    '.ANIM'                 '.anims'
+    '.bnd_'                 '.boundary'
+    '.plan'                 '.congraph'
+    '.fx__'                 '.envfx'
+    '.lght'                 '.light'
+    '.wrld'                 '.world'
+");
+        }
+
+        private void setStringMenuItem_Click(object sender, EventArgs e)
+        {
+            if (mAssetListBox.SelectedIndex > -1)
+            {
+                Chunk c = mAssetListBox.Items[mAssetListBox.SelectedIndex] as Chunk;
+                if (c.Type.ToLower().StartsWith("loc"))
+                {
+                    if (c.LocHelper == null)
+                        c.LocHelper = new LocHelper(c.GetAssetData());
+                    string strId = StringInputDlg.GetString("Which string to set?", "Enter text:", "level.dea1.objectives.campaign.1");
+                    if (strId != null)
+                    {
+                        string content = c.LocHelper.GetString(strId);
+                        string newContant = StringInputDlg.GetString("What Value?", "Enter text:", content);
+                        if (newContant.Length > 0)
+                        {
+                            c.LocHelper.SetString(strId, newContant);
+                            mExtractor.ReplaceUcfbChunk(c, c.LocHelper.GetUcfbData());
+                            ////c.Data = c.LocHelper.GetData(); // debugging only , misuse of 'Data' 
+                            //c.LocHelper.DumpToFile("loc_tmp.bin");
+                        }
+                    }
+                }
+            }
+        }
+        // kept for possible debugging later.
+        private void dumpFileToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (mAssetListBox.SelectedIndex > -1)
+            {
+                Chunk c = mAssetListBox.Items[mAssetListBox.SelectedIndex] as Chunk;
+                if (c.Type.ToLower().StartsWith("loc"))
+                {
+                    if (c.LocHelper == null)
+                        c.LocHelper = new LocHelper(c.GetAssetData());
+                    c.LocHelper.SaveToUcfbFile("loc_tmp.bin");
+                }
+            }
+        }
+
+        private void addStringToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (mAssetListBox.SelectedIndex > -1)
+            {
+                Chunk c = mAssetListBox.Items[mAssetListBox.SelectedIndex] as Chunk;
+                if (c.Type.ToLower().StartsWith("loc"))
+                {
+                    if (c.LocHelper == null)
+                        c.LocHelper = new LocHelper(c.GetAssetData());
+                    string strId = StringInputDlg.GetString("New String Id?", "Enter text:", "");
+                    if (strId != null)
+                    {
+                        string content = c.LocHelper.GetString(strId);
+                        string newContant = StringInputDlg.GetString("What Value?", "Enter text:", content);
+                        if (newContant.Length > 0)
+                        {
+                            c.LocHelper.AddString(strId, newContant);
+                            mExtractor.ReplaceUcfbChunk(c, c.LocHelper.GetUcfbData());
+                            ////c.Data = c.LocHelper.GetData(); // debugging only , misuse of 'Data' 
+                            //c.LocHelper.DumpToFile("loc_tmp.bin");
+                        }
+                    }
+                }
+            }
+        }
+
+        private void applyStringsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (mAssetListBox.SelectedIndex > -1)
+            {
+                Chunk c = mAssetListBox.Items[mAssetListBox.SelectedIndex] as Chunk;
+                if (c.Type.ToLower().StartsWith("loc"))
+                {
+                    if (c.LocHelper == null)
+                        c.LocHelper = new LocHelper(c.GetAssetData());
+                    if (MessageBox.Show("Apply text content to current loc file?","Apply?", MessageBoxButtons.OKCancel) == DialogResult.OK)
+                    {
+                        c.LocHelper.ApplyText(mMainTextBox.Text);
+                        mExtractor.ReplaceUcfbChunk(c, c.LocHelper.GetUcfbData());
+                    }
+                }
+            }
         }
 
     }
