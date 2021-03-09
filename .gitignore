@@ -1,9 +1,11 @@
 obj/
 *.suo
-bin/Debug/
+bin/
+
+*.user
+
 
 # Folder to not ignore
-!/bin/Release/
 
 
 

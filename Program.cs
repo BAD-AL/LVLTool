@@ -16,7 +16,9 @@ namespace LVLTool
         private static string files = null;
         private static Platform platform = Platform.PC;
         private static OperationMode operation = OperationMode.ShowHelp;
-        
+        private static string merge_strings_search_dir = null;
+
+        public static bool Verbose = false;
         
         /// <summary>
         /// The main entry point for the application.
@@ -84,14 +86,38 @@ namespace LVLTool
                             foreach (string f in files_)
                             {
                                 string fileName = Munger.EnsureMungedFile(f, platform);
-                                //helper.Replace(fileName); TODO:
+                                //helper.ReplaceUcfbChunk(
                             }
                         }
                         else
                             Console.WriteLine("Error! Must specify input file");
                         break;
-                }
+                    case OperationMode.ListContents:
+                        UcfbHelper listHelper = new UcfbHelper();
+                        listHelper.FileName = input_lvl;
+                        listHelper.InitializeRead();
+                        Chunk cur = null;
+                        while ((cur = listHelper.RipChunk(false)) != null)
+                        {
+                            Console.WriteLine("{0}.{1}", cur.Name, cur.Type);
+                        }
+                        break;
+                    case OperationMode.MergeCore:
+                        List<string> theFiles = new List<string>(Directory.GetFiles(
+                            merge_strings_search_dir, "core.lvl", SearchOption.AllDirectories));
 
+                        //english,spanigh,italian,french,german,japanese,uk_english 
+                        theFiles.AddRange(Directory.GetFiles(merge_strings_search_dir, "english.txt", SearchOption.AllDirectories));
+                        theFiles.AddRange(Directory.GetFiles(merge_strings_search_dir, "spanish.txt", SearchOption.AllDirectories));
+                        theFiles.AddRange(Directory.GetFiles(merge_strings_search_dir, "italian.txt", SearchOption.AllDirectories));
+                        theFiles.AddRange(Directory.GetFiles(merge_strings_search_dir, "french.txt", SearchOption.AllDirectories));
+                        theFiles.AddRange(Directory.GetFiles(merge_strings_search_dir, "german.txt", SearchOption.AllDirectories));
+                        theFiles.AddRange(Directory.GetFiles(merge_strings_search_dir, "japanese.txt", SearchOption.AllDirectories));
+                        theFiles.AddRange(Directory.GetFiles(merge_strings_search_dir, "uk_english.txt", SearchOption.AllDirectories));
+
+                        CoreMerge.MergeLoc(input_lvl, output_lvl, theFiles);
+                        break;
+                }
             }
         }
 
@@ -110,7 +136,7 @@ namespace LVLTool
             int i = 0;
             for (; i < args.Length; i++)
             {
-                switch (args[i])
+                switch (args[i].ToLower())
                 {
                     case "-file":
                         input_lvl = args[i + 1];
@@ -144,6 +170,17 @@ namespace LVLTool
                         platform = (Platform) Enum.Parse(typeof(Platform), p);
                         i++;
                         break;
+                    case "-l":
+                        operation = OperationMode.ListContents;
+                        break;
+                    case "-verbose":
+                        Verbose = true;
+                        break;
+                    case "-merge_strings":
+                        operation = OperationMode.MergeCore;
+                        merge_strings_search_dir = args[i + 1];
+                        i++;
+                        break;
                 }
             }
         }
@@ -154,11 +191,15 @@ namespace LVLTool
 @"Use without arguments for the GUI.
 Use at the command line with the following arguments:
 -file <lvl file>  The file to operate on
--r <munged or mungable file(s)>  to replace munged files in the target .lvl file.
--a <munged or mungable file(s)>  to add munged files at the end of the target .lvl file.
+" //-r <munged or mungable file(s)>  to replace munged files in the target .lvl file.
++ @"-a <munged or mungable file(s)>  to add munged files at the end of the target .lvl file.
 -o <lvl file>  The output file name. (default is input lvl file)
 -e             Extract contents
--p <platform> (pc|xbox|ps2) only important if specifying .tga or .lua files (pc=default)
+-p <platform> (pc|xbox|ps2) only important if specifying .tga files (pc=default)
+-l List the contents of the munged/lvl file.
+-merge_strings <search_dir> Read in the '-file' arg, add the strings found in the 'core.lvl's 
+               under 'search_dir' save to file specified with the '-o' arg.
+-verbose       Display more info as operations are occuring.
 -h --help  /? Print help message
 
 Examples:
@@ -175,6 +216,9 @@ LVLTool.exe -file mission.lvl -a XXXg_con.script;XXXc_con.script
 
     (Replace mode_icon_con in xbox shell.lvl )
 LVLTool.exe -file shell.lvl -r mode_icon_con.tga -p xbox  
+
+    (add the strings from core.lvl files under 'top_folder_with_cores', to 'base.core.lvl', save as 'core.lvl' )
+LVLTool.exe -file base.core.lvl -o core.lvl -merge_strings top_folder_with_cores
 
 ";
             Console.WriteLine(help);
@@ -270,6 +314,8 @@ LVLTool.exe -file shell.lvl -r mode_icon_con.tga -p xbox
         Extract,
         Add,
         Replace,
-        ShowHelp
+        ListContents,
+        ShowHelp,
+        MergeCore
     }
 }

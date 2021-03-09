@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.IO;
+using System.Globalization;
 
 namespace LVLTool
 {
@@ -28,8 +29,12 @@ namespace LVLTool
 
         private static Dictionary<UInt32, string> sHashes = null; // new Dictionary<uint, string>(500);
 
-        private static void AddHashedString(string input)
+        internal static void AddHashedString(string input)
         {
+            if (sHashes == null)
+            {
+                ReadDictionary();
+            }
             UInt32 hash = HashString(input);
             if (!sHashes.ContainsKey(hash))
                 sHashes.Add(hash, input);

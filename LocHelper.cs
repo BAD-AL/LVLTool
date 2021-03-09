@@ -34,7 +34,7 @@ namespace LVLTool
 
         public byte[] GetUcfbData()
         {
-            MakeUcfb();
+            MakeUcfb(mData, BodyEnd);
             byte[] retVal = mData.ToArray();
             return retVal;
         }
@@ -43,6 +43,11 @@ namespace LVLTool
         /// The entire data of the loc resource file 
         /// </summary>
         private List<byte> mData;
+
+        public byte[] GetRawData()
+        {
+            return mData.ToArray();
+        }
 
         private int mBodySizeLoc = -1;
         private int BodySizeLoc
@@ -82,50 +87,50 @@ namespace LVLTool
             mData.AddRange(data);
         }
 
-        private void MakeUcfb()
+        internal static void MakeUcfb(List<byte> data, uint bodyEnd)
         {
             // trim
-            int end = (int) BodyEnd;
-            for (int i = mData.Count - 1; i > end; i--)
-                mData.RemoveAt(i);
+            int end = (int) bodyEnd;
+            for (int i = data.Count - 1; i > end; i--)
+                data.RemoveAt(i);
 
             // add UCFB header
-            if (mData[0] != (byte)'u')
+            if (data[0] != (byte)'u')
             {
-                mData.Insert(0, 0);
-                mData.Insert(0, 0);
-                mData.Insert(0, 0);
-                mData.Insert(0, 0);
-                mData.Insert(0, 0);
-                mData.Insert(0, 0);
-                mData.Insert(0, 0);
-                mData.Insert(0, 0);
+                data.Insert(0, 0);
+                data.Insert(0, 0);
+                data.Insert(0, 0);
+                data.Insert(0, 0);
+                data.Insert(0, 0);
+                data.Insert(0, 0);
+                data.Insert(0, 0);
+                data.Insert(0, 0);
 
-                mData[0] = (byte)'u';
-                mData[1] = (byte)'c';
-                mData[2] = (byte)'f';
-                mData[3] = (byte)'b';
+                data[0] = (byte)'u';
+                data[1] = (byte)'c';
+                data[2] = (byte)'f';
+                data[3] = (byte)'b';
             }
             // add bytes at the end (if necessary)
-            int rem = (mData.Count-1) % 4;
+            int rem = (data.Count - 1) % 4;
             switch (rem)
             {
                 case 0: // add 3
-                    mData.Add(0);
-                    mData.Add(0);
-                    mData.Add(0);
+                    data.Add(0);
+                    data.Add(0);
+                    data.Add(0);
                     break;
                 case 1: // add 2
-                    mData.Add(0);
-                    mData.Add(0);
+                    data.Add(0);
+                    data.Add(0);
                     break;
                 case 2: // add 1
-                    mData.Add(0);
+                    data.Add(0);
                     break;
             }
-            int sz = mData.Count - 8;
-            BinUtils.WriteNumberAtLocation(4, (uint)sz, mData);// ucfb size
-            BinUtils.WriteNumberAtLocation(0xc, (uint)(sz-8), mData); // Locl size
+            int sz = data.Count - 8;
+            BinUtils.WriteNumberAtLocation(4, (uint)sz, data);// ucfb size
+            BinUtils.WriteNumberAtLocation(0xc, (uint)(sz - 8), data); // Locl size
         }
 
         /// <summary>
@@ -135,7 +140,21 @@ namespace LVLTool
         /// <param name="content"></param>
         public void AddString(string stringId, string content)
         {
-            uint hashId = HashHelper.HashString(stringId);
+            uint hashId = 0;
+            if (stringId.Length > 2 && stringId[0] == '0' && stringId[1] == 'x')
+            {
+                try
+                {
+                    hashId = UInt32.Parse(stringId.Substring(2), System.Globalization.NumberStyles.AllowHexSpecifier);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("Error! invalid string key:'{0}'", stringId);
+                    throw e;
+                }
+            }
+            else 
+                hashId = HashHelper.HashString(stringId);
             
             UInt16 sz = (UInt16)((content.Length * 2) + 2 + 4 + 4); // 2:size info 4:hashId 4 min zero bytes
             bool sixZeros = false;
@@ -252,6 +271,10 @@ namespace LVLTool
 
         public string GetAllStrings()
         {
+            /*bool debug = true;
+            UInt16 prevSz = 0;
+            int prevLoc = 0;  debug stuff*/ 
+
             mStringSet = new Dictionary<uint, string>(2000);
             mStringSet2 = new Dictionary<uint, string>(200);
             StringBuilder cur = new StringBuilder(80);
@@ -297,21 +320,29 @@ namespace LVLTool
                         cur.Append(current);
                     }
                 }
-                if (mStringSet.ContainsKey(currentHash))
+                if (currentHash != 0xffffffff)
                 {
-                    mStringSet2.Add(currentHash, cur.ToString());
-                    //Console.WriteLine("Error! key 0x{0:x} ({1}) already exists as: {2}", currentHash, stringId, mStringSet[currentHash]);
-                    //Console.WriteLine("Cannot add {0}:{1}",stringId, cur.ToString() );
+                    if (mStringSet.ContainsKey(currentHash))
+                    {
+                        mStringSet2.Add(currentHash, cur.ToString());
+                        //Console.WriteLine("Error! key 0x{0:x} ({1}) already exists as: {2}", currentHash, stringId, mStringSet[currentHash]);
+                        //Console.WriteLine("Cannot add {0}:{1}",stringId, cur.ToString() );
+                    }
+                    else
+                        mStringSet.Add(currentHash, cur.ToString());
                 }
-                else
-                    mStringSet.Add(currentHash, cur.ToString());
+                /*if (debug && cur.Length == 0)
+                    Console.WriteLine("MT, sz:0x{0:x2} pos:0x{1:x6} prevSz:0x{2:x2} prevPos:0x{3:x6}", sz, stringLoc, prevSz, prevLoc);
+                prevLoc = stringLoc; // TODO remove these 2 after debugging
+                prevSz = sz;
+                */
                 cur.Length = 0; // clear
                 sb.Append("\"\n");
                 stringLoc = NextStringLoc(stringLoc);
                 if (stringLoc + 10 > mData.Count)  // for a string you need minimum 4 bytes for the hash, 2 for size and 4 for nulls
                     break;
             }
-            Console.WriteLine("mStringSet2.Count:{0}",mStringSet2.Count);
+            //Console.WriteLine("mStringSet2.Count:{0}",mStringSet2.Count);
             return sb.ToString();
         }
         /// <summary>
@@ -327,7 +358,7 @@ namespace LVLTool
             return builder.ToString();
         }
 
-        private static uint GetHashId(string stringId)
+        internal static uint GetHashId(string stringId)
         {
             uint hash = 0;
             if (stringId.StartsWith("0x", StringComparison.InvariantCultureIgnoreCase))
@@ -387,6 +418,48 @@ namespace LVLTool
             return stringLoc;
         }
 
+        public void DisableString(string stringId, int target_occurance)
+        {
+            UInt32 hashId = GetHashId(stringId);
+            int location = GetStringLoc(hashId, target_occurance);
+            if (location > -1)
+            {
+                BinUtils.WriteNumberAtLocation(location, 0xFFFFFFFF, mData);
+            }
+            else
+            {
+                Console.WriteLine("Could not find stringId: {0}", stringId);
+            }
+        }
+
+        /// <summary>
+        /// Returns the position of the given string id.
+        /// </summary>
+        /// <param name="hashId"></param>
+        /// <param name="target_occurance">1 for the first occurance</param>
+        /// <returns></returns>
+        public int GetStringLoc(UInt32 hashId, int target_occurance)
+        {
+            int stringLoc = (int)BodyStart;
+            int occurance = 0;
+            
+            UInt32 currentHash = 0;
+            while (true)
+            {
+                currentHash = BinUtils.GetNumberAtLocation(stringLoc, mData);
+                if (currentHash == hashId)
+                {
+                    occurance++;
+                    if (occurance == target_occurance)
+                        break;
+                }
+                stringLoc = NextStringLoc(stringLoc);
+                if (stringLoc + 10 > mData.Count)
+                    return -1;
+            }
+            return stringLoc;
+        }
+
         private int NextStringLoc(int stringLoc)
         {
             UInt16 sz = BinUtils.Get2ByteNumberAtLocation(stringLoc + 4, mData);
@@ -400,7 +473,7 @@ namespace LVLTool
             System.IO.File.WriteAllBytes(filename, GetUcfbData());
         }
 
-        private string GetKey(int pos, string text)
+        private static string GetKey(int pos, string text)
         {
             string retVal = null;
             StringBuilder sb = new StringBuilder(30);
@@ -416,7 +489,7 @@ namespace LVLTool
             return retVal;
         }
 
-        private string ParseStringValue(int pos, string text)
+        private static string ParseStringValue(int pos, string text)
         {
             string retVal = null;
             StringBuilder sb = new StringBuilder(30);
@@ -428,15 +501,39 @@ namespace LVLTool
                 {
                     if (text[i] == '"' && prev != '\\')
                         break;
-                    sb.Append(text[i]);
-                    prev = text[i];
+                    else if (text[i] == '\\' && prev == '\\')
+                        prev = ' ';// the escape has been escaped (this is kindof a hack for the string "\")
+                    else
+                    {
+                        sb.Append(text[i]);
+                        prev = text[i];
+                    }
                 }
                 retVal = sb.ToString();
             }
             return retVal;
         }
 
+        /// <summary>
+        /// Go through the text and only add the strings that are not present already.
+        /// </summary>
+        /// <param name="text"></param>
+        internal void AddNewStrings(string text)
+        {
+            ApplyText(text, true, true);
+        }
+
         public void ApplyText(string text)
+        {
+            ApplyText(text, false, false);
+        }
+
+        /// <summary>
+        /// Adds/replaces the strings in the current loc file.
+        /// </summary>
+        /// <param name="text">The text to apply</param>
+        /// <param name="addOnly">When true, do not modify existing strings; just add the new ones.</param>
+        public void ApplyText(string text, bool addOnly, bool skipEmptyStrings)
         {
             GetAllStrings();
             int pos = 0;
@@ -454,8 +551,18 @@ namespace LVLTool
                     continue;
                 }
                 if (key.Length > 2 && key[0] == '0' && key[1] == 'x')
-                    stringId = UInt32.Parse(key.Substring(2), System.Globalization.NumberStyles.AllowHexSpecifier);
-                else 
+                {
+                    try
+                    {
+                        stringId = UInt32.Parse(key.Substring(2), System.Globalization.NumberStyles.AllowHexSpecifier);
+                    }
+                    catch(Exception e)
+                    {
+                        Console.WriteLine("Error! invalid string key:'{0}'", key);
+                        throw e;
+                    }
+                }
+                else
                     stringId = HashHelper.HashString(key);
                 pos += (key.Length);
                 value = ParseStringValue(pos, text);
@@ -489,27 +596,152 @@ namespace LVLTool
                     break;
                 pos++;// advance past new line
             }
-            foreach (string k in stringsToSet.Keys)
-                SetString(k, stringsToSet[k]);
+            if (!addOnly)
+            {
+                foreach (string k in stringsToSet.Keys)
+                    SetString(k, stringsToSet[k]);
+            }
 
             List<string> hashThese = new List<string>();
             foreach (string k in stringsToAdd.Keys)
             {
-                hashThese.Add(k);
-                AddString(k, stringsToAdd[k]);
-                Console.WriteLine("adding key:'{0}'\n  value:'{1}'", k, stringsToAdd[k]);
+                if (skipEmptyStrings && stringsToAdd[k] == String.Empty)
+                {
+                    // do not include empty strings
+                }
+                else
+                {
+                    hashThese.Add(k);
+                    AddString(k, stringsToAdd[k]);
+
+                    if (Program.Verbose)
+                        Console.WriteLine("adding string:'[{0}]: '{1}'", k, stringsToAdd[k]);
+                }
             }
             if (hashThese.Count > 0)
                 HashHelper.AddStringsToDictionary(hashThese);
         }
 
+        /// <summary>
+        /// Expects text like in the 'AddStringsExample.txt' file
+        /// </summary>
+        /// <param name="text"></param>
+        /// <param name="errors"></param>
+        /// <returns>Returns the binary string data, is not in UCFB format.</returns>
+        public static List<byte> GetBinaryLocData(string text, List<string> errors)
+        {
+            List<byte> retVal = new List<byte>();
+            List<LocalizedString> myStrings = ParseStrings(text, errors);
+            foreach (LocalizedString element in myStrings)
+            {
+                retVal.AddRange(element.GetLocBytes());
+            }
+            return retVal;
+        }
+
+        public static List<LocalizedString> ParseStrings(string text, List<string> errors)
+        {
+            List<LocalizedString> retVal = new List<LocalizedString>(2000);
+            int pos = 0;
+            string key = "";
+            string value = "";
+            while (pos < text.Length)
+            {
+                key = GetKey(pos, text);
+                if (String.IsNullOrEmpty(key))
+                {
+                    pos++;
+                    continue;
+                }
+                if (key.Contains('"') || key.Contains('\n'))
+                {
+                    Console.WriteLine("ParseStrings error! Key = " + key );
+                }
+                pos += (key.Length);
+                value = ParseStringValue(pos, text);
+                if (value == null)
+                {
+                    pos++;
+                    errors.Add(string.Format("Warning! No value found for key:'{0}'", key));
+                    continue;
+                }
+                retVal.Add(new LocalizedString(key, value)); // add the string
+                pos += value.Length;
+                // advance to next line
+                pos = text.IndexOf('\n', pos);
+                if (pos == -1)
+                    break;
+                pos++;// advance past new line
+            }
+            return retVal;
+        }
+
+
         /*
          *      string_id_hash (4 bytes)
-         *      2 byte number ( total size of the info needed fof the string [string, pointer, size])
+         *      2 byte number ( total size of the info needed for the string [string, pointer, size])
          *      string_content (2 byte characters)
          *      termination sequence of 32-bit '0' (ie 00000000)
          */
 
+
+    }
+
+    public class LocalizedString
+    {
+        public string StringId { get; set; }
+        public string Content { get; set; }
+
+        public LocalizedString(string id, string content)
+        {
+            this.StringId = id;
+            this.Content = content;
+        }
+
+        public List<byte> GetLocBytes()
+        {
+            /* special cases
+            if (current == '"')
+            {
+                sb.Append("\\\""); // escape the quote
+                cur.Append("\\\"");
+            }
+            else if (current == '\\')
+            {
+                sb.Append("\\\\"); // escape the escape!
+                cur.Append("\\\\");
+            }
+             */
+            string string_data = Content.Replace("\\\\", "\\").Replace("\\\"", "\"").Replace("\r\n", "\n").Replace("\n", "\r\n");
+            if (string_data == "")
+                string_data = " ";
+            uint hashId = LocHelper.GetHashId(StringId);
+            UInt16 sz = (UInt16)((string_data.Length * 2) + 2 + 4 + 4); // 2:size info 4:hashId 4 min zero bytes
+            if (sz % 4 != 0)
+                sz += (UInt16)2;
+            //if (string_data == "") sz = 0x10; // empty string hack 
+                
+
+            bool sixZeros = false; // TODO: figure out how to tell if we use this.
+            List<byte> mData = new List<byte>( new byte[sz]);
+            //write hashId
+            int stringLoc = 0;
+            BinUtils.WriteNumberAtLocation(stringLoc, hashId, mData);
+
+            // write the size
+            BinUtils.Write2ByteNumberAtLocation(stringLoc + 4, sz, mData);
+            // lay down string 
+            stringLoc += 6; /** MODIFYING 'stringLoc' NOW!! **/
+            for (int i = 0; i < string_data.Length; i++)
+            {
+                BinUtils.Write2ByteNumberAtLocation(stringLoc, string_data[i], mData);
+                stringLoc += 2;
+            }
+            BinUtils.WriteNumberAtLocation(stringLoc, 0, mData);
+            if (sixZeros)
+                BinUtils.Write2ByteNumberAtLocation(stringLoc + 4, 0, mData);
+            return mData;
+        }
     }
 }
 

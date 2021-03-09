@@ -54,7 +54,26 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BinUtils.cs" />
+    <Compile Include="CoreMerge.cs" />
+    <Compile Include="CreateLvlForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="CreateLvlForm.Designer.cs">
+      <DependentUpon>CreateLvlForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="HashFinderForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="HashFinderForm.Designer.cs">
+      <DependentUpon>HashFinderForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="LocHelper.cs" />
+    <Compile Include="LocMergeForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="LocMergeForm.Designer.cs">
+      <DependentUpon>LocMergeForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="LuaCodeHelper.cs" />
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
@@ -63,6 +82,12 @@
       <DependentUpon>MainForm.cs</DependentUpon>
     </Compile>
     <Compile Include="HashHelper.cs" />
+    <Compile Include="MessageForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="MessageForm.designer.cs">
+      <DependentUpon>MessageForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Munger.cs" />
     <Compile Include="PlatformPrompt.cs">
       <SubType>Form</SubType>
@@ -72,8 +97,24 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="CreateLvlForm.resx">
+      <DependentUpon>CreateLvlForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="HashFinderForm.resx">
+      <DependentUpon>HashFinderForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="LocMergeForm.resx">
+      <DependentUpon>LocMergeForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
     <EmbeddedResource Include="MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="MessageForm.resx">
+      <DependentUpon>MessageForm.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="PlatformPrompt.resx">
@@ -105,6 +146,7 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <Compile Include="ReqMaker.cs" />
     <Compile Include="SearchTextBox.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -115,6 +157,7 @@
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="UcfbHelper.cs" />
+    <Compile Include="WinFormThemeHelper.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="AddStringsExample.txt">

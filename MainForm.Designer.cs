@@ -45,22 +45,30 @@
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.enterBF2ToolsDirToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.createNewLVLToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.coreMergeFormToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.viewToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.refreshLvlListBoxToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.sortListBoxToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.findToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.localizationMenu = new System.Windows.Forms.ToolStripMenuItem();
             this.showAllStringsToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.applyStringsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.getToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.setStringMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.saveToFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.dumpFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.addStringToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.createMungedLocFileFromDataToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.disableStringsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.addStringsifNotAlreadyPresentToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutProgramToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.mModToolsLabel = new System.Windows.Forms.Label();
             this.mStatusLabel = new System.Windows.Forms.Label();
-            this.addStringToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.saveToFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.dumpFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.mModToolsSelection = new System.Windows.Forms.ComboBox();
             this.mMainTextBox = new LVLTool.SearchTextBox();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -72,12 +80,13 @@
             // mBrowseLVL
             // 
             this.mBrowseLVL.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.mBrowseLVL.Location = new System.Drawing.Point(593, 40);
+            this.mBrowseLVL.BackColor = System.Drawing.Color.Gray;
+            this.mBrowseLVL.Location = new System.Drawing.Point(642, 40);
             this.mBrowseLVL.Name = "mBrowseLVL";
             this.mBrowseLVL.Size = new System.Drawing.Size(25, 23);
             this.mBrowseLVL.TabIndex = 15;
             this.mBrowseLVL.Text = "...";
-            this.mBrowseLVL.UseVisualStyleBackColor = true;
+            this.mBrowseLVL.UseVisualStyleBackColor = false;
             this.mBrowseLVL.Click += new System.EventHandler(this.mBrowseLVL_Click);
             // 
             // mLVLFileTextBox
@@ -85,9 +94,11 @@
             this.mLVLFileTextBox.AllowDrop = true;
             this.mLVLFileTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
                         | System.Windows.Forms.AnchorStyles.Right)));
+            this.mLVLFileTextBox.BackColor = System.Drawing.Color.Black;
+            this.mLVLFileTextBox.ForeColor = System.Drawing.Color.White;
             this.mLVLFileTextBox.Location = new System.Drawing.Point(3, 43);
             this.mLVLFileTextBox.Name = "mLVLFileTextBox";
-            this.mLVLFileTextBox.Size = new System.Drawing.Size(584, 20);
+            this.mLVLFileTextBox.Size = new System.Drawing.Size(633, 20);
             this.mLVLFileTextBox.TabIndex = 14;
             this.mLVLFileTextBox.TextChanged += new System.EventHandler(this.mLVLFileTextBox_TextChanged);
             this.mLVLFileTextBox.DragDrop += new System.Windows.Forms.DragEventHandler(this.textBox_DragDrop);
@@ -103,6 +114,7 @@
             // 
             // splitContainer1.Panel1
             // 
+            this.splitContainer1.Panel1.BackColor = System.Drawing.Color.Transparent;
             this.splitContainer1.Panel1.Controls.Add(this.groupBox1);
             this.splitContainer1.Panel1.Controls.Add(this.mAddItemButton);
             this.splitContainer1.Panel1.Controls.Add(this.mSaveFileButton);
@@ -113,20 +125,22 @@
             // splitContainer1.Panel2
             // 
             this.splitContainer1.Panel2.Controls.Add(this.mMainTextBox);
-            this.splitContainer1.Size = new System.Drawing.Size(610, 365);
-            this.splitContainer1.SplitterDistance = 203;
+            this.splitContainer1.Size = new System.Drawing.Size(659, 371);
+            this.splitContainer1.SplitterDistance = 219;
             this.splitContainer1.TabIndex = 19;
             // 
             // groupBox1
             // 
             this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.groupBox1.BackColor = System.Drawing.Color.Gray;
             this.groupBox1.Controls.Add(this.decompileButton);
             this.groupBox1.Controls.Add(this.listingButton);
             this.groupBox1.Controls.Add(this.pcLuaCodeButton);
             this.groupBox1.Controls.Add(this.mSummaryRadioButton);
-            this.groupBox1.Location = new System.Drawing.Point(6, 221);
+            this.groupBox1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.groupBox1.Location = new System.Drawing.Point(6, 227);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(189, 62);
+            this.groupBox1.Size = new System.Drawing.Size(205, 62);
             this.groupBox1.TabIndex = 24;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Lua Code Display";
@@ -134,9 +148,10 @@
             // decompileButton
             // 
             this.decompileButton.AutoSize = true;
+            this.decompileButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.decompileButton.Location = new System.Drawing.Point(84, 42);
             this.decompileButton.Name = "decompileButton";
-            this.decompileButton.Size = new System.Drawing.Size(100, 17);
+            this.decompileButton.Size = new System.Drawing.Size(115, 17);
             this.decompileButton.TabIndex = 3;
             this.decompileButton.Text = "Lua (decompile)";
             this.decompileButton.UseVisualStyleBackColor = true;
@@ -145,9 +160,10 @@
             // listingButton
             // 
             this.listingButton.AutoSize = true;
+            this.listingButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.listingButton.Location = new System.Drawing.Point(6, 42);
             this.listingButton.Name = "listingButton";
-            this.listingButton.Size = new System.Drawing.Size(55, 17);
+            this.listingButton.Size = new System.Drawing.Size(62, 17);
             this.listingButton.TabIndex = 2;
             this.listingButton.Text = "Listing";
             this.listingButton.UseVisualStyleBackColor = true;
@@ -157,9 +173,10 @@
             // 
             this.pcLuaCodeButton.AutoSize = true;
             this.pcLuaCodeButton.Checked = true;
+            this.pcLuaCodeButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.pcLuaCodeButton.Location = new System.Drawing.Point(84, 19);
             this.pcLuaCodeButton.Name = "pcLuaCodeButton";
-            this.pcLuaCodeButton.Size = new System.Drawing.Size(88, 17);
+            this.pcLuaCodeButton.Size = new System.Drawing.Size(99, 17);
             this.pcLuaCodeButton.TabIndex = 1;
             this.pcLuaCodeButton.TabStop = true;
             this.pcLuaCodeButton.Text = "PC Lua Code";
@@ -169,9 +186,10 @@
             // mSummaryRadioButton
             // 
             this.mSummaryRadioButton.AutoSize = true;
+            this.mSummaryRadioButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.mSummaryRadioButton.Location = new System.Drawing.Point(6, 19);
             this.mSummaryRadioButton.Name = "mSummaryRadioButton";
-            this.mSummaryRadioButton.Size = new System.Drawing.Size(68, 17);
+            this.mSummaryRadioButton.Size = new System.Drawing.Size(75, 17);
             this.mSummaryRadioButton.TabIndex = 0;
             this.mSummaryRadioButton.Text = "Summary";
             this.mSummaryRadioButton.UseVisualStyleBackColor = true;
@@ -180,45 +198,49 @@
             // mAddItemButton
             // 
             this.mAddItemButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.mAddItemButton.Location = new System.Drawing.Point(3, 328);
+            this.mAddItemButton.BackColor = System.Drawing.Color.Gray;
+            this.mAddItemButton.Location = new System.Drawing.Point(3, 334);
             this.mAddItemButton.Name = "mAddItemButton";
-            this.mAddItemButton.Size = new System.Drawing.Size(62, 23);
+            this.mAddItemButton.Size = new System.Drawing.Size(84, 23);
             this.mAddItemButton.TabIndex = 23;
             this.mAddItemButton.Text = "Add Item";
-            this.mAddItemButton.UseVisualStyleBackColor = true;
+            this.mAddItemButton.UseVisualStyleBackColor = false;
             this.mAddItemButton.Click += new System.EventHandler(this.mAddItemButton_Click);
             // 
             // mSaveFileButton
             // 
             this.mSaveFileButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.mSaveFileButton.Location = new System.Drawing.Point(98, 328);
+            this.mSaveFileButton.BackColor = System.Drawing.Color.Gray;
+            this.mSaveFileButton.Location = new System.Drawing.Point(109, 334);
             this.mSaveFileButton.Name = "mSaveFileButton";
-            this.mSaveFileButton.Size = new System.Drawing.Size(97, 23);
+            this.mSaveFileButton.Size = new System.Drawing.Size(102, 23);
             this.mSaveFileButton.TabIndex = 22;
             this.mSaveFileButton.Text = "Save lvl file";
-            this.mSaveFileButton.UseVisualStyleBackColor = true;
+            this.mSaveFileButton.UseVisualStyleBackColor = false;
             this.mSaveFileButton.Click += new System.EventHandler(this.mSaveFileButton_Click);
             // 
             // mReplaceButton
             // 
             this.mReplaceButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.mReplaceButton.Location = new System.Drawing.Point(98, 289);
+            this.mReplaceButton.BackColor = System.Drawing.Color.Gray;
+            this.mReplaceButton.Location = new System.Drawing.Point(109, 295);
             this.mReplaceButton.Name = "mReplaceButton";
-            this.mReplaceButton.Size = new System.Drawing.Size(97, 23);
+            this.mReplaceButton.Size = new System.Drawing.Size(102, 23);
             this.mReplaceButton.TabIndex = 21;
             this.mReplaceButton.Text = "Replace Item";
-            this.mReplaceButton.UseVisualStyleBackColor = true;
+            this.mReplaceButton.UseVisualStyleBackColor = false;
             this.mReplaceButton.Click += new System.EventHandler(this.mReplaceButton_Click);
             // 
             // mExtractAllButton
             // 
             this.mExtractAllButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.mExtractAllButton.Location = new System.Drawing.Point(3, 289);
+            this.mExtractAllButton.BackColor = System.Drawing.Color.Gray;
+            this.mExtractAllButton.Location = new System.Drawing.Point(3, 295);
             this.mExtractAllButton.Name = "mExtractAllButton";
-            this.mExtractAllButton.Size = new System.Drawing.Size(62, 23);
+            this.mExtractAllButton.Size = new System.Drawing.Size(84, 23);
             this.mExtractAllButton.TabIndex = 20;
             this.mExtractAllButton.Text = "Extract all";
-            this.mExtractAllButton.UseVisualStyleBackColor = true;
+            this.mExtractAllButton.UseVisualStyleBackColor = false;
             this.mExtractAllButton.Click += new System.EventHandler(this.mExtractAllButton_Click);
             // 
             // mAssetListBox
@@ -226,17 +248,20 @@
             this.mAssetListBox.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
                         | System.Windows.Forms.AnchorStyles.Left)
                         | System.Windows.Forms.AnchorStyles.Right)));
+            this.mAssetListBox.BackColor = System.Drawing.Color.Black;
             this.mAssetListBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.mAssetListBox.ForeColor = System.Drawing.Color.White;
             this.mAssetListBox.FormattingEnabled = true;
             this.mAssetListBox.ItemHeight = 16;
             this.mAssetListBox.Location = new System.Drawing.Point(3, 3);
             this.mAssetListBox.Name = "mAssetListBox";
-            this.mAssetListBox.Size = new System.Drawing.Size(192, 212);
+            this.mAssetListBox.Size = new System.Drawing.Size(208, 212);
             this.mAssetListBox.TabIndex = 19;
             this.mAssetListBox.SelectedIndexChanged += new System.EventHandler(this.mAssetListBox_SelectedIndexChanged);
             // 
             // menuStrip1
             // 
+            this.menuStrip1.BackColor = System.Drawing.Color.Transparent;
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.fileToolStripMenuItem,
             this.viewToolStripMenuItem,
@@ -244,7 +269,7 @@
             this.aboutToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(625, 24);
+            this.menuStrip1.Size = new System.Drawing.Size(674, 24);
             this.menuStrip1.TabIndex = 20;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -252,6 +277,8 @@
             // 
             this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.enterBF2ToolsDirToolStripMenuItem,
+            this.createNewLVLToolStripMenuItem,
+            this.coreMergeFormToolStripMenuItem,
             this.exitToolStripMenuItem});
             this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
             this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
@@ -264,6 +291,20 @@
             this.enterBF2ToolsDirToolStripMenuItem.Text = "Enter Mod Tools Dir";
             this.enterBF2ToolsDirToolStripMenuItem.Click += new System.EventHandler(this.enterBF2ToolsDirToolStripMenuItem_Click);
             // 
+            // createNewLVLToolStripMenuItem
+            // 
+            this.createNewLVLToolStripMenuItem.Name = "createNewLVLToolStripMenuItem";
+            this.createNewLVLToolStripMenuItem.Size = new System.Drawing.Size(177, 22);
+            this.createNewLVLToolStripMenuItem.Text = "Create new LVL";
+            this.createNewLVLToolStripMenuItem.Click += new System.EventHandler(this.createNewLVLToolStripMenuItem_Click);
+            // 
+            // coreMergeFormToolStripMenuItem
+            // 
+            this.coreMergeFormToolStripMenuItem.Name = "coreMergeFormToolStripMenuItem";
+            this.coreMergeFormToolStripMenuItem.Size = new System.Drawing.Size(177, 22);
+            this.coreMergeFormToolStripMenuItem.Text = "Loc Merge Form";
+            this.coreMergeFormToolStripMenuItem.Click += new System.EventHandler(this.locMergeFormToolStripMenuItem_Click);
+            // 
             // exitToolStripMenuItem
             // 
             this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
@@ -274,7 +315,9 @@
             // viewToolStripMenuItem
             // 
             this.viewToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.refreshLvlListBoxToolStripMenuItem});
+            this.refreshLvlListBoxToolStripMenuItem,
+            this.sortListBoxToolStripMenuItem,
+            this.findToolStripMenuItem});
             this.viewToolStripMenuItem.Name = "viewToolStripMenuItem";
             this.viewToolStripMenuItem.Size = new System.Drawing.Size(44, 20);
             this.viewToolStripMenuItem.Text = "View";
@@ -286,6 +329,20 @@
             this.refreshLvlListBoxToolStripMenuItem.Text = "Refresh lvl list box";
             this.refreshLvlListBoxToolStripMenuItem.Click += new System.EventHandler(this.refreshLvlListBoxToolStripMenuItem_Click);
             // 
+            // sortListBoxToolStripMenuItem
+            // 
+            this.sortListBoxToolStripMenuItem.Name = "sortListBoxToolStripMenuItem";
+            this.sortListBoxToolStripMenuItem.Size = new System.Drawing.Size(169, 22);
+            this.sortListBoxToolStripMenuItem.Text = "Sort List box";
+            this.sortListBoxToolStripMenuItem.Click += new System.EventHandler(this.sortListBoxToolStripMenuItem_Click);
+            // 
+            // findToolStripMenuItem
+            // 
+            this.findToolStripMenuItem.Name = "findToolStripMenuItem";
+            this.findToolStripMenuItem.Size = new System.Drawing.Size(169, 22);
+            this.findToolStripMenuItem.Text = "Find Item";
+            this.findToolStripMenuItem.Click += new System.EventHandler(this.findToolStripMenuItem_Click);
+            // 
             // localizationMenu
             // 
             this.localizationMenu.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -295,7 +352,10 @@
             this.setStringMenuItem,
             this.saveToFileToolStripMenuItem,
             this.dumpFileToolStripMenuItem,
-            this.addStringToolStripMenuItem});
+            this.addStringToolStripMenuItem,
+            this.createMungedLocFileFromDataToolStripMenuItem,
+            this.disableStringsToolStripMenuItem,
+            this.addStringsifNotAlreadyPresentToolStripMenuItem});
             this.localizationMenu.Enabled = false;
             this.localizationMenu.Name = "localizationMenu";
             this.localizationMenu.Size = new System.Drawing.Size(82, 20);
@@ -304,33 +364,78 @@
             // showAllStringsToolStripMenuItem1
             // 
             this.showAllStringsToolStripMenuItem1.Name = "showAllStringsToolStripMenuItem1";
-            this.showAllStringsToolStripMenuItem1.Size = new System.Drawing.Size(159, 22);
+            this.showAllStringsToolStripMenuItem1.Size = new System.Drawing.Size(282, 22);
             this.showAllStringsToolStripMenuItem1.Text = "Show All Strings";
             this.showAllStringsToolStripMenuItem1.Click += new System.EventHandler(this.showAllStringsToolStripMenuItem_Click);
             // 
             // applyStringsToolStripMenuItem
             // 
             this.applyStringsToolStripMenuItem.Name = "applyStringsToolStripMenuItem";
-            this.applyStringsToolStripMenuItem.Size = new System.Drawing.Size(159, 22);
+            this.applyStringsToolStripMenuItem.Size = new System.Drawing.Size(282, 22);
             this.applyStringsToolStripMenuItem.Text = "Apply Strings";
             this.applyStringsToolStripMenuItem.Click += new System.EventHandler(this.applyStringsToolStripMenuItem_Click);
             // 
             // getToolStripMenuItem
             // 
             this.getToolStripMenuItem.Name = "getToolStripMenuItem";
-            this.getToolStripMenuItem.Size = new System.Drawing.Size(159, 22);
+            this.getToolStripMenuItem.Size = new System.Drawing.Size(282, 22);
             this.getToolStripMenuItem.Text = "Get String";
             this.getToolStripMenuItem.Click += new System.EventHandler(this.getStringToolStripMenuItem_Click);
             // 
             // setStringMenuItem
             // 
             this.setStringMenuItem.Name = "setStringMenuItem";
-            this.setStringMenuItem.Size = new System.Drawing.Size(159, 22);
+            this.setStringMenuItem.Size = new System.Drawing.Size(282, 22);
             this.setStringMenuItem.Text = "SetString";
             this.setStringMenuItem.Click += new System.EventHandler(this.setStringMenuItem_Click);
             // 
+            // saveToFileToolStripMenuItem
+            // 
+            this.saveToFileToolStripMenuItem.Name = "saveToFileToolStripMenuItem";
+            this.saveToFileToolStripMenuItem.Size = new System.Drawing.Size(282, 22);
+            this.saveToFileToolStripMenuItem.Text = "SaveToFile";
+            this.saveToFileToolStripMenuItem.Visible = false;
+            // 
+            // dumpFileToolStripMenuItem
+            // 
+            this.dumpFileToolStripMenuItem.Name = "dumpFileToolStripMenuItem";
+            this.dumpFileToolStripMenuItem.Size = new System.Drawing.Size(282, 22);
+            this.dumpFileToolStripMenuItem.Text = "Dump File";
+            this.dumpFileToolStripMenuItem.Visible = false;
+            this.dumpFileToolStripMenuItem.Click += new System.EventHandler(this.dumpFileToolStripMenuItem_Click);
+            // 
+            // addStringToolStripMenuItem
+            // 
+            this.addStringToolStripMenuItem.Name = "addStringToolStripMenuItem";
+            this.addStringToolStripMenuItem.Size = new System.Drawing.Size(282, 22);
+            this.addStringToolStripMenuItem.Text = "Add String";
+            this.addStringToolStripMenuItem.Visible = false;
+            this.addStringToolStripMenuItem.Click += new System.EventHandler(this.addStringToolStripMenuItem_Click);
+            // 
+            // createMungedLocFileFromDataToolStripMenuItem
+            // 
+            this.createMungedLocFileFromDataToolStripMenuItem.Name = "createMungedLocFileFromDataToolStripMenuItem";
+            this.createMungedLocFileFromDataToolStripMenuItem.Size = new System.Drawing.Size(282, 22);
+            this.createMungedLocFileFromDataToolStripMenuItem.Text = "Create (Munged) Loc File from text box";
+            this.createMungedLocFileFromDataToolStripMenuItem.Click += new System.EventHandler(this.createMungedLocFileFromDataToolStripMenuItem_Click);
+            // 
+            // disableStringsToolStripMenuItem
+            // 
+            this.disableStringsToolStripMenuItem.Name = "disableStringsToolStripMenuItem";
+            this.disableStringsToolStripMenuItem.Size = new System.Drawing.Size(282, 22);
+            this.disableStringsToolStripMenuItem.Text = "Disable Strings";
+            this.disableStringsToolStripMenuItem.Click += new System.EventHandler(this.disableStringsToolStripMenuItem_Click);
+            // 
+            // addStringsifNotAlreadyPresentToolStripMenuItem
+            // 
+            this.addStringsifNotAlreadyPresentToolStripMenuItem.Name = "addStringsifNotAlreadyPresentToolStripMenuItem";
+            this.addStringsifNotAlreadyPresentToolStripMenuItem.Size = new System.Drawing.Size(282, 22);
+            this.addStringsifNotAlreadyPresentToolStripMenuItem.Text = "Add Strings (if not already present)";
+            this.addStringsifNotAlreadyPresentToolStripMenuItem.Click += new System.EventHandler(this.addStringsifNotAlreadyPresentToolStripMenuItem_Click);
+            // 
             // aboutToolStripMenuItem
             // 
+            this.aboutToolStripMenuItem.BackColor = System.Drawing.Color.DimGray;
             this.aboutToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.aboutProgramToolStripMenuItem,
             this.aboutToolStripMenuItem1});
@@ -355,8 +460,8 @@
             // mModToolsLabel
             // 
             this.mModToolsLabel.AutoSize = true;
-            this.mModToolsLabel.BackColor = System.Drawing.Color.White;
-            this.mModToolsLabel.Location = new System.Drawing.Point(183, 27);
+            this.mModToolsLabel.BackColor = System.Drawing.Color.Transparent;
+            this.mModToolsLabel.Location = new System.Drawing.Point(183, 26);
             this.mModToolsLabel.Name = "mModToolsLabel";
             this.mModToolsLabel.Size = new System.Drawing.Size(70, 13);
             this.mModToolsLabel.TabIndex = 21;
@@ -366,47 +471,38 @@
             // mStatusLabel
             // 
             this.mStatusLabel.AutoSize = true;
-            this.mStatusLabel.ForeColor = System.Drawing.Color.SteelBlue;
+            this.mStatusLabel.ForeColor = System.Drawing.Color.Aqua;
             this.mStatusLabel.Location = new System.Drawing.Point(6, 24);
             this.mStatusLabel.Name = "mStatusLabel";
             this.mStatusLabel.Size = new System.Drawing.Size(37, 13);
             this.mStatusLabel.TabIndex = 22;
             this.mStatusLabel.Text = "Status";
             // 
-            // addStringToolStripMenuItem
+            // mModToolsSelection
             // 
-            this.addStringToolStripMenuItem.Name = "addStringToolStripMenuItem";
-            this.addStringToolStripMenuItem.Size = new System.Drawing.Size(159, 22);
-            this.addStringToolStripMenuItem.Text = "Add String";
-            this.addStringToolStripMenuItem.Visible = false;
-            this.addStringToolStripMenuItem.Click += new System.EventHandler(this.addStringToolStripMenuItem_Click);
-            // 
-            // saveToFileToolStripMenuItem
-            // 
-            this.saveToFileToolStripMenuItem.Name = "saveToFileToolStripMenuItem";
-            this.saveToFileToolStripMenuItem.Size = new System.Drawing.Size(159, 22);
-            this.saveToFileToolStripMenuItem.Text = "SaveToFile";
-            this.saveToFileToolStripMenuItem.Visible = false;
-            // 
-            // dumpFileToolStripMenuItem
-            // 
-            this.dumpFileToolStripMenuItem.Name = "dumpFileToolStripMenuItem";
-            this.dumpFileToolStripMenuItem.Size = new System.Drawing.Size(159, 22);
-            this.dumpFileToolStripMenuItem.Text = "Dump File";
-            this.dumpFileToolStripMenuItem.Visible = false;
-            this.dumpFileToolStripMenuItem.Click += new System.EventHandler(this.dumpFileToolStripMenuItem_Click);
+            this.mModToolsSelection.BackColor = System.Drawing.Color.Gray;
+            this.mModToolsSelection.FormattingEnabled = true;
+            this.mModToolsSelection.Items.AddRange(new object[] {
+            "C:\\BF2_ModTools\\",
+            "C:\\BFBuilder\\"});
+            this.mModToolsSelection.Location = new System.Drawing.Point(289, 21);
+            this.mModToolsSelection.Name = "mModToolsSelection";
+            this.mModToolsSelection.Size = new System.Drawing.Size(208, 21);
+            this.mModToolsSelection.TabIndex = 23;
             // 
             // mMainTextBox
             // 
             this.mMainTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
                         | System.Windows.Forms.AnchorStyles.Left)
                         | System.Windows.Forms.AnchorStyles.Right)));
+            this.mMainTextBox.BackColor = System.Drawing.Color.Black;
             this.mMainTextBox.Font = new System.Drawing.Font("Courier New", 9.75F);
+            this.mMainTextBox.ForeColor = System.Drawing.Color.White;
             this.mMainTextBox.Location = new System.Drawing.Point(3, 3);
             this.mMainTextBox.Name = "mMainTextBox";
             this.mMainTextBox.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.Vertical;
             this.mMainTextBox.SearchString = null;
-            this.mMainTextBox.Size = new System.Drawing.Size(397, 359);
+            this.mMainTextBox.Size = new System.Drawing.Size(430, 365);
             this.mMainTextBox.StatusControl = null;
             this.mMainTextBox.TabIndex = 17;
             this.mMainTextBox.Text = "";
@@ -415,13 +511,16 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(625, 448);
+            this.BackColor = System.Drawing.Color.Gray;
+            this.ClientSize = new System.Drawing.Size(674, 454);
+            this.Controls.Add(this.mModToolsSelection);
             this.Controls.Add(this.mStatusLabel);
             this.Controls.Add(this.mModToolsLabel);
             this.Controls.Add(this.splitContainer1);
             this.Controls.Add(this.mBrowseLVL);
             this.Controls.Add(this.mLVLFileTextBox);
             this.Controls.Add(this.menuStrip1);
+            this.ForeColor = System.Drawing.Color.White;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MainMenuStrip = this.menuStrip1;
             this.Name = "MainForm";
@@ -473,6 +572,14 @@
         private System.Windows.Forms.ToolStripMenuItem saveToFileToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem dumpFileToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem addStringToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem sortListBoxToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem findToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem createMungedLocFileFromDataToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem disableStringsToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem createNewLVLToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem addStringsifNotAlreadyPresentToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem coreMergeFormToolStripMenuItem;
+        private System.Windows.Forms.ComboBox mModToolsSelection;
     }
 }
 

@@ -19,6 +19,8 @@ namespace LVLTool
             State0();
             UpdateModToolsLabel();
             mMainTextBox.StatusControl = mStatusLabel;
+            mModToolsSelection.SelectedIndex = 0;
+            mModToolsSelection.SelectedIndexChanged += new System.EventHandler(this.mModToolsSelection_SelectedIndexChanged);
         }
 
         private void textBox_DragOver(object sender, DragEventArgs e)
@@ -61,17 +63,18 @@ namespace LVLTool
             }
         }
 
-        UcfbHelper mExtractor = null;
+        UcfbHelper mUcfbFileHelper = null;
 
         private void mLVLFileTextBox_TextChanged(object sender, EventArgs e)
         {
             if (File.Exists(mLVLFileTextBox.Text))
             {
                 mMainTextBox.Clear();
-                mExtractor = new UcfbHelper();
-                mExtractor.FileName = mLVLFileTextBox.Text;
+                mUcfbFileHelper = new UcfbHelper();
+                mUcfbFileHelper.FileName = mLVLFileTextBox.Text;
                 PopulateListBox();
                 State1();
+                ShowLVLSummary();
             }
             else
             {
@@ -79,14 +82,51 @@ namespace LVLTool
             }
         }
 
+        private void ShowLVLSummary()
+        {
+            string fileName = mLVLFileTextBox.Text;
+            List<Chunk> allMyChunks = GetAllChunks(fileName);
+            List<String> myTypes = new List<string>();
+            int limit = allMyChunks.Count;
+            Chunk cur = null;
+            for (int i = 0; i < limit; i++)
+            {
+                cur = allMyChunks[i];
+                if (myTypes.IndexOf(cur.Type) < 0)
+                    myTypes.Add(cur.Type);
+            }
+            myTypes.Sort();
+
+            StringBuilder builder = new StringBuilder(500);
+            builder.Append("Summary\n");
+            builder.Append(fileName);
+            builder.Append(":\n");
+            
+            uint typeSize = 0;
+            foreach (string type in myTypes)
+            {
+                typeSize = 0;
+                for (int i = 0; i < limit; i++)
+                {
+                    cur = allMyChunks[i];
+                    if (cur.Type == type)
+                    {
+                        typeSize += cur.Length;
+                    }
+                }
+                builder.Append(String.Format("Type: {0} Total size: {1:N}kb \n", type,typeSize/1024.0));
+            }
+            mMainTextBox.Text = builder.ToString();
+        }
+
         private void PopulateListBox()
         {
             mStatusLabel.Text =  "Reading File...";
             mAssetListBox.Items.Clear();
             mAssetListBox.BeginUpdate();
-            mExtractor.InitializeRead();
+            mUcfbFileHelper.InitializeRead();
             Chunk cur = null;
-            while ( (cur = mExtractor.RipChunk(false)) != null)
+            while ( (cur = mUcfbFileHelper.RipChunk(false)) != null)
             {
                 mAssetListBox.Items.Add(cur);
             }
@@ -94,10 +134,35 @@ namespace LVLTool
             mStatusLabel.Text =  "Done Reading.";
         }
 
+        // Goes through the lvl file extracts all the chunks; if a child is a lvl file
+        // those are split up and returned.
+        private List<Chunk> GetAllChunks(string filename)
+        {
+            List<Chunk> retVal = new List<Chunk>();
+            UcfbHelper helper = new UcfbHelper();
+            helper.FileName = filename;
+            helper.InitializeRead();
+            Chunk cur = null;
+            while ((cur = helper.RipChunk(false)) != null)
+            {
+                if (cur.Type != "lvl_")
+                    retVal.Add(cur);
+                else
+                {
+                    string tmpFile = "tmp_child.lvl";
+                    UcfbHelper.SaveFileUCFB(tmpFile,cur.Data);
+                    List<Chunk> childChunks = GetAllChunks(tmpFile);
+                    File.Delete(tmpFile);
+                    retVal.AddRange(childChunks);
+                }
+            }
+            return retVal;
+        }
+
         private void extractAllButton_Click(object sender, EventArgs e)
         {
             mStatusLabel.Text =  "Extracting...";
-            mExtractor.ExtractContents();
+            mUcfbFileHelper.ExtractContents();
             mStatusLabel.Text =  "Done Extracting.";
         }
 
@@ -147,12 +212,12 @@ namespace LVLTool
                     if (fileName != null)
                     {
                         mStatusLabel.Text = "Replacing item...";
-                        mExtractor.ReplaceUcfbChunk(c, fileName);
+                        mUcfbFileHelper.ReplaceUcfbChunk(c, fileName, true);
                         mStatusLabel.Text = "Done Replacing.";
-                        PopulateListBox();
-                        mMainTextBox.Clear();
-                        if (index < mAssetListBox.Items.Count)
-                            mAssetListBox.SelectedIndex = index;
+                        //PopulateListBox();
+                        //mMainTextBox.Clear();
+                        //if (index < mAssetListBox.Items.Count)
+                        //    mAssetListBox.SelectedIndex = index;
                     }
                 }
                 catch (Exception ex)
@@ -170,7 +235,7 @@ namespace LVLTool
             {
                 try
                 {
-                    mExtractor.SaveData(dlg.FileName);
+                    mUcfbFileHelper.SaveData(dlg.FileName);
                     mStatusLabel.Text = "File Saved.";
                 }
                 catch (Exception ex)
@@ -207,7 +272,7 @@ namespace LVLTool
                 if (fileName != null)
                 {
                     mStatusLabel.Text = "Adding item...";
-                    mExtractor.AddItemToEnd(fileName);
+                    mUcfbFileHelper.AddItemToEnd(fileName);
                     mStatusLabel.Text = "Done Adding.";
                     PopulateListBox();
                     mMainTextBox.Clear();
@@ -220,9 +285,14 @@ namespace LVLTool
 
         }
 
-        private void enterBF2ToolsDirToolStripMenuItem_Click(object sender, EventArgs e)
+        private void EnterModToolsDir()
         {
             String dir = StringInputDlg.GetString("Enter Mod Tools Directory", "", Program.ModToolsDir);
+            dir = SetModToolsDir(dir);
+        }
+
+        private String SetModToolsDir(String dir)
+        {
             if (dir != null && Directory.Exists(dir))
             {
                 if (!dir.EndsWith("\\"))
@@ -232,6 +302,19 @@ namespace LVLTool
                 Program.SaveSettings();
                 LuaCodeHelper.ResetFileCache();
             }
+            return dir;
+        }
+
+        private void enterBF2ToolsDirToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            EnterModToolsDir();
+        }
+
+
+        private void mModToolsSelection_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            string text = mModToolsSelection.SelectedItem.ToString();
+            SetModToolsDir(text);
         }
 
         private void UpdateModToolsLabel()
@@ -267,15 +350,16 @@ namespace LVLTool
         private void ColorizeText()
         {
             //CheckKeyword("-- Decompiled with SWBF2CodeHelper", Color.Green, 0);
-            CheckKeyword("function", Color.Blue, 0);
-            CheckKeyword("end", Color.Blue, 0);
-            CheckKeyword("if", Color.Blue, 0);
-            CheckKeyword("then", Color.Blue, 0);
-            CheckKeyword("else", Color.Blue, 0);
-            CheckKeyword("return", Color.Blue, 0);
-            CheckKeyword("for", Color.Blue, 0);
-            CheckKeyword("do", Color.Blue, 0);
-            CheckKeyword("local", Color.Blue, 0);
+            Color kwColor = Color.Magenta;
+            CheckKeyword("function", kwColor, 0);
+            CheckKeyword("end", kwColor, 0);
+            CheckKeyword("if", kwColor, 0);
+            CheckKeyword("then", kwColor, 0);
+            CheckKeyword("else", kwColor, 0);
+            CheckKeyword("return", kwColor, 0);
+            CheckKeyword("for", kwColor, 0);
+            CheckKeyword("do", kwColor, 0);
+            CheckKeyword("local", kwColor, 0);
             CheckKeyword("ERROR_PROCESSING_FUNCTION = true", Color.Red, 0);
 
             MatchCollection mc = mComment.Matches(mMainTextBox.Text);
@@ -316,11 +400,11 @@ namespace LVLTool
 
         private void mExtractAllButton_Click(object sender, EventArgs e)
         {
-            if (mExtractor != null)
+            if (mUcfbFileHelper != null)
             {
                 mStatusLabel.Text = "Extracting...";
-                mExtractor.InitializeRead();
-                string dir = mExtractor.ExtractContents();
+                mUcfbFileHelper.InitializeRead();
+                string dir = mUcfbFileHelper.ExtractContents();
                 mStatusLabel.Text = "Done Extracting.";
                 MessageBox.Show("Extracted to: " + dir );
 
@@ -420,7 +504,7 @@ namespace LVLTool
                         if (newContant.Length > 0)
                         {
                             c.LocHelper.SetString(strId, newContant);
-                            mExtractor.ReplaceUcfbChunk(c, c.LocHelper.GetUcfbData());
+                            mUcfbFileHelper.ReplaceUcfbChunk(c, c.LocHelper.GetUcfbData(), true);
                             ////c.Data = c.LocHelper.GetData(); // debugging only , misuse of 'Data' 
                             //c.LocHelper.DumpToFile("loc_tmp.bin");
                         }
@@ -460,7 +544,7 @@ namespace LVLTool
                         if (newContant.Length > 0)
                         {
                             c.LocHelper.AddString(strId, newContant);
-                            mExtractor.ReplaceUcfbChunk(c, c.LocHelper.GetUcfbData());
+                            mUcfbFileHelper.ReplaceUcfbChunk(c, c.LocHelper.GetUcfbData(), true);
                             ////c.Data = c.LocHelper.GetData(); // debugging only , misuse of 'Data' 
                             //c.LocHelper.DumpToFile("loc_tmp.bin");
                         }
@@ -481,10 +565,128 @@ namespace LVLTool
                     if (MessageBox.Show("Apply text content to current loc file?","Apply?", MessageBoxButtons.OKCancel) == DialogResult.OK)
                     {
                         c.LocHelper.ApplyText(mMainTextBox.Text);
-                        mExtractor.ReplaceUcfbChunk(c, c.LocHelper.GetUcfbData());
+                        mUcfbFileHelper.ReplaceUcfbChunk(c, c.LocHelper.GetUcfbData(), true);
                     }
                 }
             }
+        }
+
+        private void sortListBoxToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            mAssetListBox.Sorted = !mAssetListBox.Sorted;
+            sortListBoxToolStripMenuItem.Checked = mAssetListBox.Sorted;
+        }
+
+        private void findToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            string findMe = StringInputDlg.GetString("Enter item name to search for", "<item name>");
+            if (findMe != null)
+            {
+                Chunk chk = null;
+                for(int i =0; i < mAssetListBox.Items.Count; i++)
+                {
+                    chk = mAssetListBox.Items[i] as Chunk;
+                    if (chk != null)
+                    {
+                        if (findMe == chk.ToString() || findMe == chk.Name)
+                        {
+                            mAssetListBox.SelectedIndex = i;
+                            return;
+                        }
+                    }
+                }
+                for (int i = 0; i < mAssetListBox.Items.Count; i++)
+                {
+                    chk = mAssetListBox.Items[i] as Chunk;
+                    if (chk != null)
+                    {
+                        if (findMe == chk.Name)
+                        {
+                            mAssetListBox.SelectedIndex = i;
+                            return;
+                        }
+                    }
+                }
+            }
+        }
+
+        private void createMungedLocFileFromDataToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            List<string> errors = new List<string>();
+            List<byte> data = LocHelper.GetBinaryLocData(mMainTextBox.Text, errors);
+            if (data.Count > 0)
+            {
+                LocHelper.MakeUcfb(data, (uint)data.Count);
+                SaveFileDialog dlg = new SaveFileDialog();
+                dlg.RestoreDirectory = true;
+                int lastSlash = mLVLFileTextBox.Text.LastIndexOf(Path.DirectorySeparatorChar);
+                dlg.InitialDirectory = mLVLFileTextBox.Text.Substring(0, lastSlash);
+                if (dlg.ShowDialog() == DialogResult.OK)
+                {
+                    File.WriteAllBytes(dlg.FileName, data.ToArray());
+                }
+                dlg.Dispose();
+            }
+        }
+
+        private void disableStringsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Chunk locChunk = mAssetListBox.Items[mAssetListBox.SelectedIndex] as Chunk;
+            if (locChunk.LocHelper == null)
+                locChunk.LocHelper = new LocHelper(locChunk.GetAssetData());
+
+            string userInput =
+              MessageForm.ShowMessage("Paste String ids into the text box", "", SystemIcons.Question, true, true);
+            if (userInput != null)
+            {
+                string number = StringInputDlg.GetString("Enter occurence", "Enter the occurence of the string you want to disable", "1");
+                int target_occurence = 1;
+                if( Int32.TryParse(number, out target_occurence))
+                {
+                    string[] lines = userInput.Replace("\r\n", "\n").Split("\n".ToCharArray());
+                    foreach (string line in lines)
+                    {
+                        if( line.Length > 0)
+                            locChunk.LocHelper.DisableString(line, target_occurence);
+                    }
+                    // now...
+                    // copy the data from the chunk to the in-memory data
+                    byte[] rawData = locChunk.LocHelper.GetRawData();
+                    Array.Copy(rawData, 0, mUcfbFileHelper.Data, (int)locChunk.Start, rawData.Length);
+                }
+            }
+        }
+
+        private void createNewLVLToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            CreateLvlForm form = new CreateLvlForm();
+            form.SetStyle(this);
+            form.Show();
+        }
+
+        private void addStringsifNotAlreadyPresentToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (mAssetListBox.SelectedIndex > -1)
+            {
+                Chunk c = mAssetListBox.Items[mAssetListBox.SelectedIndex] as Chunk;
+                if (c.Type.ToLower().StartsWith("loc"))
+                {
+                    if (c.LocHelper == null)
+                        c.LocHelper = new LocHelper(c.GetAssetData());
+                    if (MessageBox.Show("Add new strings to current loc file?", "Apply?", MessageBoxButtons.OKCancel) == DialogResult.OK)
+                    {
+                        c.LocHelper.AddNewStrings(mMainTextBox.Text);
+                        mUcfbFileHelper.ReplaceUcfbChunk(c, c.LocHelper.GetUcfbData(), true);
+                    }
+                }
+            }
+        }
+
+        private void locMergeFormToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            LocMergeForm lmf = new LocMergeForm();
+            lmf.SetStyle(this);
+            lmf.Show();
         }
 
     }

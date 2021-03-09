@@ -10,11 +10,28 @@ namespace LVLTool
     /// </summary>
     public class UcfbHelper
     {
-        byte[] mData = null;
+        public byte[] Data
+        {
+            get { return mData; }
+        }
+
+        private byte[] mData = null;
         static byte[] UCFB = new byte[] { (byte)'u', (byte)'c', (byte)'f', (byte)'b'};
         static byte[] NAME = new byte[] { (byte)'N', (byte)'A', (byte)'M', (byte)'E' };
         static byte[] INFO = new byte[] { (byte)'I', (byte)'N', (byte)'F', (byte)'O' };
 
+        private static string[] sPopularSuffixes = new String[] {
+            "_1ctf","_1flag","_Buildings","_Buildings","_Buildings01","_Buildings02","_CP-Assult","_CP-Conquest",
+            "_CP-VehicleSpawns","_CP-VehicleSpawns","_CPs","_CommonDesign","_CW-Ships","_GCW-Ships","_Damage",
+            "_Damage01","_Damage02","_Death","_DeathRegions","_Design","_Design001","_Design002","_Design01",
+            "_Design02","_Design1","_Design2","_Doors","_Layer000","_Layer001","_Layer002","_Layer003","_Layer004",
+            "_Light_RG","_NewObjective","_Objective","_Platforms","_Props","_RainShadow","_Roids","_Roids01",
+            "_Roids02","_Shadow_RGN","_Shadows","_Shields","_SoundEmmiters","_SoundRegions","_SoundSpaces",
+            "_SoundTriggers","_Temp","_Tree","_Trees","_Vehicles","_animations","_campaign","_collision",
+            "_con","_conquest","_ctf","_deathreagen","_droids","_eli","_flags","_gunship","_hunt","_invisocube",
+            "_light_region","_objects01","_objects02","_reflections","_rumble","_rumbles","_sound","_tdm","_trees",
+            "_turrets","_xl","_sniper"
+        };
         /// <summary>
         /// Default constructor
         /// </summary>
@@ -40,6 +57,19 @@ namespace LVLTool
         private void OnFileNameChanged(string fileName)
         {
             mData = File.ReadAllBytes(fileName);
+
+            int lastSlash = fileName.LastIndexOf("\\");
+            if (lastSlash > -1)
+            {
+                string baseFileName = fileName.Substring(lastSlash + 1).Replace(".lvl", "");
+                HashHelper.AddHashedString(baseFileName);
+                HashHelper.AddHashedString("mapname.description." + baseFileName);
+                HashHelper.AddHashedString("mapname.name." + baseFileName);
+                foreach (string suffix in sPopularSuffixes)
+                {
+                    HashHelper.AddHashedString(baseFileName + suffix);
+                }
+            }
         }
 
         private string GetLvlFileName()
@@ -113,7 +143,7 @@ namespace LVLTool
             return retVal;
         }
 
-        private void SaveFileUCFB(string name, byte[] data)
+        internal static void SaveFileUCFB(string name, byte[] data)
         {
             byte[] encodedLen = BinUtils.EncodeNumber(data.Length );
             byte[] buffer = new byte[8];
@@ -348,6 +378,15 @@ namespace LVLTool
             }
             catch (System.IndexOutOfRangeException) { }
             WriteManifest();
+            if (FileName.EndsWith(".lvl"))
+            {
+                string reqFileName = FileName.Replace(".lvl", ".req");
+                int lastSlash = reqFileName.LastIndexOf("\\");
+                reqFileName = reqFileName.Substring(lastSlash+1);
+                reqFileName = retVal + reqFileName;
+                string req = ReqMaker.GetReq(retVal);
+                File.WriteAllText(reqFileName, req);
+            }
             return retVal;
         }
 
@@ -381,7 +420,8 @@ namespace LVLTool
                 Console.Error.WriteLine("RipChunk Error: " + e.Message);
                 return null;
             }
-
+            //if (!String.IsNullOrEmpty(name) && !name.StartsWith("0x")) HashHelper.AddHashedString(name); 
+            
             retVal = new Chunk();
             retVal.Type = ct;
             retVal.Length = chunkLen;
@@ -420,13 +460,13 @@ namespace LVLTool
             return retVal;
         }
 
-        public void ReplaceUcfbChunk(Chunk chk, string mungedFileName)
+        public void ReplaceUcfbChunk(Chunk chk, string mungedFileName, bool replaceFirstOnly)
         {
             byte[] mungedFileBytes = File.ReadAllBytes(mungedFileName);
-            ReplaceUcfbChunk(chk, mungedFileBytes);
+            ReplaceUcfbChunk(chk, mungedFileBytes, replaceFirstOnly);
         }
 
-        public void ReplaceUcfbChunk(Chunk chk, byte[] mungedFileBytes)
+        public void ReplaceUcfbChunk(Chunk chk, byte[] mungedFileBytes, bool replaceFirstOnly)
         {
             uint bytesLeftInFile = InitializeRead();
             string curType = PeekChunkType();
@@ -434,46 +474,45 @@ namespace LVLTool
             string cur = curName + "." + curType;
             string target = chk.Name + "." + chk.Type;
 
-            while ( !target.Equals(cur, StringComparison.CurrentCultureIgnoreCase) )
+            //while ( RipChunk(false) != null )
+            do
             {
-                RipChunk(false);
                 curType = PeekChunkType();
                 if (string.IsNullOrEmpty(curType))
                     break;
                 curName = PeekName(mCurrentPos + 8, curType);
                 cur = curName + "." + curType;
-            }
-            if (target.Equals(cur, StringComparison.CurrentCultureIgnoreCase))
-            {
-                // we've advanced to the correct place
-                uint chunk_start = mCurrentPos;
-                uint chunk_end = PeekNumber(mCurrentPos + 4) + mCurrentPos + 8;
-                int mungedContentLength = mungedFileBytes.Length - 8;
-                uint chunk_len = chunk_end - chunk_start;
-
-                int difference = (int)(chunk_len - (mungedContentLength));
-                int newLength = mData.Length - difference;
-                byte[] newData = new byte[newLength];
-                Array.Copy(mData, 0, newData, 0, chunk_start /*- 1*/); // copy first chunk
-                Array.Copy(mungedFileBytes, 8, newData, chunk_start, mungedFileBytes.Length - 8); //splice
-                long next_start = chunk_start + mungedFileBytes.Length - 8;// MAYBE +1 ? 
-                if (mData.Length - chunk_end != 0)
+                //}
+                if (target.Equals(cur, StringComparison.CurrentCultureIgnoreCase))
                 {
-                    Array.Copy(mData, chunk_end, newData, next_start, (mData.Length - chunk_end) - 1);
-                }
-                mData = newData;
+                    // we've advanced to the correct place
+                    uint chunk_start = mCurrentPos;
+                    uint chunk_end = PeekNumber(mCurrentPos + 4) + mCurrentPos + 8;
+                    int mungedContentLength = mungedFileBytes.Length - 8;
+                    uint chunk_len = chunk_end - chunk_start;
 
-                //Update UCFB Header
-                byte[] encodedLen = BinUtils.EncodeNumber(mData.Length - 8);
-                mData[4] = encodedLen[0];
-                mData[5] = encodedLen[1];
-                mData[6] = encodedLen[2];
-                mData[7] = encodedLen[3];
-            }
-            else
-            {
-                Console.WriteLine("Error! Could not find chunk '" + target+"'");
-            }
+                    int difference = (int)(chunk_len - (mungedContentLength));
+                    int newLength = mData.Length - difference;
+                    byte[] newData = new byte[newLength];
+                    Array.Copy(mData, 0, newData, 0, chunk_start /*- 1*/); // copy first chunk
+                    Array.Copy(mungedFileBytes, 8, newData, chunk_start, mungedFileBytes.Length - 8); //splice
+                    long next_start = chunk_start + mungedFileBytes.Length - 8;// MAYBE +1 ? 
+                    if (mData.Length - chunk_end != 0)
+                    {
+                        Array.Copy(mData, chunk_end, newData, next_start, (mData.Length - chunk_end) - 1);
+                    }
+                    mData = newData;
+
+                    //Update UCFB Header
+                    byte[] encodedLen = BinUtils.EncodeNumber(mData.Length - 8);
+                    mData[4] = encodedLen[0];
+                    mData[5] = encodedLen[1];
+                    mData[6] = encodedLen[2];
+                    mData[7] = encodedLen[3];
+                    if (replaceFirstOnly)
+                        break;
+                }
+            } while (RipChunk(false) != null);
         }
 
         public uint InitializeRead()
@@ -573,7 +612,7 @@ namespace LVLTool
         public string Type   { get; set; }
         public uint   Length { get; set; }
         public uint   Start  { get; set; }
-        public byte[] Data   { get; set; } // reference to the lvl file data
+        public byte[] Data   { get; set; }
 
         public LocHelper LocHelper { get; set; }
 
@@ -608,8 +647,26 @@ namespace LVLTool
         public string GetSummary()
         {
             string retVal = string.Format(
-                "Name:   {0}\nType:   {1}\nStart:  0x{2:x}\nLength: 0x{3:x}\n",
-                Name,Type,Start,Length);
+                "Name:   {0}\nType:   {1}\nStart:  0x{2:x}\nLength: 0x{3:x}\nSize:   {4:n} kb",
+                Name,Type,Start,Length, (Length / 1024.0) );
+
+            long loc = BinUtils.GetLocationOfGivenBytes(0, ASCIIEncoding.ASCII.GetBytes("INFO"), Data, 80);
+            if (loc > -1)
+            {
+                loc += 4; // advance to position to read 
+                uint info =  BinUtils.GetNumberAtLocation(loc, Data);
+                retVal += String.Format("\nINFO:   0x{0:x8}", info);
+            }
+
+            if (Name.StartsWith("0x"))
+            {
+                uint hash = UInt32.Parse(Name.Substring(2), System.Globalization.NumberStyles.AllowHexSpecifier);
+                string unHashed = HashHelper.GetStringFromHash(hash);
+                if (unHashed != null)
+                    retVal += string.Format("hash lookup for: {0}>'{1}' \n", Name, unHashed);
+                else
+                    retVal += "Unknown name hash\n";
+            }
             
             return retVal;
         }

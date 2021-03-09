@@ -13,7 +13,7 @@ namespace LVLTool
         /// Throws exception if the selected file is not UCFB or not mungable
         /// (currently tga & lua).
         /// </summary>
-        /// <param name="prompt">The test to prompt the user with.</param>
+        /// <param name="prompt">The text to prompt the user with.</param>
         /// <returns>The munged file name.</returns>
         public static string GetMungedFile( string prompt )
         {
