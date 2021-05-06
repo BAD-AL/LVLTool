@@ -5,6 +5,7 @@ using System.Windows.Forms;
 using System.Diagnostics;
 using System.IO;
 using System.Text.RegularExpressions;
+using System.Text;
 
 namespace LVLTool
 {
@@ -81,13 +82,7 @@ namespace LVLTool
                             output_lvl = input_lvl;
                         if (input_lvl != null)
                         {
-                            UcfbHelper helper = new UcfbHelper();
-                            helper.FileName = input_lvl;
-                            foreach (string f in files_)
-                            {
-                                string fileName = Munger.EnsureMungedFile(f, platform);
-                                //helper.ReplaceUcfbChunk(
-                            }
+                            ReplaceItem_WithForm(input_lvl, output_lvl, files_);
                         }
                         else
                             Console.WriteLine("Error! Must specify input file");
@@ -117,8 +112,123 @@ namespace LVLTool
 
                         CoreMerge.MergeLoc(input_lvl, output_lvl, theFiles);
                         break;
+                    case OperationMode.PS2_BF1AddonScript:
+                        // This code operates as expected; but currently the PS2 crashes when reading the generated .lvl .
+                        string[] neededFiles = new String[] { 
+                            ".\\bin\\luac_4.exe",
+                            ".\\bin\\BF1_LevelPack.exe",
+                            ".\\bin\\BF1_ScriptMunge.exe"
+                        };
+                        foreach (string nf in neededFiles)
+                        {
+                            if (!File.Exists(nf))
+                            {
+                                MessageBox.Show("Required files for operation:\r\n"+String.Join("\r\n", neededFiles), "Error, missing required files");
+                                return;
+                            }
+                        }
+                        StringBuilder builder = new StringBuilder();
+                        builder.Append("print('PROCESS_ADDONS_PS2_BF1 start', 'debug')\r\n");
+
+                        //string debugFile = "DEBUG\\DEBUG.lvl";
+                        //if (File.Exists(debugFile))
+                        //{
+                        //    builder.Append("  ReadDataFile('addon\\debug\\debug.lvl'); \r\n");
+                        //    builder.Append("  ScriptCB_DoFile('debug'); \r\n");
+                        //}
+                        string current = "";
+
+                        for (int i = 0; i < 1000; i++)
+                        {
+                            current = string.Format("{0:D3}\\ADDON{0:D3}.lvl", i);
+                            if (File.Exists(current))
+                            {
+                                builder.Append(String.Format("  ReadDataFile('addon\\{0:D3}\\addon{0:D3}.lvl'); \r\n", i));
+                                builder.Append(String.Format("  ScriptCB_DoFile('addon{0:D3}'); \r\n", i));
+                            }
+                        }
+                        builder.Append("print('PROCESS_ADDONS_PS2_BF1 end', 'debug')");
+
+                        // copy to 'PROCESS_ADDONS_PS2_BF1.LUA'
+                        String ps2LuaFileName = "PROCESS_ADDONS_PS2_BF1.LUA";
+                        
+                        File.WriteAllText(Path.GetFullPath( ps2LuaFileName), builder.ToString());
+                        // create the lvl with the 'CreateLvlForm'
+                        CreateLvlForm lvlMaker = new CreateLvlForm();
+                        lvlMaker.OverrideScriptMunge = Path.GetFullPath( "bin\\BF1_ScriptMunge.exe");
+                        lvlMaker.OverrideLevelPack = Path.GetFullPath( "bin\\BF1_LevelPack.exe");
+                        File.Copy("bin\\luac_4.exe", ".\\luac.exe", true); // ensure lua4 for BF1
+                        lvlMaker.AddItem(ps2LuaFileName);
+                        try
+                        {
+                            lvlMaker.CreateLvl(".\\", "PROCESS_ADDONS_PS2_BF1.LVL", "PS2", true);
+                            RemoveLogFiles();
+                        }
+                        catch (Exception lvlExc)
+                        {
+                            Console.WriteLine("Error Creating PROCESS_ADDONS_PS2_BF1.LVL!" + lvlExc.Message);
+                        }
+                        finally
+                        {
+                            File.Delete(".\\luac.exe");
+                            lvlMaker.Dispose();
+                        }
+                        break;
                 }
             }
+        }
+
+        private static void ReplaceItem_WithForm(string inputLvlName,string outputLvlName, string[] files_)
+        {
+            MainForm form = new MainForm();// lame to use the form, but it works.
+            int count = form.SetLvlFile(inputLvlName);
+            if (count < 1)
+            {
+                Console.WriteLine("Error! nothing found in input file!");
+                return;
+            }
+            if (form.ReplaceItem(files_[0], platform))
+                Console.WriteLine("Replaced Item with " + files_[0]);
+            else
+            {
+                Console.WriteLine("Error during file replacement, output not saved");
+                return;
+            }
+            form.SaveLvl(outputLvlName);
+            Console.WriteLine("Saved to: " + outputLvlName);
+        }
+
+        private static void RemoveLogFiles()
+        {
+            string[] logFiles = Directory.GetFiles(".", "*.log", SearchOption.TopDirectoryOnly);
+            foreach (string log in logFiles)
+            {
+                File.Delete(log);
+            }
+        }
+
+        public static Chunk FindChunk(string lvlFile, string name)
+        {
+            Chunk cur = null;
+            UcfbHelper helper = new UcfbHelper();
+            helper.FileName = lvlFile;
+            helper.InitializeRead();
+            while ((cur = helper.RipChunk(false)) != null)
+            {
+                if (cur.Name == name)
+                    return cur;
+            }
+            return null;
+        }
+
+        private static string GetChunkName(string fileName)
+        {
+            int start = fileName.LastIndexOf(Path.DirectorySeparatorChar) + 1;
+            int end = fileName.LastIndexOf('.');
+            if (end < start)
+                end = fileName.Length - 1;
+            string retVal = fileName.Substring(start, end - start);
+            return retVal;
         }
 
         private static string[] GetFiles(string files)
@@ -181,6 +291,10 @@ namespace LVLTool
                         merge_strings_search_dir = args[i + 1];
                         i++;
                         break;
+                    case "-ps2_bf1_addon_lvl":
+                        operation = OperationMode.PS2_BF1AddonScript;
+                        i++;
+                        break;
                 }
             }
         }
@@ -190,23 +304,25 @@ namespace LVLTool
             string help = "LVLTool.exe  Version: "+Version +"\n"+
 @"Use without arguments for the GUI.
 Use at the command line with the following arguments:
--file <lvl file>  The file to operate on
-" //-r <munged or mungable file(s)>  to replace munged files in the target .lvl file.
-+ @"-a <munged or mungable file(s)>  to add munged files at the end of the target .lvl file.
--o <lvl file>  The output file name. (default is input lvl file)
--e             Extract contents
--p <platform> (pc|xbox|ps2) only important if specifying .tga files (pc=default)
--l List the contents of the munged/lvl file.
--merge_strings <search_dir> Read in the '-file' arg, add the strings found in the 'core.lvl's 
+ -file <lvl file>  The file to operate on
+ -r <munged or mungable file(s)>  to replace munged files in the target .lvl file.
+ -a <munged or mungable file(s)>  to add munged files at the end of the target .lvl file.
+ -o <lvl file>  The output file name. (default is input lvl file)
+ -e             Extract contents
+ -p <platform> (pc|xbox|ps2) only important if specifying .tga files (pc=default)
+ -l List the contents of the munged/lvl file.
+ -merge_strings <search_dir> Read in the '-file' arg, add the strings found in the 'core.lvl's 
                under 'search_dir' save to file specified with the '-o' arg.
--verbose       Display more info as operations are occuring.
--h --help  /? Print help message
+ " + //"-ps2_bf1_addon_lvl  Create a PS2 Battlefront alt addon (workaround) lvl for PS2 BF1 (PS2 BF1 only)
+@"
+ -verbose       Display more info as operations are occuring.
+ -h --help  /? Print help message
 
 Examples:
-    (Replace ABCc_con script inside mission.lvl)
-LVLTool.exe -file mission.lvl -r ABCc_con.lua 
+    (Replace shell_interface script inside shell.lvl)
+LVLTool.exe -file shell.lvl -r shell_interface.lua 
      or 
-LVLTool.exe -file mission.lvl -r ABCc_con.script
+LVLTool.exe -file shell.lvl -r shell_interface.script
  
     (extract all (munged) contents from shell.lvl)
 LVLTool.exe -file shell.lvl -e
@@ -268,7 +384,8 @@ LVLTool.exe -file base.core.lvl -o core.lvl -merge_strings top_folder_with_cores
                 Arguments = args,
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
-                UseShellExecute = false
+                UseShellExecute = false,
+                WindowStyle = ProcessWindowStyle.Hidden
             };
             var process = Process.Start(processStartInfo);
             string output = process.StandardOutput.ReadToEnd();
@@ -316,6 +433,7 @@ LVLTool.exe -file base.core.lvl -o core.lvl -merge_strings top_folder_with_cores
         Replace,
         ListContents,
         ShowHelp,
-        MergeCore
+        MergeCore,
+        PS2_BF1AddonScript
     }
 }

@@ -93,7 +93,7 @@ namespace LVLTool
         public static int LuacCodeSize(string luaSourceFile)
         {
             int retVal = -1;
-            string result = Program.RunCommand(Program.Luac, " -s -o "+ Program.TmpDir +" tmp.luac " + luaSourceFile, true);
+            string result = Program.RunCommand(Program.Luac, " -s -o "+ Program.TmpDir +"tmp.luac " + luaSourceFile, true);
             if (result.Length < 10)
             {
                 FileInfo info = new FileInfo(Program.TmpDir +  "tmp.luac");

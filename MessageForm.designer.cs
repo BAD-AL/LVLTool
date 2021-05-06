@@ -33,7 +33,7 @@
             this.mCancelButton = new System.Windows.Forms.Button();
             this.mAuxButton = new System.Windows.Forms.Button();
             this.mStatusLabel = new System.Windows.Forms.Label();
-            this.mTextBox = new SearchTextBox();
+            this.mTextBox = new LVLTool.SearchTextBox();
             this.SuspendLayout();
             // 
             // mOkButton

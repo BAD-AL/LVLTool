@@ -8,6 +8,7 @@ using System.Text;
 using System.Windows.Forms;
 using System.IO;
 using System.Text.RegularExpressions;
+using System.Globalization;
 
 namespace LVLTool
 {
@@ -21,6 +22,67 @@ namespace LVLTool
             mMainTextBox.StatusControl = mStatusLabel;
             mModToolsSelection.SelectedIndex = 0;
             mModToolsSelection.SelectedIndexChanged += new System.EventHandler(this.mModToolsSelection_SelectedIndexChanged);
+        }
+
+        /// <summary>
+        /// Returns the number of items found in the lvl file
+        /// </summary>
+        /// <param name="filename"></param>
+        /// <returns></returns>
+        internal int SetLvlFile(string filename)
+        {
+            mLVLFileTextBox.Text = filename;
+            return mAssetListBox.Items.Count;
+        }
+
+        internal bool ReplaceItem(string newItemPath, Platform p)
+        {
+            bool retVal = false;
+            string type = "";
+            if (newItemPath.EndsWith(".lua", StringComparison.OrdinalIgnoreCase) || 
+                newItemPath.EndsWith(".script", StringComparison.OrdinalIgnoreCase))
+                type = "scr_";
+            else if (newItemPath.EndsWith(".tga", StringComparison.OrdinalIgnoreCase) || 
+                newItemPath.EndsWith(".texture", StringComparison.OrdinalIgnoreCase))
+                type = "tex_";
+            else if (newItemPath.EndsWith(".config", StringComparison.OrdinalIgnoreCase) )
+                type = "config";
+            if (String.IsNullOrEmpty(type))
+            {
+                Console.WriteLine("Don't know how to replace file: "+ newItemPath);
+                return retVal;
+            }
+            int lastSlash = newItemPath.LastIndexOf("\\");
+            string stem = newItemPath.Substring(lastSlash + 1);
+            int dotIndex = stem.LastIndexOf(".");
+            string name = stem.Substring(0, dotIndex);
+            Chunk current = null;
+            Chunk found = null;
+            
+            // find item 
+            for (int i = 0; i < mAssetListBox.Items.Count; i++)
+            {
+                current = mAssetListBox.Items[i] as Chunk;
+                if (current.Name == name && current.Type == type) // select this index
+                {
+                    found = current;
+                    mAssetListBox.SelectedIndex = i;
+                    break;
+                }
+            }
+            //string fileName, Platform platform
+            string mungedFile = Munger.EnsureMungedFile(newItemPath, p);
+            if (mungedFile != null)
+            {
+                mUcfbFileHelper.ReplaceUcfbChunk(found, mungedFile, true);
+                retVal = true;
+            }
+            return retVal;
+        }
+
+        internal void SaveLvl(string outputFileName)
+        {
+            mUcfbFileHelper.SaveData(outputFileName);
         }
 
         private void textBox_DragOver(object sender, DragEventArgs e)
@@ -687,6 +749,15 @@ namespace LVLTool
             LocMergeForm lmf = new LocMergeForm();
             lmf.SetStyle(this);
             lmf.Show();
+        }
+
+        private void findKnownHashToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            HashLookupForm form = new HashLookupForm();
+            form.SetStyle(this);
+            form.StartPosition = FormStartPosition.CenterParent;
+            
+            form.Show(this);
         }
 
     }

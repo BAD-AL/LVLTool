@@ -132,7 +132,7 @@
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.mLVLFileTextBox);
             this.Name = "LocMergeForm";
-            this.Text = "LocMergeForm";
+            this.Text = "Merge Core Files (localization)";
             this.groupBox1.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();

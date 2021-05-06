@@ -324,7 +324,10 @@ namespace LVLTool
                 {
                     if (mStringSet.ContainsKey(currentHash))
                     {
-                        mStringSet2.Add(currentHash, cur.ToString());
+                        if (!mStringSet2.ContainsKey(currentHash))
+                            mStringSet2.Add(currentHash, cur.ToString());
+                        else
+                            Console.WriteLine("Sorry, not showing 3+ instances of string 0x{0:x}:'{1}'", currentHash, cur.ToString() );
                         //Console.WriteLine("Error! key 0x{0:x} ({1}) already exists as: {2}", currentHash, stringId, mStringSet[currentHash]);
                         //Console.WriteLine("Cannot add {0}:{1}",stringId, cur.ToString() );
                     }

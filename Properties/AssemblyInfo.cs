@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("LVLTool")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("Replace stuff in LVL files")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("LVLTool")]
@@ -32,5 +32,7 @@ using System.Runtime.InteropServices;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("0.9.0.1")]      //0.9.0.0 initial release
-[assembly: AssemblyFileVersion("0.9.0.1")]
+//[assembly: AssemblyVersion("0.9.0.1")]      //0.9.0.0 initial release
+//[assembly: AssemblyFileVersion("0.9.0.1")]
+[assembly: AssemblyVersion("0.9.0.2")]      //0.9.0.2 fixed bug in coremerge for SWBF1
+[assembly: AssemblyFileVersion("0.9.0.2")]

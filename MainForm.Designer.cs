@@ -69,6 +69,7 @@
             this.mModToolsLabel = new System.Windows.Forms.Label();
             this.mStatusLabel = new System.Windows.Forms.Label();
             this.mModToolsSelection = new System.Windows.Forms.ComboBox();
+            this.findKnownHashToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.mMainTextBox = new LVLTool.SearchTextBox();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -138,7 +139,7 @@
             this.groupBox1.Controls.Add(this.pcLuaCodeButton);
             this.groupBox1.Controls.Add(this.mSummaryRadioButton);
             this.groupBox1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.groupBox1.Location = new System.Drawing.Point(6, 227);
+            this.groupBox1.Location = new System.Drawing.Point(6, 220);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Size = new System.Drawing.Size(205, 62);
             this.groupBox1.TabIndex = 24;
@@ -199,7 +200,7 @@
             // 
             this.mAddItemButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.mAddItemButton.BackColor = System.Drawing.Color.Gray;
-            this.mAddItemButton.Location = new System.Drawing.Point(3, 334);
+            this.mAddItemButton.Location = new System.Drawing.Point(3, 327);
             this.mAddItemButton.Name = "mAddItemButton";
             this.mAddItemButton.Size = new System.Drawing.Size(84, 23);
             this.mAddItemButton.TabIndex = 23;
@@ -211,7 +212,7 @@
             // 
             this.mSaveFileButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.mSaveFileButton.BackColor = System.Drawing.Color.Gray;
-            this.mSaveFileButton.Location = new System.Drawing.Point(109, 334);
+            this.mSaveFileButton.Location = new System.Drawing.Point(109, 327);
             this.mSaveFileButton.Name = "mSaveFileButton";
             this.mSaveFileButton.Size = new System.Drawing.Size(102, 23);
             this.mSaveFileButton.TabIndex = 22;
@@ -223,7 +224,7 @@
             // 
             this.mReplaceButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.mReplaceButton.BackColor = System.Drawing.Color.Gray;
-            this.mReplaceButton.Location = new System.Drawing.Point(109, 295);
+            this.mReplaceButton.Location = new System.Drawing.Point(109, 288);
             this.mReplaceButton.Name = "mReplaceButton";
             this.mReplaceButton.Size = new System.Drawing.Size(102, 23);
             this.mReplaceButton.TabIndex = 21;
@@ -235,7 +236,7 @@
             // 
             this.mExtractAllButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.mExtractAllButton.BackColor = System.Drawing.Color.Gray;
-            this.mExtractAllButton.Location = new System.Drawing.Point(3, 295);
+            this.mExtractAllButton.Location = new System.Drawing.Point(3, 288);
             this.mExtractAllButton.Name = "mExtractAllButton";
             this.mExtractAllButton.Size = new System.Drawing.Size(84, 23);
             this.mExtractAllButton.TabIndex = 20;
@@ -255,7 +256,7 @@
             this.mAssetListBox.ItemHeight = 16;
             this.mAssetListBox.Location = new System.Drawing.Point(3, 3);
             this.mAssetListBox.Name = "mAssetListBox";
-            this.mAssetListBox.Size = new System.Drawing.Size(208, 212);
+            this.mAssetListBox.Size = new System.Drawing.Size(208, 196);
             this.mAssetListBox.TabIndex = 19;
             this.mAssetListBox.SelectedIndexChanged += new System.EventHandler(this.mAssetListBox_SelectedIndexChanged);
             // 
@@ -317,7 +318,8 @@
             this.viewToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.refreshLvlListBoxToolStripMenuItem,
             this.sortListBoxToolStripMenuItem,
-            this.findToolStripMenuItem});
+            this.findToolStripMenuItem,
+            this.findKnownHashToolStripMenuItem});
             this.viewToolStripMenuItem.Name = "viewToolStripMenuItem";
             this.viewToolStripMenuItem.Size = new System.Drawing.Size(44, 20);
             this.viewToolStripMenuItem.Text = "View";
@@ -490,6 +492,13 @@
             this.mModToolsSelection.Size = new System.Drawing.Size(208, 21);
             this.mModToolsSelection.TabIndex = 23;
             // 
+            // findKnownHashToolStripMenuItem
+            // 
+            this.findKnownHashToolStripMenuItem.Name = "findKnownHashToolStripMenuItem";
+            this.findKnownHashToolStripMenuItem.Size = new System.Drawing.Size(169, 22);
+            this.findKnownHashToolStripMenuItem.Text = "Find Known Hash";
+            this.findKnownHashToolStripMenuItem.Click += new System.EventHandler(this.findKnownHashToolStripMenuItem_Click);
+            // 
             // mMainTextBox
             // 
             this.mMainTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
@@ -502,7 +511,7 @@
             this.mMainTextBox.Name = "mMainTextBox";
             this.mMainTextBox.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.Vertical;
             this.mMainTextBox.SearchString = null;
-            this.mMainTextBox.Size = new System.Drawing.Size(430, 365);
+            this.mMainTextBox.Size = new System.Drawing.Size(430, 358);
             this.mMainTextBox.StatusControl = null;
             this.mMainTextBox.TabIndex = 17;
             this.mMainTextBox.Text = "";
@@ -580,6 +589,7 @@
         private System.Windows.Forms.ToolStripMenuItem addStringsifNotAlreadyPresentToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem coreMergeFormToolStripMenuItem;
         private System.Windows.Forms.ComboBox mModToolsSelection;
+        private System.Windows.Forms.ToolStripMenuItem findKnownHashToolStripMenuItem;
     }
 }
 
