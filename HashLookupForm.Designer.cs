@@ -105,9 +105,10 @@
             // lbl_hashMe
             // 
             this.lbl_hashMe.AutoSize = true;
+            this.lbl_hashMe.Font = new System.Drawing.Font("Courier New", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lbl_hashMe.Location = new System.Drawing.Point(276, 16);
             this.lbl_hashMe.Name = "lbl_hashMe";
-            this.lbl_hashMe.Size = new System.Drawing.Size(114, 13);
+            this.lbl_hashMe.Size = new System.Drawing.Size(184, 16);
             this.lbl_hashMe.TabIndex = 7;
             this.lbl_hashMe.Text = "type to see hash value";
             // 

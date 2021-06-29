@@ -60,7 +60,6 @@ namespace LVLTool
                     {
                         if (String.IsNullOrEmpty(Program.ModToolsDir))
                             return null;
-                        if (!Program.ModToolsDir.EndsWith("\\")) Program.ModToolsDir += "\\";
                     }
                     sAllLuaFiles = new List<string>();
                     

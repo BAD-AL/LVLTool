@@ -37,7 +37,7 @@ namespace LVLTool
 
         public static string EnsureMungedFile(string fileName, Platform platform)
         {
-            string retVal = null;
+            string retVal = fileName;
 
             if (IsMungableFile(fileName))
                 retVal = MungeFile(fileName, platform);
@@ -86,9 +86,9 @@ namespace LVLTool
                 int index = file.LastIndexOf('\\');
                 string tmpFile = Program.TmpDir + file.Substring(index + 1);
                 File.Copy(file, tmpFile, true);
-                string prog = Program.ModToolsDir + "ToolsFL\\bin\\pc_TextureMunge.exe";
+                string prog = Path.GetFullPath( Program.ModToolsDir + "\\ToolsFL\\bin\\pc_TextureMunge.exe");
                 if( !File.Exists(prog))
-                    prog = Program.ModToolsDir + "ToolsFL\\bin\\TextureMunge.exe";
+                    prog = Path.GetFullPath( Program.ModToolsDir + "\\ToolsFL\\bin\\TextureMunge.exe");
                 if (!File.Exists(prog))
                     throw new Exception(
                         "Could not find texture munge program; ensure modtools directory is set correctly");
@@ -124,7 +124,7 @@ namespace LVLTool
                 int index = file.LastIndexOf('\\');
                 string tmpFile = Program.TmpDir + file.Substring(index + 1);
                 File.Copy(file, tmpFile, true);
-                string prog = Program.ModToolsDir + "ToolsFl\\bin\\ScriptMunge.exe";
+                string prog = Path.GetFullPath( Program.ModToolsDir + "\\ToolsFl\\bin\\ScriptMunge.exe");
                 string args = String.Format(
                     // for scripts, platform doesn't matter; just use pc here
                     "-sourcedir {0} -platform pc -inputfile {1} -outputdir {2}",

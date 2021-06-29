@@ -25,6 +25,22 @@ namespace LVLTool
         }
 
         /// <summary>
+        /// Set the lua code display style
+        /// </summary>
+        /// <param name="arg">'summary', 'pc', 'list', 'decompile' are valid. </param>
+        public void SetCodeDisplayStyle(string arg)
+        {
+            arg = arg.ToLower();
+            switch (arg)
+            {
+                case "summary": mSummaryRadioButton.Checked = true; break;
+                case "pc": pcLuaCodeButton.Checked = true; break;
+                case "list": listingButton.Checked = true; break;
+                case "decompile": decompileButton.Checked = true; break; 
+            }
+        }
+
+        /// <summary>
         /// Returns the number of items found in the lvl file
         /// </summary>
         /// <param name="filename"></param>
@@ -758,6 +774,45 @@ namespace LVLTool
             form.StartPosition = FormStartPosition.CenterParent;
             
             form.Show(this);
+        }
+
+        private void renameItemToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            RenameSelectedItem();
+        }
+
+        private void RenameSelectedItem()
+        {
+            if (mAssetListBox.SelectedIndex > -1)
+            {
+                Chunk c = mAssetListBox.SelectedItem as Chunk;
+                String newName = StringInputDlg.GetString("Enter New name","", c.Name);
+                if( newName != null)
+                    RenameItem(c, newName);
+            }
+        }
+
+        private void RenameItem(Chunk c, String newName)
+        {
+            if (newName != null)
+            {
+                if (newName.Length == c.Name.Length)
+                {
+                    int start = (int)BinUtils.GetLocationOfGivenBytes(c.Start, ASCIIEncoding.ASCII.GetBytes(c.Name), mUcfbFileHelper.Data, 80);
+                    for (int i = 0; i < c.Name.Length; i++)
+                    {
+                        mUcfbFileHelper.Data[start + i] = (byte)newName[i];
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("It is unsupported to change the length of the item's name.");
+                }
+            }
+            else
+            {
+                Console.WriteLine("Error! Cannot set item name to null");
+            }
         }
 
     }

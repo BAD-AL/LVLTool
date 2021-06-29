@@ -42,6 +42,7 @@
             this.mReplaceButton = new System.Windows.Forms.Button();
             this.mExtractAllButton = new System.Windows.Forms.Button();
             this.mAssetListBox = new System.Windows.Forms.ListBox();
+            this.mMainTextBox = new LVLTool.SearchTextBox();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.enterBF2ToolsDirToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -52,6 +53,7 @@
             this.refreshLvlListBoxToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.sortListBoxToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.findToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.findKnownHashToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.localizationMenu = new System.Windows.Forms.ToolStripMenuItem();
             this.showAllStringsToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.applyStringsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -69,8 +71,7 @@
             this.mModToolsLabel = new System.Windows.Forms.Label();
             this.mStatusLabel = new System.Windows.Forms.Label();
             this.mModToolsSelection = new System.Windows.Forms.ComboBox();
-            this.findKnownHashToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.mMainTextBox = new LVLTool.SearchTextBox();
+            this.renameItemToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
             this.splitContainer1.SuspendLayout();
@@ -260,6 +261,23 @@
             this.mAssetListBox.TabIndex = 19;
             this.mAssetListBox.SelectedIndexChanged += new System.EventHandler(this.mAssetListBox_SelectedIndexChanged);
             // 
+            // mMainTextBox
+            // 
+            this.mMainTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+                        | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.mMainTextBox.BackColor = System.Drawing.Color.Black;
+            this.mMainTextBox.Font = new System.Drawing.Font("Courier New", 9.75F);
+            this.mMainTextBox.ForeColor = System.Drawing.Color.White;
+            this.mMainTextBox.Location = new System.Drawing.Point(3, 3);
+            this.mMainTextBox.Name = "mMainTextBox";
+            this.mMainTextBox.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.Vertical;
+            this.mMainTextBox.SearchString = null;
+            this.mMainTextBox.Size = new System.Drawing.Size(430, 358);
+            this.mMainTextBox.StatusControl = null;
+            this.mMainTextBox.TabIndex = 17;
+            this.mMainTextBox.Text = "";
+            // 
             // menuStrip1
             // 
             this.menuStrip1.BackColor = System.Drawing.Color.Transparent;
@@ -279,6 +297,7 @@
             this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.enterBF2ToolsDirToolStripMenuItem,
             this.createNewLVLToolStripMenuItem,
+            this.renameItemToolStripMenuItem,
             this.coreMergeFormToolStripMenuItem,
             this.exitToolStripMenuItem});
             this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
@@ -344,6 +363,13 @@
             this.findToolStripMenuItem.Size = new System.Drawing.Size(169, 22);
             this.findToolStripMenuItem.Text = "Find Item";
             this.findToolStripMenuItem.Click += new System.EventHandler(this.findToolStripMenuItem_Click);
+            // 
+            // findKnownHashToolStripMenuItem
+            // 
+            this.findKnownHashToolStripMenuItem.Name = "findKnownHashToolStripMenuItem";
+            this.findKnownHashToolStripMenuItem.Size = new System.Drawing.Size(169, 22);
+            this.findKnownHashToolStripMenuItem.Text = "Find Known Hash";
+            this.findKnownHashToolStripMenuItem.Click += new System.EventHandler(this.findKnownHashToolStripMenuItem_Click);
             // 
             // localizationMenu
             // 
@@ -492,29 +518,12 @@
             this.mModToolsSelection.Size = new System.Drawing.Size(208, 21);
             this.mModToolsSelection.TabIndex = 23;
             // 
-            // findKnownHashToolStripMenuItem
+            // renameItemToolStripMenuItem
             // 
-            this.findKnownHashToolStripMenuItem.Name = "findKnownHashToolStripMenuItem";
-            this.findKnownHashToolStripMenuItem.Size = new System.Drawing.Size(169, 22);
-            this.findKnownHashToolStripMenuItem.Text = "Find Known Hash";
-            this.findKnownHashToolStripMenuItem.Click += new System.EventHandler(this.findKnownHashToolStripMenuItem_Click);
-            // 
-            // mMainTextBox
-            // 
-            this.mMainTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                        | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
-            this.mMainTextBox.BackColor = System.Drawing.Color.Black;
-            this.mMainTextBox.Font = new System.Drawing.Font("Courier New", 9.75F);
-            this.mMainTextBox.ForeColor = System.Drawing.Color.White;
-            this.mMainTextBox.Location = new System.Drawing.Point(3, 3);
-            this.mMainTextBox.Name = "mMainTextBox";
-            this.mMainTextBox.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.Vertical;
-            this.mMainTextBox.SearchString = null;
-            this.mMainTextBox.Size = new System.Drawing.Size(430, 358);
-            this.mMainTextBox.StatusControl = null;
-            this.mMainTextBox.TabIndex = 17;
-            this.mMainTextBox.Text = "";
+            this.renameItemToolStripMenuItem.Name = "renameItemToolStripMenuItem";
+            this.renameItemToolStripMenuItem.Size = new System.Drawing.Size(177, 22);
+            this.renameItemToolStripMenuItem.Text = "Rename Item";
+            this.renameItemToolStripMenuItem.Click += new System.EventHandler(this.renameItemToolStripMenuItem_Click);
             // 
             // MainForm
             // 
@@ -590,6 +599,7 @@
         private System.Windows.Forms.ToolStripMenuItem coreMergeFormToolStripMenuItem;
         private System.Windows.Forms.ComboBox mModToolsSelection;
         private System.Windows.Forms.ToolStripMenuItem findKnownHashToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem renameItemToolStripMenuItem;
     }
 }
 

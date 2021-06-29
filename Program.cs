@@ -18,9 +18,39 @@ namespace LVLTool
         private static Platform platform = Platform.PC;
         private static OperationMode operation = OperationMode.ShowHelp;
         private static string merge_strings_search_dir = null;
-
+        private static string old_name = null;
+        private static string new_name = null;
         public static bool Verbose = false;
-        
+
+
+        private static string sModToolsDir = "C:\\BF2_ModTools\\";
+
+        public static string ModToolsDir
+        {
+            get { return sModToolsDir; }
+            set
+            {
+                if (!value.EndsWith("\\"))
+                    sModToolsDir = value + "\\";
+                else
+                    sModToolsDir = value;
+            }
+        }
+
+        public static string TmpDir
+        {
+            get
+            {
+                string retVal = ".\\Temp\\";
+                if (!Directory.Exists(retVal))
+                    Directory.CreateDirectory(retVal);
+                return retVal;
+            }
+        }
+
+        public static string Version { get { return System.Reflection.Assembly.GetEntryAssembly().GetName().Version.ToString(); } }
+
+
         /// <summary>
         /// The main entry point for the application.
         /// </summary>
@@ -86,6 +116,43 @@ namespace LVLTool
                         }
                         else
                             Console.WriteLine("Error! Must specify input file");
+                        break;
+                    case OperationMode.Rename:
+                        if (input_lvl == null)
+                        {
+                            Console.WriteLine("Rename Error: no input file specified");
+                            return;
+                        }
+                        if (old_name != null && new_name != null && old_name.Length == new_name.Length)
+                        {
+                            UcfbHelper helper = new UcfbHelper();
+                            helper.FileName = input_lvl;
+                            helper.InitializeRead();
+                            Chunk c = null;
+                            while ((c = helper.RipChunk(false)) != null)
+                            {
+                                if (c.Name == old_name)
+                                    break;
+                            }
+                            if (c != null)
+                            {
+                                int start = (int)BinUtils.GetLocationOfGivenBytes(c.Start, ASCIIEncoding.ASCII.GetBytes(c.Name), helper.Data, 80);
+                                for (int i = 0; i < c.Name.Length; i++)
+                                {
+                                    helper.Data[start + i] = (byte)new_name[i];
+                                }
+                                helper.SaveData(output_lvl);
+                                Console.WriteLine("Changed {0} to {1}, saved to {2}", old_name, new_name, output_lvl);
+                            }
+                            else
+                            {
+                                Console.WriteLine("Coould not find '{0}'. No action taken", old_name);
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine("Rename Error: old name and new name must be specified and be equal length");
+                        }
                         break;
                     case OperationMode.ListContents:
                         UcfbHelper listHelper = new UcfbHelper();
@@ -181,6 +248,7 @@ namespace LVLTool
         private static void ReplaceItem_WithForm(string inputLvlName,string outputLvlName, string[] files_)
         {
             MainForm form = new MainForm();// lame to use the form, but it works.
+            form.SetCodeDisplayStyle("summary");
             int count = form.SetLvlFile(inputLvlName);
             if (count < 1)
             {
@@ -261,6 +329,12 @@ namespace LVLTool
                         files = args[i + 1];
                         i++;
                         break;
+                    case "-rename":
+                        operation = OperationMode.Rename;
+                        old_name = args[i + 1];
+                        new_name = args[i + 2];
+                        i += 2;
+                        break;
                     case "-a":
                         operation = OperationMode.Add;
                         files = args[i + 1];
@@ -278,6 +352,10 @@ namespace LVLTool
                     case "-p":
                         string p = args[i + 1].ToUpper();
                         platform = (Platform) Enum.Parse(typeof(Platform), p);
+                        i++;
+                        break;
+                    case "-mod_tools_folder":
+                        ModToolsDir = args[i + 1];
                         i++;
                         break;
                     case "-l":
@@ -309,8 +387,10 @@ Use at the command line with the following arguments:
  -a <munged or mungable file(s)>  to add munged files at the end of the target .lvl file.
  -o <lvl file>  The output file name. (default is input lvl file)
  -e             Extract contents
+ -rename  <old_name> <new_name>  Rename a UCFB chunk (names must be same size).
  -p <platform> (pc|xbox|ps2) only important if specifying .tga files (pc=default)
  -l List the contents of the munged/lvl file.
+ -mod_tools <mod_tools_folder_no_spaces> The modtools folder (needed for .lua & .tga files, default is 'C:\BF2_ModTools')
  -merge_strings <search_dir> Read in the '-file' arg, add the strings found in the 'core.lvl's 
                under 'search_dir' save to file specified with the '-o' arg.
  " + //"-ps2_bf1_addon_lvl  Create a PS2 Battlefront alt addon (workaround) lvl for PS2 BF1 (PS2 BF1 only)
@@ -323,6 +403,8 @@ Examples:
 LVLTool.exe -file shell.lvl -r shell_interface.lua 
      or 
 LVLTool.exe -file shell.lvl -r shell_interface.script
+    or 
+LVLTool.exe -file shell.lvl -r shell_interface.lua -mod_tools_folder C:\BFBuilder
  
     (extract all (munged) contents from shell.lvl)
 LVLTool.exe -file shell.lvl -e
@@ -353,20 +435,6 @@ LVLTool.exe -file base.core.lvl -o core.lvl -merge_strings top_folder_with_cores
 
         public static string settignsFile = ".\\.lvlToolSettings";
 
-        public static string ModToolsDir = "C:\\BF2_ModTools\\";
-
-        public static string TmpDir {
-            get
-            {
-                string retVal = ".\\Temp\\";
-                if (!Directory.Exists(retVal))
-                    Directory.CreateDirectory(retVal);
-                return retVal;
-            }
-        }
-
-        public static string Version { get { return System.Reflection.Assembly.GetEntryAssembly().GetName().Version.ToString(); } }
-
         public static void MessageUser(string message)
         {
             if (COMMAND_LINE)
@@ -387,6 +455,11 @@ LVLTool.exe -file base.core.lvl -o core.lvl -merge_strings top_folder_with_cores
                 UseShellExecute = false,
                 WindowStyle = ProcessWindowStyle.Hidden
             };
+            if (Directory.Exists(Program.ModToolsDir + "ToolsFL\\bin\\"))
+            {
+                string newPath = Program.ModToolsDir + "ToolsFL\\bin\\;" + processStartInfo.EnvironmentVariables["path"];
+                processStartInfo.EnvironmentVariables["path"] = newPath;
+            }
             var process = Process.Start(processStartInfo);
             string output = process.StandardOutput.ReadToEnd();
             string err = process.StandardError.ReadToEnd();
@@ -431,9 +504,11 @@ LVLTool.exe -file base.core.lvl -o core.lvl -merge_strings top_folder_with_cores
         Extract,
         Add,
         Replace,
+        Rename,
         ListContents,
         ShowHelp,
         MergeCore,
         PS2_BF1AddonScript
     }
+
 }

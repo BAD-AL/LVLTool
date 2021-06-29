@@ -4,12 +4,13 @@ using System.Linq;
 using System.Text;
 using System.IO;
 using System.Globalization;
+using System.Reflection;
 
 namespace LVLTool
 {
     public class HashHelper
     {
-        private static string DictionaryFile 
+        private static string DictionaryFile
         {
             get
             {
@@ -96,18 +97,23 @@ namespace LVLTool
             int count = 0;
             uint hashId = 0;
             StringBuilder sb = new StringBuilder(500);
-            
+
             if (sHashes == null) ReadDictionary();
-            
-            foreach (string str in stringsToAdd)
+            string str = "";
+
+            foreach (string tmp in stringsToAdd)
             {
-                hashId = HashString(str);
-                if (!sHashes.ContainsKey(hashId))
+                str = tmp.Trim();
+                if (str.Length > 1)
                 {
-                    AddHashedString(str);
-                    count++;
-                    sb.Append(str);
-                    sb.Append("\r\n");
+                    hashId = HashString(str);
+                    if (!sHashes.ContainsKey(hashId))
+                    {
+                        AddHashedString(str);
+                        count++;
+                        sb.Append(str);
+                        sb.Append("\r\n");
+                    }
                 }
             }
             if (sb.Length > 0)
@@ -115,17 +121,20 @@ namespace LVLTool
                 StreamWriter wr = null;
                 try
                 {
-                    wr = new StreamWriter(DictionaryFile, true);
-                    wr.Write(sb.ToString());
+                    if (File.Exists(DictionaryFile))
+                    {
+                        wr = new StreamWriter(DictionaryFile, true);
+                        wr.Write(sb.ToString());
+                    }
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine("Error updating " + DictionaryFile +"\n"+
+                    Console.WriteLine("Error updating " + DictionaryFile + "\n" +
                         e.Message);
                 }
                 finally
                 {
-                    if( wr != null)
+                    if (wr != null)
                         wr.Close();
                 }
             }
@@ -137,34 +146,35 @@ namespace LVLTool
             StreamReader reader = null;
             string line = "";
             sHashes = new Dictionary<uint, string>(500);
-            if (File.Exists(DictionaryFile))
+            try
             {
-                try
+                if (File.Exists(DictionaryFile))
                 {
-                    Console.WriteLine("Reading dictionary...");
+                    Console.WriteLine("Reading '{0}...", DictionaryFile);
                     reader = new StreamReader(DictionaryFile);
-                    while ((line = reader.ReadLine()) != null)
-                    {
-                        AddHashedString(line);
-                    }
                 }
-                catch (Exception e)
+                else
                 {
-                    Console.WriteLine("Error processing file " + DictionaryFile + "\n" + e.Message);
+                    Assembly assembly = Assembly.GetExecutingAssembly();
+                    // when debugging use the line below to look through the different resources in 'resourceNames' to see the name of the target resource
+                    //String[] resourceNames = assembly.GetManifestResourceNames();
+                    reader = new StreamReader(assembly.GetManifestResourceStream("LVLTool.dictionary.txt"));
+                    Console.WriteLine("Using internal dictionary...");
                 }
-                finally
+                while ((line = reader.ReadLine()) != null)
                 {
-                    if (reader != null)
-                        reader.Close();
+                    AddHashedString(line);
                 }
-                Console.WriteLine("Done Reading dictionary.");
             }
-            else
+            catch (Exception e)
             {
-                Console.WriteLine("Warning, 'Dictionary.txt' not found in current folder...");
+                Console.WriteLine("Error processing Dictionary. linesProcessed:{0} '{1}'", sHashes.Count, e.Message);
+            }
+            finally
+            {
+                if (reader != null)
+                    reader.Close();
             }
         }
-
-
     }
 }
