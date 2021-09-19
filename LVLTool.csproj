@@ -167,6 +167,12 @@
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="UcfbHelper.cs" />
+    <Compile Include="UnmungeForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UnmungeForm.Designer.cs">
+      <DependentUpon>UnmungeForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="WinFormThemeHelper.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -175,6 +181,9 @@
     </Content>
     <EmbeddedResource Include="dictionary.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UnmungeForm.resx">
+      <DependentUpon>UnmungeForm.cs</DependentUpon>
     </EmbeddedResource>
     <Content Include="LuaDC1.exe">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

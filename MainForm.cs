@@ -815,5 +815,12 @@ namespace LVLTool
             }
         }
 
+        private void runUnmungeToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            UnmungeForm form = new UnmungeForm();
+            form.SetStyle(this);
+            form.Show();
+        }
+
     }
 }

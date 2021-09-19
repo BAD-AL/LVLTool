@@ -47,6 +47,7 @@
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.enterBF2ToolsDirToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.createNewLVLToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.renameItemToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.coreMergeFormToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.viewToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -71,7 +72,7 @@
             this.mModToolsLabel = new System.Windows.Forms.Label();
             this.mStatusLabel = new System.Windows.Forms.Label();
             this.mModToolsSelection = new System.Windows.Forms.ComboBox();
-            this.renameItemToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.runUnmungeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
             this.splitContainer1.SuspendLayout();
@@ -299,6 +300,7 @@
             this.createNewLVLToolStripMenuItem,
             this.renameItemToolStripMenuItem,
             this.coreMergeFormToolStripMenuItem,
+            this.runUnmungeToolStripMenuItem,
             this.exitToolStripMenuItem});
             this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
             this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
@@ -317,6 +319,13 @@
             this.createNewLVLToolStripMenuItem.Size = new System.Drawing.Size(177, 22);
             this.createNewLVLToolStripMenuItem.Text = "Create new LVL";
             this.createNewLVLToolStripMenuItem.Click += new System.EventHandler(this.createNewLVLToolStripMenuItem_Click);
+            // 
+            // renameItemToolStripMenuItem
+            // 
+            this.renameItemToolStripMenuItem.Name = "renameItemToolStripMenuItem";
+            this.renameItemToolStripMenuItem.Size = new System.Drawing.Size(177, 22);
+            this.renameItemToolStripMenuItem.Text = "Rename Item";
+            this.renameItemToolStripMenuItem.Click += new System.EventHandler(this.renameItemToolStripMenuItem_Click);
             // 
             // coreMergeFormToolStripMenuItem
             // 
@@ -518,12 +527,12 @@
             this.mModToolsSelection.Size = new System.Drawing.Size(208, 21);
             this.mModToolsSelection.TabIndex = 23;
             // 
-            // renameItemToolStripMenuItem
+            // runUnmungeToolStripMenuItem
             // 
-            this.renameItemToolStripMenuItem.Name = "renameItemToolStripMenuItem";
-            this.renameItemToolStripMenuItem.Size = new System.Drawing.Size(177, 22);
-            this.renameItemToolStripMenuItem.Text = "Rename Item";
-            this.renameItemToolStripMenuItem.Click += new System.EventHandler(this.renameItemToolStripMenuItem_Click);
+            this.runUnmungeToolStripMenuItem.Name = "runUnmungeToolStripMenuItem";
+            this.runUnmungeToolStripMenuItem.Size = new System.Drawing.Size(177, 22);
+            this.runUnmungeToolStripMenuItem.Text = "Run Unmunge";
+            this.runUnmungeToolStripMenuItem.Click += new System.EventHandler(this.runUnmungeToolStripMenuItem_Click);
             // 
             // MainForm
             // 
@@ -600,6 +609,7 @@
         private System.Windows.Forms.ComboBox mModToolsSelection;
         private System.Windows.Forms.ToolStripMenuItem findKnownHashToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem renameItemToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem runUnmungeToolStripMenuItem;
     }
 }
 

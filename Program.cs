@@ -103,6 +103,7 @@ namespace LVLTool
                                 string fileName = Munger.EnsureMungedFile(f, platform);
                                 helper.AddItemToEnd(fileName);
                             }
+                            helper.SaveData(output_lvl);
                         }
                         else
                             Console.WriteLine("Error! Must specify input file");
@@ -263,7 +264,7 @@ namespace LVLTool
                 return;
             }
             form.SaveLvl(outputLvlName);
-            Console.WriteLine("Saved to: " + outputLvlName);
+            //Console.WriteLine("Saved to: " + outputLvlName);
         }
 
         private static void RemoveLogFiles()

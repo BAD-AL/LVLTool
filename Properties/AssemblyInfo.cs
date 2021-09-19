@@ -34,5 +34,7 @@ using System.Runtime.InteropServices;
 // [assembly: AssemblyVersion("1.0.*")]
 //[assembly: AssemblyVersion("0.9.0.1")]      //0.9.0.0 initial release
 //[assembly: AssemblyFileVersion("0.9.0.1")]
-[assembly: AssemblyVersion("0.9.0.2")]      //0.9.0.2 fixed bug in coremerge for SWBF1
-[assembly: AssemblyFileVersion("0.9.0.2")]
+//[assembly: AssemblyVersion("0.9.0.2")]      //0.9.0.2 fixed bug in coremerge for SWBF1
+//[assembly: AssemblyFileVersion("0.9.0.2")]
+[assembly: AssemblyVersion("0.9.0.3")]
+[assembly: AssemblyFileVersion("0.9.0.3")]
