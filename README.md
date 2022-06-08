@@ -1,6 +1,9 @@
 ﻿## LVLTool
 https://github.com/BAD-AL/LVLTool (MIT License)
 
+## Demo Video
+https://www.youtube.com/watch?v=HadtmfZm8XU
+
 LVLTool is a program useful for Star Wars Battlefront (2004) and Star Wars Battlefront (2005).
 It takes apart, adds to, replaces items from the .lvl files that these games use.
 
