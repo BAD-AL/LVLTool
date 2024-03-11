@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(UnmungeForm));
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.buttonXbox = new System.Windows.Forms.RadioButton();
@@ -51,11 +52,17 @@
             this.groupBox5 = new System.Windows.Forms.GroupBox();
             this.check_collision = new System.Windows.Forms.CheckBox();
             this.check_lod = new System.Windows.Forms.CheckBox();
+            this.contextMenuUnmungeVersion = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.showKnownBugsForVersionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.tryToRenameFilesWithHashedNamesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.fixRotationInlyrFilesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.listUnmungeExe = new System.Windows.Forms.ListBox();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
             this.groupBox4.SuspendLayout();
             this.groupBox5.SuspendLayout();
+            this.contextMenuUnmungeVersion.SuspendLayout();
             this.SuspendLayout();
             // 
             // groupBox1
@@ -203,7 +210,7 @@
             // buttonGo
             // 
             this.buttonGo.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.buttonGo.Location = new System.Drawing.Point(402, 184);
+            this.buttonGo.Location = new System.Drawing.Point(402, 268);
             this.buttonGo.Name = "buttonGo";
             this.buttonGo.Size = new System.Drawing.Size(75, 23);
             this.buttonGo.TabIndex = 6;
@@ -214,7 +221,7 @@
             // buttonHelp
             // 
             this.buttonHelp.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.buttonHelp.Location = new System.Drawing.Point(12, 184);
+            this.buttonHelp.Location = new System.Drawing.Point(12, 268);
             this.buttonHelp.Name = "buttonHelp";
             this.buttonHelp.Size = new System.Drawing.Size(120, 23);
             this.buttonHelp.TabIndex = 7;
@@ -297,12 +304,53 @@
             this.check_lod.Text = "lod";
             this.check_lod.UseVisualStyleBackColor = true;
             // 
+            // contextMenuUnmungeVersion
+            // 
+            this.contextMenuUnmungeVersion.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.showKnownBugsForVersionsToolStripMenuItem,
+            this.tryToRenameFilesWithHashedNamesToolStripMenuItem,
+            this.fixRotationInlyrFilesToolStripMenuItem});
+            this.contextMenuUnmungeVersion.Name = "contextMenuUnmungeVersion";
+            this.contextMenuUnmungeVersion.Size = new System.Drawing.Size(282, 70);
+            // 
+            // showKnownBugsForVersionsToolStripMenuItem
+            // 
+            this.showKnownBugsForVersionsToolStripMenuItem.Name = "showKnownBugsForVersionsToolStripMenuItem";
+            this.showKnownBugsForVersionsToolStripMenuItem.Size = new System.Drawing.Size(281, 22);
+            this.showKnownBugsForVersionsToolStripMenuItem.Text = "Show Known Bugs for versions";
+            this.showKnownBugsForVersionsToolStripMenuItem.Click += new System.EventHandler(this.showKnownBugsForVersionsToolStripMenuItem_Click);
+            // 
+            // tryToRenameFilesWithHashedNamesToolStripMenuItem
+            // 
+            this.tryToRenameFilesWithHashedNamesToolStripMenuItem.Name = "tryToRenameFilesWithHashedNamesToolStripMenuItem";
+            this.tryToRenameFilesWithHashedNamesToolStripMenuItem.Size = new System.Drawing.Size(281, 22);
+            this.tryToRenameFilesWithHashedNamesToolStripMenuItem.Text = "Try To re-name files with hashed names";
+            this.tryToRenameFilesWithHashedNamesToolStripMenuItem.Click += new System.EventHandler(this.tryToRenameFilesWithHashedNamesToolStripMenuItem_Click);
+            // 
+            // fixRotationInlyrFilesToolStripMenuItem
+            // 
+            this.fixRotationInlyrFilesToolStripMenuItem.Name = "fixRotationInlyrFilesToolStripMenuItem";
+            this.fixRotationInlyrFilesToolStripMenuItem.Size = new System.Drawing.Size(281, 22);
+            this.fixRotationInlyrFilesToolStripMenuItem.Text = "Fix Rotation in .lyr files";
+            this.fixRotationInlyrFilesToolStripMenuItem.Click += new System.EventHandler(this.fixRotationInlyrFilesToolStripMenuItem_Click);
+            // 
+            // listUnmungeExe
+            // 
+            this.listUnmungeExe.ContextMenuStrip = this.contextMenuUnmungeVersion;
+            this.listUnmungeExe.FormattingEnabled = true;
+            this.listUnmungeExe.Location = new System.Drawing.Point(12, 177);
+            this.listUnmungeExe.Name = "listUnmungeExe";
+            this.listUnmungeExe.Size = new System.Drawing.Size(359, 69);
+            this.listUnmungeExe.TabIndex = 8;
+            // 
             // UnmungeForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(489, 210);
+            this.ClientSize = new System.Drawing.Size(489, 294);
+            this.ContextMenuStrip = this.contextMenuUnmungeVersion;
             this.Controls.Add(this.groupBox5);
+            this.Controls.Add(this.listUnmungeExe);
             this.Controls.Add(this.groupBox4);
             this.Controls.Add(this.buttonHelp);
             this.Controls.Add(this.buttonGo);
@@ -325,6 +373,7 @@
             this.groupBox4.PerformLayout();
             this.groupBox5.ResumeLayout(false);
             this.groupBox5.PerformLayout();
+            this.contextMenuUnmungeVersion.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -354,5 +403,10 @@
         private System.Windows.Forms.GroupBox groupBox5;
         private System.Windows.Forms.CheckBox check_collision;
         private System.Windows.Forms.CheckBox check_lod;
+        private System.Windows.Forms.ContextMenuStrip contextMenuUnmungeVersion;
+        private System.Windows.Forms.ToolStripMenuItem showKnownBugsForVersionsToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem tryToRenameFilesWithHashedNamesToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem fixRotationInlyrFilesToolStripMenuItem;
+        private System.Windows.Forms.ListBox listUnmungeExe;
     }
 }

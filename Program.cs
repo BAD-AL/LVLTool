@@ -22,6 +22,19 @@ namespace LVLTool
         private static string new_name = null;
         public static bool Verbose = false;
 
+        private static string sLuaSourceDir = null;
+
+        public static string LuaSourceDir
+        {
+            get { return sLuaSourceDir; }
+            set
+            {
+                if (!value.EndsWith("\\"))
+                    sLuaSourceDir = value + "\\";
+                else
+                    sLuaSourceDir = value;
+            }
+        }
 
         private static string sModToolsDir = "C:\\BF2_ModTools\\";
 
@@ -69,179 +82,186 @@ namespace LVLTool
                 try
                 {
                     ProcessArgs(args);
-                }
-                catch (Exception)
-                {
-                    Console.Error.WriteLine("Error! Check arguments!");
-                    return;
-                }
-                string[] files_ = GetFiles(files);
-                switch (operation)
-                {
-                    case OperationMode.ShowHelp:
-                        PrintHelp();
-                        break;
-                    case OperationMode.Extract:
-                        if (input_lvl != null)
-                        {
-                            UcfbHelper helper = new UcfbHelper();
-                            helper.FileName = input_lvl;
-                            helper.ExtractContents();
-                        }
-                        else
-                            Console.WriteLine("Error! Must specify input file");
-                        break;
-                    case OperationMode.Add:
-                        if (output_lvl == null)
-                            output_lvl = input_lvl;
-                        if (input_lvl != null)
-                        {
-                            UcfbHelper helper = new UcfbHelper();
-                            helper.FileName = input_lvl;
-                            foreach (string f in files_)
+                    if (input_lvl != null && !File.Exists(input_lvl))
+                    {
+                        Console.WriteLine("Could not find input file '{0}'", input_lvl);
+                        return;
+                    }
+
+                    string[] files_ = GetFiles(files);
+                    switch (operation)
+                    {
+                        case OperationMode.ShowHelp:
+                            PrintHelp();
+                            break;
+                        case OperationMode.Extract:
+                            if (input_lvl != null)
                             {
-                                string fileName = Munger.EnsureMungedFile(f, platform);
-                                helper.AddItemToEnd(fileName);
+                                UcfbHelper helper = new UcfbHelper();
+                                helper.FileName = input_lvl;
+                                helper.ExtractContents();
                             }
-                            helper.SaveData(output_lvl);
-                        }
-                        else
-                            Console.WriteLine("Error! Must specify input file");
-                        break;
-                    case OperationMode.Replace:
-                        if (output_lvl == null)
-                            output_lvl = input_lvl;
-                        if (input_lvl != null)
-                        {
-                            ReplaceItem_WithForm(input_lvl, output_lvl, files_);
-                        }
-                        else
-                            Console.WriteLine("Error! Must specify input file");
-                        break;
-                    case OperationMode.Rename:
-                        if (input_lvl == null)
-                        {
-                            Console.WriteLine("Rename Error: no input file specified");
-                            return;
-                        }
-                        if (old_name != null && new_name != null && old_name.Length == new_name.Length)
-                        {
-                            UcfbHelper helper = new UcfbHelper();
-                            helper.FileName = input_lvl;
-                            helper.InitializeRead();
-                            Chunk c = null;
-                            while ((c = helper.RipChunk(false)) != null)
+                            else
+                                Console.WriteLine("Error! Must specify input file");
+                            break;
+                        case OperationMode.Add:
+                            if (output_lvl == null)
+                                output_lvl = input_lvl;
+                            if (input_lvl != null)
                             {
-                                if (c.Name == old_name)
-                                    break;
-                            }
-                            if (c != null)
-                            {
-                                int start = (int)BinUtils.GetLocationOfGivenBytes(c.Start, ASCIIEncoding.ASCII.GetBytes(c.Name), helper.Data, 80);
-                                for (int i = 0; i < c.Name.Length; i++)
+                                UcfbHelper helper = new UcfbHelper();
+                                helper.FileName = input_lvl;
+                                foreach (string f in files_)
                                 {
-                                    helper.Data[start + i] = (byte)new_name[i];
+                                    string fileName = Munger.EnsureMungedFile(f, platform);
+                                    helper.AddItemToEnd(fileName);
                                 }
                                 helper.SaveData(output_lvl);
-                                Console.WriteLine("Changed {0} to {1}, saved to {2}", old_name, new_name, output_lvl);
+                            }
+                            else
+                                Console.WriteLine("Error! Must specify input file");
+                            break;
+                        case OperationMode.Replace:
+                            if (output_lvl == null)
+                                output_lvl = input_lvl;
+                            if (input_lvl != null)
+                            {
+                                ReplaceItem_WithForm(input_lvl, output_lvl, files_);
+                            }
+                            else
+                                Console.WriteLine("Error! Must specify input file");
+                            break;
+                        case OperationMode.Rename:
+                            if (input_lvl == null)
+                            {
+                                Console.WriteLine("Rename Error: no input file specified");
+                                return;
+                            }
+                            if (old_name != null && new_name != null && old_name.Length == new_name.Length)
+                            {
+                                UcfbHelper helper = new UcfbHelper();
+                                helper.FileName = input_lvl;
+                                helper.InitializeRead();
+                                Chunk c = null;
+                                while ((c = helper.RipChunk(false)) != null)
+                                {
+                                    if (c.Name == old_name)
+                                        break;
+                                }
+                                if (c != null)
+                                {
+                                    int start = (int)BinUtils.GetLocationOfGivenBytes(c.Start, ASCIIEncoding.ASCII.GetBytes(c.Name), helper.Data, 80);
+                                    for (int i = 0; i < c.Name.Length; i++)
+                                    {
+                                        helper.Data[start + i] = (byte)new_name[i];
+                                    }
+                                    helper.SaveData(output_lvl);
+                                    Console.WriteLine("Changed {0} to {1}, saved to {2}", old_name, new_name, output_lvl);
+                                }
+                                else
+                                {
+                                    Console.WriteLine("Coould not find '{0}'. No action taken", old_name);
+                                }
                             }
                             else
                             {
-                                Console.WriteLine("Coould not find '{0}'. No action taken", old_name);
+                                Console.WriteLine("Rename Error: old name and new name must be specified and be equal length");
                             }
-                        }
-                        else
-                        {
-                            Console.WriteLine("Rename Error: old name and new name must be specified and be equal length");
-                        }
-                        break;
-                    case OperationMode.ListContents:
-                        UcfbHelper listHelper = new UcfbHelper();
-                        listHelper.FileName = input_lvl;
-                        listHelper.InitializeRead();
-                        Chunk cur = null;
-                        while ((cur = listHelper.RipChunk(false)) != null)
-                        {
-                            Console.WriteLine("{0}.{1}", cur.Name, cur.Type);
-                        }
-                        break;
-                    case OperationMode.MergeCore:
-                        List<string> theFiles = new List<string>(Directory.GetFiles(
-                            merge_strings_search_dir, "core.lvl", SearchOption.AllDirectories));
+                            break;
+                        case OperationMode.ListContents:
+                            UcfbHelper listHelper = new UcfbHelper();
+                            listHelper.FileName = input_lvl;
+                            listHelper.InitializeRead();
+                            Chunk cur = null;
+                            while ((cur = listHelper.RipChunk(false)) != null)
+                            {
+                                Console.WriteLine("{0}.{1}", cur.Name, cur.Type);
+                            }
+                            break;
+                        case OperationMode.MergeCore:
+                            List<string> theFiles = new List<string>(Directory.GetFiles(
+                                merge_strings_search_dir, "core.lvl", SearchOption.AllDirectories));
 
-                        //english,spanigh,italian,french,german,japanese,uk_english 
-                        theFiles.AddRange(Directory.GetFiles(merge_strings_search_dir, "english.txt", SearchOption.AllDirectories));
-                        theFiles.AddRange(Directory.GetFiles(merge_strings_search_dir, "spanish.txt", SearchOption.AllDirectories));
-                        theFiles.AddRange(Directory.GetFiles(merge_strings_search_dir, "italian.txt", SearchOption.AllDirectories));
-                        theFiles.AddRange(Directory.GetFiles(merge_strings_search_dir, "french.txt", SearchOption.AllDirectories));
-                        theFiles.AddRange(Directory.GetFiles(merge_strings_search_dir, "german.txt", SearchOption.AllDirectories));
-                        theFiles.AddRange(Directory.GetFiles(merge_strings_search_dir, "japanese.txt", SearchOption.AllDirectories));
-                        theFiles.AddRange(Directory.GetFiles(merge_strings_search_dir, "uk_english.txt", SearchOption.AllDirectories));
+                            //english,spanigh,italian,french,german,japanese,uk_english 
+                            theFiles.AddRange(Directory.GetFiles(merge_strings_search_dir, "english.txt", SearchOption.AllDirectories));
+                            theFiles.AddRange(Directory.GetFiles(merge_strings_search_dir, "spanish.txt", SearchOption.AllDirectories));
+                            theFiles.AddRange(Directory.GetFiles(merge_strings_search_dir, "italian.txt", SearchOption.AllDirectories));
+                            theFiles.AddRange(Directory.GetFiles(merge_strings_search_dir, "french.txt", SearchOption.AllDirectories));
+                            theFiles.AddRange(Directory.GetFiles(merge_strings_search_dir, "german.txt", SearchOption.AllDirectories));
+                            theFiles.AddRange(Directory.GetFiles(merge_strings_search_dir, "japanese.txt", SearchOption.AllDirectories));
+                            theFiles.AddRange(Directory.GetFiles(merge_strings_search_dir, "uk_english.txt", SearchOption.AllDirectories));
 
-                        CoreMerge.MergeLoc(input_lvl, output_lvl, theFiles);
-                        break;
-                    case OperationMode.PS2_BF1AddonScript:
-                        // This code operates as expected; but currently the PS2 crashes when reading the generated .lvl .
-                        string[] neededFiles = new String[] { 
+                            CoreMerge.MergeLoc(input_lvl, output_lvl, theFiles);
+                            break;
+                        case OperationMode.PS2_BF1AddonScript:
+                            // This code operates as expected; but currently the PS2 crashes when reading the generated .lvl .
+                            string[] neededFiles = new String[] { 
                             ".\\bin\\luac_4.exe",
                             ".\\bin\\BF1_LevelPack.exe",
                             ".\\bin\\BF1_ScriptMunge.exe"
                         };
-                        foreach (string nf in neededFiles)
-                        {
-                            if (!File.Exists(nf))
+                            foreach (string nf in neededFiles)
                             {
-                                MessageBox.Show("Required files for operation:\r\n"+String.Join("\r\n", neededFiles), "Error, missing required files");
-                                return;
+                                if (!File.Exists(nf))
+                                {
+                                    MessageBox.Show("Required files for operation:\r\n" + String.Join("\r\n", neededFiles), "Error, missing required files");
+                                    return;
+                                }
                             }
-                        }
-                        StringBuilder builder = new StringBuilder();
-                        builder.Append("print('PROCESS_ADDONS_PS2_BF1 start', 'debug')\r\n");
+                            StringBuilder builder = new StringBuilder();
+                            builder.Append("print('PROCESS_ADDONS_PS2_BF1 start', 'debug')\r\n");
 
-                        //string debugFile = "DEBUG\\DEBUG.lvl";
-                        //if (File.Exists(debugFile))
-                        //{
-                        //    builder.Append("  ReadDataFile('addon\\debug\\debug.lvl'); \r\n");
-                        //    builder.Append("  ScriptCB_DoFile('debug'); \r\n");
-                        //}
-                        string current = "";
+                            //string debugFile = "DEBUG\\DEBUG.lvl";
+                            //if (File.Exists(debugFile))
+                            //{
+                            //    builder.Append("  ReadDataFile('addon\\debug\\debug.lvl'); \r\n");
+                            //    builder.Append("  ScriptCB_DoFile('debug'); \r\n");
+                            //}
+                            string current = "";
 
-                        for (int i = 0; i < 1000; i++)
-                        {
-                            current = string.Format("{0:D3}\\ADDON{0:D3}.lvl", i);
-                            if (File.Exists(current))
+                            for (int i = 0; i < 1000; i++)
                             {
-                                builder.Append(String.Format("  ReadDataFile('addon\\{0:D3}\\addon{0:D3}.lvl'); \r\n", i));
-                                builder.Append(String.Format("  ScriptCB_DoFile('addon{0:D3}'); \r\n", i));
+                                current = string.Format("{0:D3}\\ADDON{0:D3}.lvl", i);
+                                if (File.Exists(current))
+                                {
+                                    builder.Append(String.Format("  ReadDataFile('addon\\{0:D3}\\addon{0:D3}.lvl'); \r\n", i));
+                                    builder.Append(String.Format("  ScriptCB_DoFile('addon{0:D3}'); \r\n", i));
+                                }
                             }
-                        }
-                        builder.Append("print('PROCESS_ADDONS_PS2_BF1 end', 'debug')");
+                            builder.Append("print('PROCESS_ADDONS_PS2_BF1 end', 'debug')");
 
-                        // copy to 'PROCESS_ADDONS_PS2_BF1.LUA'
-                        String ps2LuaFileName = "PROCESS_ADDONS_PS2_BF1.LUA";
-                        
-                        File.WriteAllText(Path.GetFullPath( ps2LuaFileName), builder.ToString());
-                        // create the lvl with the 'CreateLvlForm'
-                        CreateLvlForm lvlMaker = new CreateLvlForm();
-                        lvlMaker.OverrideScriptMunge = Path.GetFullPath( "bin\\BF1_ScriptMunge.exe");
-                        lvlMaker.OverrideLevelPack = Path.GetFullPath( "bin\\BF1_LevelPack.exe");
-                        File.Copy("bin\\luac_4.exe", ".\\luac.exe", true); // ensure lua4 for BF1
-                        lvlMaker.AddItem(ps2LuaFileName);
-                        try
-                        {
-                            lvlMaker.CreateLvl(".\\", "PROCESS_ADDONS_PS2_BF1.LVL", "PS2", true);
-                            RemoveLogFiles();
-                        }
-                        catch (Exception lvlExc)
-                        {
-                            Console.WriteLine("Error Creating PROCESS_ADDONS_PS2_BF1.LVL!" + lvlExc.Message);
-                        }
-                        finally
-                        {
-                            File.Delete(".\\luac.exe");
-                            lvlMaker.Dispose();
-                        }
-                        break;
+                            // copy to 'PROCESS_ADDONS_PS2_BF1.LUA'
+                            String ps2LuaFileName = "PROCESS_ADDONS_PS2_BF1.LUA";
+
+                            File.WriteAllText(Path.GetFullPath(ps2LuaFileName), builder.ToString());
+                            // create the lvl with the 'CreateLvlForm'
+                            CreateLvlForm lvlMaker = new CreateLvlForm();
+                            lvlMaker.OverrideScriptMunge = Path.GetFullPath("bin\\BF1_ScriptMunge.exe");
+                            lvlMaker.OverrideLevelPack = Path.GetFullPath("bin\\BF1_LevelPack.exe");
+                            File.Copy("bin\\luac_4.exe", ".\\luac.exe", true); // ensure lua4 for BF1
+                            lvlMaker.AddItem(ps2LuaFileName);
+                            try
+                            {
+                                lvlMaker.CreateLvl(".\\", "PROCESS_ADDONS_PS2_BF1.LVL", "PS2", true);
+                                RemoveLogFiles();
+                            }
+                            catch (Exception lvlExc)
+                            {
+                                Console.WriteLine("Error Creating PROCESS_ADDONS_PS2_BF1.LVL!" + lvlExc.Message);
+                            }
+                            finally
+                            {
+                                File.Delete(".\\luac.exe");
+                                lvlMaker.Dispose();
+                            }
+                            break;
+                    }
+
+                }
+                catch (Exception ex)
+                {
+                    Console.Error.WriteLine("Error! Check arguments!\n{0}", ex.Message);
+                    return;
                 }
             }
         }
@@ -427,9 +447,21 @@ LVLTool.exe -file base.core.lvl -o core.lvl -merge_strings top_folder_with_cores
         {
             get
             {
-                string retVal = ModToolsDir + "ToolsFL\\bin\\Luac.exe";
+                string retVal = FindLuac(ModToolsDir);
                 return retVal;
             }
+        }
+
+        private static String FindLuac(string startDir)
+        {
+            string retVal = startDir + "ToolsFL\\bin\\Luac.exe";
+            if (!File.Exists(retVal))
+            {
+                string test = startDir + "..\\" + "ToolsFL\\bin\\Luac.exe";
+                if (File.Exists(test))
+                    retVal = test;
+            }
+            return retVal;
         }
 
         public static bool COMMAND_LINE = false;
@@ -456,9 +488,16 @@ LVLTool.exe -file base.core.lvl -o core.lvl -merge_strings top_folder_with_cores
                 UseShellExecute = false,
                 WindowStyle = ProcessWindowStyle.Hidden
             };
-            if (Directory.Exists(Program.ModToolsDir + "ToolsFL\\bin\\"))
+            
+            FileInfo progToRun = new FileInfo(programName);
+            if (!progToRun.Exists)
             {
-                string newPath = Program.ModToolsDir + "ToolsFL\\bin\\;" + processStartInfo.EnvironmentVariables["path"];
+                Console.WriteLine("Could not find '{0}'",  programName);
+            }
+
+            if (progToRun.Exists) // Make PATH varialbe awesome
+            {
+                string newPath = progToRun.DirectoryName + ";" + processStartInfo.EnvironmentVariables["path"];
                 processStartInfo.EnvironmentVariables["path"] = newPath;
             }
             var process = Process.Start(processStartInfo);

@@ -8,8 +8,16 @@ using System.Reflection;
 
 namespace LVLTool
 {
+
+    interface IAppendString
+    {
+        void AppendString(string s);
+    }
+
     public class HashHelper
     {
+        IAppendString mAppendStringObj = null;
+
         private static string DictionaryFile
         {
             get
@@ -36,6 +44,23 @@ namespace LVLTool
 
 
         public static UInt32 HashString(string input)
+        {
+            return HashString(input.ToCharArray());
+            /*UInt32 FNV_prime = 16777619;
+            UInt32 offset_basis = 2166136261;
+            UInt32 hash = offset_basis;
+            byte c = 0;
+            foreach (char c_ in input)
+            {
+                c = (byte)c_;
+                c |= 0x20;
+                hash ^= c;
+                hash *= FNV_prime;
+            }
+            return hash;*/
+        }
+
+        public static UInt32 HashString(char[] input)
         {
             UInt32 FNV_prime = 16777619;
             UInt32 offset_basis = 2166136261;
@@ -176,5 +201,51 @@ namespace LVLTool
                     reader.Close();
             }
         }
+
+        public void PrintMatches(UInt32 hash, string possibleCharacters, int targetStringSize, string prefix)
+        {
+            char[] bufferToUse = new char[targetStringSize];
+            Array.Copy(prefix.ToCharArray(), bufferToUse, prefix.Length);
+            GenerateStringsAndCheckHash(prefix.Length, targetStringSize, hash, possibleCharacters, bufferToUse);
+        }
+
+        private void GenerateStringsAndCheckHash(int index, int targetStringSize, UInt32 targetHash, string possibleCharacters, char[] bufferToUse)
+        {
+            if (index == targetStringSize)
+            {
+                if (HashString(bufferToUse) == targetHash)
+                {
+                    string str = String.Format("Match found: {0}\n", new string(bufferToUse));
+                    if (mAppendStringObj != null)
+                        mAppendStringObj.AppendString(str);
+                    else
+                        Console.Write(str);
+                }
+            }
+            else
+            {
+                foreach (char c in possibleCharacters)
+                {
+                    bufferToUse[index] = c;
+                    GenerateStringsAndCheckHash(index + 1, targetStringSize, targetHash, possibleCharacters, bufferToUse);
+                }
+            }
+        }
+
+        public static void WriteDictionary()
+        {
+            StringBuilder sb = new StringBuilder();
+            foreach (KeyValuePair<UInt32, string> kvp in sHashes)
+            {
+                //Console.WriteLine("Key = {0}, Value = {1}", kvp.Key, kvp.Value);
+                if(kvp.Value.IndexOf('.') > -1)
+                    sb.Append(kvp.Value.ToLower());
+                else
+                    sb.Append(kvp.Value);
+                sb.Append("\n");
+            }
+            File.WriteAllText(DictionaryFile, sb.ToString());
+        }
+
     }
 }

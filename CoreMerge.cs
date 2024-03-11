@@ -129,7 +129,18 @@ namespace LVLTool
             CoreMerge cm = new CoreMerge(baseFileName);
             foreach (string file in files)
             {
-                cm.GatherStrings(file);
+                Console.WriteLine("Gathering strings from '{0}'", file);
+                try
+                {
+                    cm.GatherStrings(file);
+                }
+                catch (Exception ex)
+                {
+                    Program.MessageUser(String.Format("Exception encountered while processing file {0}\n{1}\n{2}", 
+                        file, 
+                        ex.Message,
+                        ex.StackTrace ));
+                }
             }
             cm.Save(saveFileName);
         }

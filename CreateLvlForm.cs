@@ -21,6 +21,18 @@ namespace LVLTool
             mPlatformComboBox.SelectedIndex = 0;
         }
 
+
+        protected override void OnHandleCreated(EventArgs e)
+        {
+            //https://stackoverflow.com/questions/57124243/winforms-dark-title-bar-on-windows-10 (thank you:)
+            if (DwmSetWindowAttribute(this.Handle, 19, new[] { 1 }, 4) != 0)
+                DwmSetWindowAttribute(this.Handle, 20, new[] { 1 }, 4);
+            base.OnHandleCreated(e);
+        }
+
+        [System.Runtime.InteropServices.DllImport("DwmApi")] //System.Runtime.InteropServices
+        private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, int[] attrValue, int attrSize);
+
         private bool AlreadyMunged(string filename)
         {
             string[] alreadyMungedExt = new string[] { ".texture", ".script", ".lvl", ".config" };
@@ -183,7 +195,7 @@ namespace LVLTool
                 programOutput += Program.RunCommand(textureMunge, texArgs,     true);
             programOutput     += Program.RunCommand(lvlPack,      lvlPackArgs, true);
             string batchFileContents = string.Format(
-                "{0} {1}\n\n{2} {3}\n\n{4} {5}\n\n{6} {7}\n\n",
+                "md MUNGED \ndel /Y MUNGED\\*\n {0} {1}\n\n{2} {3}\n\n{4} {5}\n\n{6} {7}\n\nmove *.log MUNGED\n\n",
                 textureMunge, String.Format("-inputfile $*.tga  -checkdate -continue -platform {0} -sourcedir . -outputdir MUNGED ", platform),
                 scriptMunge,  String.Format("-inputfile *.lua   -continue -platform {0} -sourcedir  . -outputdir MUNGED  ", platform),
                 configMunge,  String.Format("-inputfile $*.mcfg -continue -platform {0} -sourcedir . -outputdir MUNGED -hashstrings ",platform),

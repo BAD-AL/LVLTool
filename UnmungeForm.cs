@@ -5,6 +5,7 @@ using System.Data;
 using System.Drawing;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using System.IO;
 using System.Diagnostics;
@@ -16,8 +17,133 @@ namespace LVLTool
         public UnmungeForm()
         {
             InitializeComponent();
+            PopulateListUnmunge();
         }
 
+        protected override void OnHandleCreated(EventArgs e)
+        {
+            //https://stackoverflow.com/questions/57124243/winforms-dark-title-bar-on-windows-10 (thank you:)
+            if (DwmSetWindowAttribute(this.Handle, 19, new[] { 1 }, 4) != 0)
+                DwmSetWindowAttribute(this.Handle, 20, new[] { 1 }, 4);
+            base.OnHandleCreated(e);
+        }
+
+        [System.Runtime.InteropServices.DllImport("DwmApi")] //System.Runtime.InteropServices
+        private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, int[] attrValue, int attrSize);
+
+        #region
+        // repair known bugs (rename files [from hash], Fix Rotation in .lyr files)
+
+        private void RenameHashNameFiles()
+        {
+            string folder = null;
+            FolderBrowserDialog dlg = new FolderBrowserDialog();
+            dlg.Description = "Select folder to look for files with hash name as filename.";
+            if (dlg.ShowDialog() == DialogResult.OK)
+            {
+                folder = dlg.SelectedPath;
+            }
+            dlg.Dispose();
+            if (folder != null)
+            {
+                DirectoryInfo dInfo = new DirectoryInfo(folder);
+                string newName = "";
+                string checkName = "";
+                Regex hash1Reg = new Regex("0x([0-9a-fA-F]+)");
+                Regex hash2Reg = new Regex("([0-9]+)");
+                UInt32 hash = 0;
+                int index = 0;
+                FileInfo[] files = dInfo.GetFiles("*.*", SearchOption.AllDirectories);
+                foreach (FileInfo dude in files)
+                {
+                    index = dude.Name.LastIndexOf(".");
+                    if (index > -1)
+                    {
+                        checkName = dude.Name.Substring(0, index);
+                    }
+                    if (hash1Reg.IsMatch(checkName) && UInt32.TryParse(checkName.Substring(2), 
+                        System.Globalization.NumberStyles.AllowHexSpecifier, 
+                        System.Globalization.CultureInfo.CurrentUICulture, out hash))
+                    {
+                        newName = HashHelper.GetStringFromHash(hash);
+                        if (newName != null)
+                        {
+                            string path= dude.DirectoryName +"\\" + newName + dude.Extension;
+                            dude.MoveTo(path);
+                        }
+                    }
+                    else if (hash2Reg.IsMatch(checkName) && UInt32.TryParse(checkName, out hash))
+                    {
+                        newName = HashHelper.GetStringFromHash(hash);
+                        if (newName != null)
+                        {
+                            string path = dude.DirectoryName + "\\" + newName + dude.Extension;
+                            Console.WriteLine("Renaming file '{0}' to   '{1}' ", dude.FullName, path);
+                            dude.MoveTo(path);
+                        }
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Fix rotation in .lyr files
+        ///   ChildRotation(1.000, 0.000, 0.000, -0.750); ==>> ChildRotation(-1.000, 0.000, 0.000, 0.750);
+        /// </summary>
+        private void FixRotationInLyr()
+        {
+            string folder = null;
+            FolderBrowserDialog dlg = new FolderBrowserDialog();
+            dlg.Description = "Select folder to look for .lyr files with flipped Rotation numbers.";
+            if (dlg.ShowDialog() == DialogResult.OK)
+            {
+                folder = dlg.SelectedPath;
+            }
+            dlg.Dispose();
+            if (folder != null)
+            {
+                DirectoryInfo dInfo = new DirectoryInfo(folder);
+                FileInfo[] files = dInfo.GetFiles("*.lyr", SearchOption.AllDirectories);
+                String content = null;
+                string contentAfter = "";
+                foreach (FileInfo dude in files)
+                {
+                    content =  File.ReadAllText(dude.FullName);
+                    contentAfter = FixRotation(content);
+                    Console.WriteLine("Writing file: "+ dude.FullName);
+                    File.WriteAllText(dude.FullName, contentAfter);
+                }
+            }
+        }
+
+        private string FixRotation(string content)
+        {
+            string replacement = "";
+            string working ="";
+            Regex childRotationReg = new Regex("ChildRotation\\((-?[0-9.]+),\\s*(-?[0-9.]+),\\s*(-?[0-9.]+),\\s*(-?[0-9.]+)\\s*\\)");
+            MatchCollection mc = childRotationReg.Matches(content);
+            for (int i = mc.Count - 1; i > -1; i--)
+            {
+                replacement = String.Format("ChildRotation({0}, {1}, {2}, {3})",
+                    FlipSign(mc[i].Groups[1].Value),
+                    FlipSign(mc[i].Groups[2].Value),
+                    FlipSign(mc[i].Groups[3].Value),
+                    FlipSign(mc[i].Groups[4].Value));
+                working = content.Substring(0, mc[i].Index) + replacement + content.Substring(mc[i].Index + mc[i].Length);
+                content = working;
+            }
+            return content;
+        }
+
+        private static string FlipSign(string s)
+        {
+            double d = Double.Parse(s);
+            d *= -1;
+            String retVal = d.ToString("0.000");
+            return retVal;
+        }
+
+        #endregion
 
         private void textBox_DragOver(object sender, DragEventArgs e)
         {
@@ -89,11 +215,12 @@ namespace LVLTool
                 retVal = true;
             return retVal;
         }
+        private string unmungeLocation = "swbf-unmunge.exe";
 
         private string ExecuteUnmunge(string args, bool logCommand)
         {
             string retVal = "";
-            string programName = Path.GetFullPath( "swbf-unmunge.exe");
+            string programName = Path.GetFullPath(unmungeLocation);
             if (File.Exists(programName))
             {
                 if (logCommand)
@@ -130,17 +257,41 @@ namespace LVLTool
 
         private void buttonGo_Click(object sender, EventArgs e)
         {
-            if (!File.Exists("swbf-unmunge.exe"))
+            // set unmunge location from the list box
+            if(listUnmungeExe.SelectedItem != null)
+                unmungeLocation = Path.GetFullPath( listUnmungeExe.SelectedItem.ToString());
+            if (!File.Exists(unmungeLocation))
             {
-                MessageBox.Show("Could not find program 'swbf-unmunge.exe'; please place it in the same folder as this program.");
+                MessageBox.Show("Could not find program 'swbf-unmunge.exe'; please place it at the same folder as this program or in a sub directory.");
             }
             else
             {
                 buttonGo.Enabled = false;
                 string output = ExecuteUnmunge(GetArgs(), true);
                 Console.WriteLine(output);
+                Console.WriteLine(SummerizeOutput(output));
                 buttonGo.Enabled = true;
             }
+        }
+
+        private string SummerizeOutput(string output)
+        {
+            string retVal = "";
+            // summerize #errors, #missingHashes
+            Regex unkHashRegex = new Regex("value: ([x0-9]+)");
+            //System.Text.RegularExpressions.Regex unkHashRegex = new System.Text.RegularExpressions.Regex("value: ([x0-9]+)");
+            MatchCollection mc = unkHashRegex.Matches(output);
+            List<String> unkHashes = new List<string>();
+            foreach (Match m in mc)
+            {
+                if (unkHashes.IndexOf(m.Groups[1].Value) == -1)
+                    unkHashes.Add(m.Groups[1].Value);
+            }
+            retVal = String.Format("Unknown hashes: [{0}] ({1})", 
+                unkHashes.Count, 
+                String.Join(",", unkHashes.ToArray())
+                );
+            return retVal;
         }
 
 
@@ -148,6 +299,9 @@ namespace LVLTool
         {
             this.BackColor = prevForm.BackColor;
             this.ForeColor = prevForm.ForeColor;
+
+            this.listUnmungeExe.BackColor = prevForm.BackColor;
+            this.listUnmungeExe.ForeColor = prevForm.ForeColor;
 
             TextBox tb = null;
             Button b = null;
@@ -174,7 +328,6 @@ namespace LVLTool
                 groupBox4.ForeColor = groupBox5.ForeColor =
                 buttonBrowse.ForeColor = buttonGo.ForeColor = buttonHelp.ForeColor = b.ForeColor;
             }
-            
         }
 
         private void buttonHelp_Click(object sender, EventArgs e)
@@ -191,6 +344,36 @@ namespace LVLTool
                 textFilename.Text = dlg.FileName;
             }
             dlg.Dispose();
+        }
+
+        private void PopulateListUnmunge()
+        {
+            List<string> options = new List<string>(Directory.GetFiles(".", "swbf-unmun*.exe", SearchOption.AllDirectories));
+            listUnmungeExe.Items.Clear();
+            foreach (string option in options)
+            {
+                listUnmungeExe.Items.Add(option);
+            }
+            if (listUnmungeExe.Items.Count > 0)
+            {
+                listUnmungeExe.SelectedIndex = 0;
+                Console.WriteLine("Current version: {0}", listUnmungeExe.Items[0].ToString());
+            }
+        }
+
+        private void showKnownBugsForVersionsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            new UnmungeBugForm().Show();
+        }
+
+        private void tryToRenameFilesWithHashedNamesToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            RenameHashNameFiles();
+        }
+
+        private void fixRotationInlyrFilesToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            FixRotationInLyr();
         }
     }
 }

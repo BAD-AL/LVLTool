@@ -9,6 +9,10 @@ using System.Windows.Forms;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Globalization;
+using System.Runtime.InteropServices;
+using System.Collections;
+using System.Reflection;
+using System.Diagnostics;
 
 namespace LVLTool
 {
@@ -18,11 +22,47 @@ namespace LVLTool
         {
             InitializeComponent();
             State0();
-            UpdateModToolsLabel();
+            //UpdateModToolsLabel(); // do it OnLoad, because the WinForm eventing stuff isn't hooked up on construction
             mMainTextBox.StatusControl = mStatusLabel;
             mModToolsSelection.SelectedIndex = 0;
             mModToolsSelection.SelectedIndexChanged += new System.EventHandler(this.mModToolsSelection_SelectedIndexChanged);
         }
+
+        static bool IsDebugAssembly(Assembly assembly)
+        {
+            foreach (var attribute in assembly.GetCustomAttributes(false))
+            {
+                if (attribute is DebuggableAttribute)
+                {
+                    DebuggableAttribute debuggableAttribute = (DebuggableAttribute)attribute;
+                    return debuggableAttribute.IsJITTrackingEnabled;
+                }
+            }
+            return false; // Assume it's not a debug build if no DebuggableAttribute is found
+        }
+
+        protected override void OnLoad(EventArgs e)
+        {
+            base.OnLoad(e);
+            UpdateModToolsLabel();
+
+            // we'll hide the Loc format option in the release since it's not well tested.
+            bool isDebugBuild = IsDebugAssembly(Assembly.GetExecutingAssembly());
+            bool debugFileExists = File.Exists("Debug.txt") || File.Exists("Debug");
+            if (!isDebugBuild && !debugFileExists)
+                showStringsLocFormatToolStripMenuItem.Visible = false;
+        }
+
+        protected override void OnHandleCreated(EventArgs e)
+        {
+            //https://stackoverflow.com/questions/57124243/winforms-dark-title-bar-on-windows-10 (thank you:)
+            if (DwmSetWindowAttribute(this.Handle, 19, new[] { 1 }, 4) != 0)
+                DwmSetWindowAttribute(this.Handle, 20, new[] { 1 }, 4);
+            base.OnHandleCreated(e);
+        }
+
+        [DllImport("DwmApi")] //System.Runtime.InteropServices
+        private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, int[] attrValue, int attrSize);
 
         /// <summary>
         /// Set the lua code display style
@@ -61,7 +101,9 @@ namespace LVLTool
             else if (newItemPath.EndsWith(".tga", StringComparison.OrdinalIgnoreCase) || 
                 newItemPath.EndsWith(".texture", StringComparison.OrdinalIgnoreCase))
                 type = "tex_";
-            else if (newItemPath.EndsWith(".config", StringComparison.OrdinalIgnoreCase) )
+            else if (newItemPath.EndsWith(".config", StringComparison.OrdinalIgnoreCase) ||
+                     newItemPath.EndsWith(".mcfg", StringComparison.OrdinalIgnoreCase)  ||
+                     newItemPath.EndsWith(".sky", StringComparison.OrdinalIgnoreCase))
                 type = "config";
             if (String.IsNullOrEmpty(type))
             {
@@ -79,12 +121,22 @@ namespace LVLTool
             for (int i = 0; i < mAssetListBox.Items.Count; i++)
             {
                 current = mAssetListBox.Items[i] as Chunk;
-                if (current.Name == name && current.Type == type) // select this index
+                if (current.Name == name)
                 {
-                    found = current;
-                    mAssetListBox.SelectedIndex = i;
-                    break;
+                    // special case for mcfg. it 'is' a 'config' type, but it shows a type of 'mcfg' 
+                    // Where 'mcfg' files are actually pre-munged text files
+                    if ( current.Type == type || (type == "config" && current.Type == "mcfg") )
+                    {
+                        found = current;
+                        mAssetListBox.SelectedIndex = i;// select this index
+                        break;
+                    }
                 }
+            }
+            if (found == null)
+            {
+                Console.WriteLine("MainForm.ReplaceItem: item not found: '{0}'  ", name);
+                return false;
             }
             //string fileName, Platform platform
             string mungedFile = Munger.EnsureMungedFile(newItemPath, p);
@@ -379,6 +431,22 @@ namespace LVLTool
                 UpdateModToolsLabel();
                 Program.SaveSettings();
                 LuaCodeHelper.ResetFileCache();
+                Console.WriteLine("Setting ModTols dir to: {0}", dir);
+            }
+            return dir;
+        }
+
+        private String UpdateLuaSourceDir(String dir)
+        {
+            if (dir != null && Directory.Exists(dir))
+            {
+                if (!dir.EndsWith("\\"))
+                    dir += "\\";
+                Program.LuaSourceDir = dir;
+                //UpdateModToolsLabel();
+                //Program.SaveSettings();
+                LuaCodeHelper.ResetFileCache();
+                Console.WriteLine("Setting Lua Source dir to: {0}", dir);
             }
             return dir;
         }
@@ -398,6 +466,12 @@ namespace LVLTool
         private void UpdateModToolsLabel()
         {
             mModToolsLabel.Text = "ModToolsDir: " + Program.ModToolsDir;
+            if (mModToolsSelection.Items.IndexOf(Program.ModToolsDir) < 0)
+                mModToolsSelection.Items.Add(Program.ModToolsDir);
+            
+            int index = mModToolsSelection.Items.IndexOf(Program.ModToolsDir);
+            if (index > -1)
+                mModToolsSelection.SelectedIndex = index;
         }
 
         private string GetItemText(Chunk c)
@@ -427,27 +501,34 @@ namespace LVLTool
         /// </summary>
         private void ColorizeText()
         {
-            //CheckKeyword("-- Decompiled with SWBF2CodeHelper", Color.Green, 0);
-            Color kwColor = Color.Magenta;
-            CheckKeyword("function", kwColor, 0);
-            CheckKeyword("end", kwColor, 0);
-            CheckKeyword("if", kwColor, 0);
-            CheckKeyword("then", kwColor, 0);
-            CheckKeyword("else", kwColor, 0);
-            CheckKeyword("return", kwColor, 0);
-            CheckKeyword("for", kwColor, 0);
-            CheckKeyword("do", kwColor, 0);
-            CheckKeyword("local", kwColor, 0);
-            CheckKeyword("ERROR_PROCESSING_FUNCTION = true", Color.Red, 0);
-
-            MatchCollection mc = mComment.Matches(mMainTextBox.Text);
-            int selectStart = mMainTextBox.SelectionStart;
-            foreach (Match m in mc)
+            if (colorizeCodeToolStripMenuItem.Checked)
             {
-                mMainTextBox.Select(m.Groups[1].Index, m.Groups[1].Length);
-                mMainTextBox.SelectionColor = Color.Green;
-                mMainTextBox.Select(selectStart, 0);
-                mMainTextBox.SelectionColor = Color.Black;
+                mMainTextBox.Visible = false;
+                //CheckKeyword("-- Decompiled with SWBF2CodeHelper", Color.Green, 0);
+                Color kwColor = Color.Magenta;
+                CheckKeyword("function", kwColor, 0);
+                CheckKeyword("end", kwColor, 0);
+                CheckKeyword("if", kwColor, 0);
+                CheckKeyword("then", kwColor, 0);
+                CheckKeyword("else", kwColor, 0);
+                CheckKeyword("elseif", kwColor, 0);
+                CheckKeyword("return", kwColor, 0);
+                CheckKeyword("for", kwColor, 0);
+                CheckKeyword("do", kwColor, 0);
+                CheckKeyword("local", kwColor, 0);
+                CheckKeyword("this", Color.Blue, 0); 
+                CheckKeyword("ERROR_PROCESSING_FUNCTION = true", Color.Red, 0);
+
+                MatchCollection mc = mComment.Matches(mMainTextBox.Text);
+                int selectStart = mMainTextBox.SelectionStart;
+                foreach (Match m in mc)
+                {
+                    mMainTextBox.Select(m.Groups[1].Index, m.Groups[1].Length);
+                    mMainTextBox.SelectionColor = Color.Green;
+                    mMainTextBox.Select(selectStart, 0);
+                    mMainTextBox.SelectionColor = Color.Black;
+                }
+                mMainTextBox.Visible = true;
             }
         }
 
@@ -456,11 +537,15 @@ namespace LVLTool
             if (mMainTextBox.Text.Contains(word))
             {
                 int index = -1;
+                int endWord = -1;
                 int selectStart = mMainTextBox.SelectionStart;
+                string seps = ",(){}+-*= /\n\r\t";
 
                 while ((index = mMainTextBox.Text.IndexOf(word, (index + 1))) != -1)
                 {
-                    if (index == 0 || Char.IsWhiteSpace(mMainTextBox.Text[index - 1]))
+                    endWord = index + word.Length;
+                    if ( (index == 0 || seps.IndexOf(mMainTextBox.Text[index - 1]) > -1) &&
+                        (endWord < mMainTextBox.Text.Length && seps.IndexOf(mMainTextBox.Text[endWord]) > -1))
                     {
                         mMainTextBox.Select((index + startIndex), word.Length);
                         mMainTextBox.SelectionColor = color;
@@ -651,17 +736,38 @@ namespace LVLTool
 
         private void sortListBoxToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            mAssetListBox.Sorted = !mAssetListBox.Sorted;
-            sortListBoxToolStripMenuItem.Checked = mAssetListBox.Sorted;
+            //sortListBoxToolStripMenuItem.Checked = !sortListBoxToolStripMenuItem.Checked;
+            //mAssetListBox.Sorted = sortListBoxToolStripMenuItem.Checked;
+
+            //mAssetListBox.Sorted = !mAssetListBox.Sorted;
+            //sortListBoxToolStripMenuItem.Checked = mAssetListBox.Sorted;
+
+            //if (sortListBoxToolStripMenuItem.Checked)
+            {
+                ArrayList itemsList = new ArrayList(mAssetListBox.Items);
+                itemsList.Sort(new ListItemFileComparer());
+                mAssetListBox.Items.Clear();
+                mAssetListBox.Items.AddRange(itemsList.ToArray());
+            }
         }
+        string findMePrev = "";
 
         private void findToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            string findMe = StringInputDlg.GetString("Enter item name to search for", "<item name>");
+            string findMe = StringInputDlg.GetString("Enter item name to search for", "<item name>", findMePrev);
             if (findMe != null)
             {
+                findMePrev = findMe;
+                FindNext(findMe);
+            }
+        }
+
+        private void FindPrev(string findMe)
+        {
+            if (!String.IsNullOrEmpty(findMe))
+            {
                 Chunk chk = null;
-                for(int i =0; i < mAssetListBox.Items.Count; i++)
+                for (int i = mAssetListBox.Items.Count - 1; i > -1; i--)
                 {
                     chk = mAssetListBox.Items[i] as Chunk;
                     if (chk != null)
@@ -673,12 +779,15 @@ namespace LVLTool
                         }
                     }
                 }
-                for (int i = 0; i < mAssetListBox.Items.Count; i++)
+                int startingIndex = mAssetListBox.SelectedIndex - 1;
+                if (startingIndex < 0)
+                    startingIndex = 0;
+                for (int i = startingIndex; i > -1; i--)
                 {
                     chk = mAssetListBox.Items[i] as Chunk;
                     if (chk != null)
                     {
-                        if (findMe == chk.Name)
+                        if (chk.Name.StartsWith(findMe, StringComparison.InvariantCultureIgnoreCase))
                         {
                             mAssetListBox.SelectedIndex = i;
                             return;
@@ -687,6 +796,44 @@ namespace LVLTool
                 }
             }
         }
+
+        private void FindNext(string findMe)
+        {
+            if (!String.IsNullOrEmpty(findMe))
+            {
+                Chunk chk = null;
+                for (int i = 0; i < mAssetListBox.Items.Count; i++)
+                {
+                    chk = mAssetListBox.Items[i] as Chunk;
+                    if (chk != null)
+                    {
+                        if (findMe == chk.ToString() || findMe == chk.Name)
+                        {
+                            mAssetListBox.SelectedIndex = i;
+                            return;
+                        }
+                    }
+                }
+                int startingIndex = mAssetListBox.SelectedIndex + 1;
+                if (startingIndex < 0)
+                    startingIndex = 0;
+                for (int i = startingIndex; i < mAssetListBox.Items.Count; i++)
+                {
+                    chk = mAssetListBox.Items[i] as Chunk;
+                    if (chk != null)
+                    {
+                        if (chk.Name.StartsWith(findMe, StringComparison.InvariantCultureIgnoreCase))
+                        {
+                            mAssetListBox.SelectedIndex = i;
+                            return;
+                        }
+                    }
+                }
+            }
+        }
+
+        private void FindPrev() { FindPrev(findMePrev); }
+        private void FindNext() { FindNext(findMePrev); }
 
         private void createMungedLocFileFromDataToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -822,5 +969,104 @@ namespace LVLTool
             form.Show();
         }
 
+        private void colorizeCodeToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            colorizeCodeToolStripMenuItem.Checked = !colorizeCodeToolStripMenuItem.Checked;
+            ColorizeText();
+        }
+
+        private void luaSourceDirToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            String dir = StringInputDlg.GetString("Enter Lua Source Directory", "", Program.LuaSourceDir);
+            UpdateLuaSourceDir(dir);
+        }
+
+        private void extractLocasTextToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Chunk chk = null;
+            for (int i = 0; i < mAssetListBox.Items.Count; i++)
+            {
+                chk = mAssetListBox.Items[i] as Chunk;
+                if (chk != null)
+                {
+                    if (chk.Type.ToLower().StartsWith("loc"))
+                    {
+                        if (chk.LocHelper == null)
+                            chk.LocHelper = new LocHelper(chk.GetAssetData());
+                        string text = chk.LocHelper.GetAllStrings();
+                        string filename = chk.Name + ".txt";
+                        string folderName = mLVLFileTextBox.Text.Replace(".lvl", "\\");
+                        if (!Directory.Exists(folderName))
+                            Directory.CreateDirectory(folderName);
+                        File.WriteAllText(folderName + filename, text);
+                    }                    
+                }
+            }
+            
+        }
+
+        private void showStringsLocFormatToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Chunk c = mAssetListBox.Items[mAssetListBox.SelectedIndex] as Chunk;
+            if (c.Type.ToLower().StartsWith("loc"))
+            {
+                if (c.LocHelper == null)
+                    c.LocHelper = new LocHelper(c.GetAssetData());
+                List<String> errors = new List<string>();
+                mMainTextBox.Text = c.LocHelper.GetStringsAsCfg(errors);
+                if (errors.Count > 0)
+                {
+                    StringBuilder sb = new StringBuilder();
+                    sb.Append("Could not resolve the string ids for the following strings.\n");
+                    sb.Append("They have not been added to the conetnt.\n");
+                    foreach (string err in errors)
+                    {
+                        sb.Append(err);
+                        sb.Append("\n");
+                    }
+                    MessageForm.ShowMessage("Warning! some strings could not be added", sb.ToString());
+                }
+            }
+        }
+
+        private void reverseHashLookupToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ReverseHash.ReverseHashForm f = new ReverseHash.ReverseHashForm();
+            f.Show();
+        }
+
+        private void showStringIdsForLocFormatToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            string input = mMainTextBox.Text;
+            String Result = LocHelper.GetVarBinaryObjectPaths(input);
+            MessageForm.ShowMessage("here are the string ids from the data", Result);
+        }
+
+        private void mAssetListBox_KeyDown(object sender, KeyEventArgs e)
+        {
+            if ( e.Shift && e.KeyCode == Keys.F3)
+                FindPrev();
+            else if (e.KeyCode == Keys.F3)
+                FindNext();
+        }
+    }
+
+    public class ListItemFileComparer : System.Collections.IComparer
+    {
+        public int Compare(object x, object y)
+        {
+            string file1 = x.ToString();
+            string file2 = y.ToString();
+
+            string ext1 = Path.GetExtension(file1);
+            string ext2 = Path.GetExtension(file2);
+
+            int result = string.Compare(ext1, ext2, StringComparison.OrdinalIgnoreCase);
+            if (result == 0)
+            {
+                result = string.Compare(file1, file2, StringComparison.OrdinalIgnoreCase);
+            }
+            return result;
+        }
     }
 }

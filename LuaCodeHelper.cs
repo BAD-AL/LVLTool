@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.IO;
+using System.Windows.Forms;
 
 namespace LVLTool
 {
@@ -18,40 +19,76 @@ namespace LVLTool
         public static string GetCodeSummary(Chunk chunk)
         {
             string retVal = "";
-            string sourceFileName = FindSourceFile(chunk.Name);
-            string code = LookupPCcode(sourceFileName);
-            int sz = LuacCodeSize(sourceFileName);
-            byte[] body = chunk.GetBodyData();
-            if ( (body.Length -1) == sz )
+            string sourceFileName = null;
+            List<string> sourceFileNames = FindSourceFile(chunk.Name);
+            if (sourceFileNames.Count == 1)
+                sourceFileName = sourceFileNames[0];
+            else if (sourceFileNames.Count > 1)
             {
-                retVal += "\n-- ********* LUAC Code Size MATCH!!! ***********";
-                byte[] b = File.ReadAllBytes(Program.TmpDir + "tmp.luac");
-                
-                int i = 0;
-                for (i = 0; i < body.Length-1; i++)
-                    if (b[i] != body[i])
+                /*sourceFileName = sourceFileNames[0];
+                foreach (string file in sourceFileNames)
+                {
+                    if (MessageBox.Show(String.Format("Multiple matches; use '{0}'?", file),
+                        "Multiple matches", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                    {
+                        sourceFileName = file;
                         break;
-                if (i == body.Length -1)
-                    retVal += "\n-- ********* Binary Equal !!! ***********";
+                    }
+                }*/
+                sourceFileName = ListForm.PromptUserForSelection("Multiple matches found", "Choose version:",
+                    sourceFileNames, sourceFileNames[0], new MainForm());
             }
-            retVal = retVal + string.Format("\n-- {0}\n-- PC luac code size = {1}; PC code:\n{2}", sourceFileName, sz, code);
+            //sourceFileName = chunk.Name;
+            if (!String.IsNullOrEmpty(sourceFileName))
+            {
+                string code = File.ReadAllText(sourceFileName); //LookupPCcode(sourceFileName);
+                int sz = LuacCodeSize(sourceFileName);
+                byte[] body = chunk.GetBodyData();
+                if ((body.Length - 1) == sz)
+                {
+                    retVal += "\n-- ********* LUAC Code Size MATCH!!! ***********";
+                    byte[] b = File.ReadAllBytes(Program.TmpDir + "tmp.luac");
+
+                    int i = 0;
+                    for (i = 0; i < body.Length - 1; i++)
+                        if (b[i] != body[i])
+                            break;
+                    if (i == body.Length - 1)
+                        retVal += "\n-- ********* Binary Equal !!! ***********";
+                }
+                retVal = retVal + string.Format("\n-- {0}\n-- PC luac code size = {1}; PC code:\n{2}", sourceFileName, sz, code);
+            }
+            else
+            {
+                retVal = "File not found: "+ chunk.Name;
+            }
             return retVal;
         }
 
         public static string LookupPCcode(string fileName)
         {
             string retVal = "";
-            string sourceFile = FindSourceFile(fileName);
-            if (!String.IsNullOrEmpty(sourceFile))
+            List<string> sourceFileNames = FindSourceFile(fileName);
+            if (sourceFileNames.Count == 1)
+                retVal = sourceFileNames[0];
+            else if (sourceFileNames.Count > 1)
             {
-                retVal = File.ReadAllText(sourceFile);
+                foreach (string file in sourceFileNames)
+                {
+                    if (MessageBox.Show(String.Format("Multiple matches; use '{0}'?", file),
+                        "Multiple matches", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                    {
+                        retVal = file;
+                        break;
+                    }
+                }
             }
             return retVal;
         }
 
-        public static string FindSourceFile(string fileName)
+        public static List<string> FindSourceFile(string fileName)
         {
-            string sourceFile = null;
+            List<string> retVal = new List<String>();
             if (fileName != null)
             {
                 if (sAllLuaFiles == null)
@@ -62,17 +99,32 @@ namespace LVLTool
                             return null;
                     }
                     sAllLuaFiles = new List<string>();
-                    
-                    sAllLuaFiles.AddRange(Directory.GetFiles(Program.ModToolsDir  + "assets\\", "*.lua", SearchOption.AllDirectories));
-                    sAllLuaFiles.AddRange(Directory.GetFiles(Program.ModToolsDir + "data\\Common\\", "*.lua", SearchOption.AllDirectories));
 
-                    if (Directory.Exists(Program.ModToolsDir + "TEMPLATE\\Common\\scripts\\"))
+                    if (Program.LuaSourceDir == null)
                     {
-                        sAllLuaFiles.AddRange(Directory.GetFiles(Program.ModToolsDir + "TEMPLATE\\Common\\scripts\\", "*.lua", SearchOption.AllDirectories));
+                        if (Directory.Exists(Program.ModToolsDir + "assets\\Shell"))
+                            sAllLuaFiles.AddRange(Directory.GetFiles(Program.ModToolsDir + "assets\\Shell", "*.lua", SearchOption.AllDirectories));
+                        if (Directory.Exists(Program.ModToolsDir + "data\\Shell\\"))
+                            sAllLuaFiles.AddRange(Directory.GetFiles(Program.ModToolsDir + "data\\Shell\\", "*.lua", SearchOption.AllDirectories));
+                        if (Directory.Exists(Program.ModToolsDir + "data\\Common\\"))
+                            sAllLuaFiles.AddRange(Directory.GetFiles(Program.ModToolsDir + "data\\Common\\", "*.lua", SearchOption.AllDirectories));
+
+
+                        if (Directory.Exists(Program.ModToolsDir + "TEMPLATE\\Common\\scripts\\"))
+                            sAllLuaFiles.AddRange(Directory.GetFiles(Program.ModToolsDir + "TEMPLATE\\Common\\scripts\\", "*.lua", SearchOption.AllDirectories));
+                        if (Directory.Exists(Program.ModToolsDir + "space_template\\"))
+                            sAllLuaFiles.AddRange(Directory.GetFiles(Program.ModToolsDir + "space_template\\", "*.lua", SearchOption.AllDirectories));
+                        if (sAllLuaFiles.Count == 0 && Directory.Exists(Program.ModToolsDir))
+                            sAllLuaFiles.AddRange(Directory.GetFiles(Program.ModToolsDir, "*.lua", SearchOption.AllDirectories));
                     }
-                    if (Directory.Exists(Program.ModToolsDir + "space_template\\"))
+                    else if (Directory.Exists(Program.LuaSourceDir))
                     {
-                        sAllLuaFiles.AddRange(Directory.GetFiles(Program.ModToolsDir + "space_template\\", "*.lua", SearchOption.AllDirectories));
+                        sAllLuaFiles.AddRange(Directory.GetFiles(Program.LuaSourceDir, "*.lua", SearchOption.AllDirectories));
+                        Console.WriteLine("Found {0} lua files.", sAllLuaFiles.Count);
+                    }
+                    else
+                    {
+                        throw new FileNotFoundException ("Could not locate alternate LUA Source Dir '" + Program.LuaSourceDir +"', Please enter a valid folder");
                     }
                 }
 
@@ -81,12 +133,11 @@ namespace LVLTool
                 {
                     if (file.EndsWith(searchFor, StringComparison.InvariantCultureIgnoreCase))
                     {
-                        sourceFile = file;
-                        break;
+                        retVal.Add(file);
                     }
                 }
             }
-            return sourceFile;
+            return retVal;
         }
 
         public static int LuacCodeSize(string luaSourceFile)

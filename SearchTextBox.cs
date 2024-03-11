@@ -36,9 +36,12 @@ namespace LVLTool
             else if (source == mClearMenuItem)
                 this.Text = "";
             else if (source == mCopyMenuItem)
-                this.Copy();
+            {
+                //this.Copy();
+                Clipboard.SetData(DataFormats.Text, this.SelectedText);
+            }
             else if (source == mPasteMenuItem)
-                this.Paste();
+                this.Paste(DataFormats.GetFormat(DataFormats.Text));
             else if (source == mFindNextMenuItem)
                 FindNextMatch();
             else if (source == mFindPrevMenuItem)
@@ -54,11 +57,18 @@ namespace LVLTool
         /// </summary>
         protected override void OnKeyDown(KeyEventArgs e)
         {
-            base.OnKeyDown(e);
             if (e.Control)
             {
-                if (e.KeyCode == Keys.F)
-                    if (SetSearchString()) FindNextMatch();
+                if (e.KeyCode == Keys.C)
+                {
+                    Clipboard.SetData(DataFormats.Text, this.SelectedText);
+                    e.Handled = true;
+                }
+                else if (e.KeyCode == Keys.F)
+                {
+                    if (SetSearchString())
+                        FindNextMatch();
+                }
                 else if (e.KeyCode == Keys.F3)
                     FindPrevMatch();
                 else if (e.KeyCode == Keys.L)
@@ -68,6 +78,7 @@ namespace LVLTool
                     this.Paste(DataFormats.GetFormat(DataFormats.Text));
                     e.Handled = true;
                 }
+                
             }
             else if (e.Shift)
             {
@@ -78,6 +89,8 @@ namespace LVLTool
                 FindNextMatch();
             else if (e.KeyCode == Keys.F2)
                 FindPrevMatch();
+
+            base.OnKeyDown(e);
         }
 
         /// <summary>

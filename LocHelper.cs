@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+
 /*
  * Loc files are not terribly complex.
  * They are ucfb fiels with file type, name and body.
@@ -679,6 +680,204 @@ namespace LVLTool
             return retVal;
         }
 
+        public string GetStringsAsCfg(List<string> errors)
+        {
+            string input = GetAllStrings();
+            List<LocalizedString> stringList = ParseStrings(input, errors);
+            StringBuilder sb = new StringBuilder(input.Length);
+            string currentScope = "";
+            string lastScope = "";
+            sb.Append("DataBase()\n{\n");
+            for (int i = 0; i < stringList.Count; i++)
+            {
+                if (stringList[i].StringId.IndexOf("0x") == -1)
+                {
+                    currentScope = GetStringScope(stringList[i].StringId);
+                    if (!currentScope.Equals(lastScope, StringComparison.CurrentCultureIgnoreCase))
+                    {
+                        AppendScope(currentScope, lastScope, sb);
+                    }
+                    AppendString(stringList[i], sb);
+                    lastScope = currentScope;
+                }
+                else {
+                    string errorMsg = String.Format("Skipping {0}=\"{1}\"\n", stringList[i].StringId, stringList[i].Content);
+                    errors.Add(errorMsg);
+                    Console.Write(errorMsg);
+                }
+            }
+            string[] parts = lastScope.Split(".".ToCharArray());
+            for (int j = parts.Length-1; j > -1; j--)
+            {
+                sb.Append(' ', 2+ j*2);
+                sb.Append("}\n");
+            }
+            sb.Append("}");
+            return sb.ToString();
+        }
+
+        private void AppendString(LocalizedString localizedString, StringBuilder builder)
+        {
+            int size = 4 + 2 * localizedString.Content.Length;
+            int index = localizedString.StringId.LastIndexOf('.');
+            string id = localizedString.StringId.Substring(index + 1);
+            string[] parts = localizedString.StringId.Split(".".ToCharArray());
+            string indent = new string (' ', parts.Length * 2);
+            string indentInner = indent + "  ";
+            builder.Append(indent);
+            builder.Append("VarBinary(\"");
+            builder.Append(id);
+            builder.Append("\")\n");
+            builder.Append(indent);
+            builder.Append("{\n");
+            builder.Append(indentInner);
+            builder.Append("Size(");
+            builder.Append(size);
+            builder.Append(");\n");
+            builder.Append(indentInner);
+            builder.Append("Value(\"");
+            string result = GetCrazyPrefix(localizedString.Content) + ConvertToStupidFormat(localizedString.Content);
+            for (int i = 0; i < result.Length; i++)
+            {
+                if (i != 0 && i % 64 == 0)
+                {
+                    builder.Append("\");\n"); // finish off prev
+                    builder.Append(indentInner);
+                    builder.Append("Value(\""); // start new one
+                }
+                builder.Append(result[i]);
+            }
+            builder.Append("\");\n");
+            builder.Append(indent);
+            builder.Append("}\n");
+        }
+
+        private string ConvertToStupidFormat(string input)
+        {
+            StringBuilder sb = new StringBuilder();
+            string current = "";
+            string flipped = "";
+            foreach (char c in input)
+            {
+                current = String.Format("{0:X4}", (uint)c);
+                flipped = "" + current[3] + current[2] + current[1] + current[0];
+                sb.Append(flipped);
+            }
+            return sb.ToString();
+        }
+
+        private string GetCrazyPrefix(string input)
+        {
+            string len = string.Format("{0}00000000", 2 * input.Length);
+            len = len.Substring(0, 8);
+            return len;
+        }
+
+        private void AppendScope(string currentScope, string lastScope, StringBuilder sb)
+        {
+            string[] currentParts =  currentScope.Split(".".ToCharArray());
+            string[] lastParts    = lastScope.Split(".".ToCharArray());
+            int i = 0;
+            i = 0;
+            while (currentParts.Length > i && lastParts.Length > i && lastParts[i] == currentParts[i])
+                i++;
+            string currentWord = "";
+            string lastWord = "";
+            if (lastScope.Length > 0)
+            {
+                for (int j = lastParts.Length - 1; j > -1; j--)
+                {
+                    lastWord = lastParts[j];
+                    lastWord = String.Join(".", lastParts, 0, j+1);
+                    if (currentParts.Length > j)
+                    {
+                        currentWord = currentParts[j];
+                        currentWord = String.Join(".", currentParts, 0, j+1);
+                    }
+                    else
+                        currentWord = "";
+                    if (!currentWord.Equals(lastWord, StringComparison.CurrentCultureIgnoreCase))
+                    {
+                        sb.Append(' ', 2 + i * 2);
+                        sb.Append("}\n");
+                    }
+                }
+            }
+            
+            string indent = "";
+            for (; i < currentParts.Length; i++)
+            {
+                indent = new string(' ',(i+1)*2);
+                sb.Append(String.Format("{0}VarScope(\"{1}\")\n", indent, currentParts[i]));
+                sb.Append(String.Format("{0}{{\n",indent));
+            }
+        }
+
+        private string GetStringScope(string p)
+        {
+            int index = p.LastIndexOf('.');
+            if (index > -1)
+            {
+                string retVal = p.Substring(0, index );
+                return retVal;
+            }
+            return null;
+        }
+
+
+        public static string GetVarBinaryObjectPaths(string input)
+        {
+            var builder = new StringBuilder();
+            var trimmedLine = "";
+            var lastLine = "";
+            var lines = input.Split("\n".ToCharArray());
+            List<string> dudes = new List<string>(6);
+            int braceCount = 0;
+            for(int i = 0; i < lines.Length; i++)
+            {
+                trimmedLine = lines[i].Trim();
+                if (trimmedLine == "{")
+                    braceCount++;
+                else if (trimmedLine == "}")
+                {
+                    braceCount--;
+                    if(dudes.Count > 0)
+                        dudes.RemoveAt(dudes.Count - 1);
+                }
+                else if (trimmedLine.StartsWith("VarScope(\""))
+                {
+                    var scopeName = trimmedLine
+                        .Substring("VarScope(\"".Length)
+                        .TrimEnd(new char[] { '\"', ')' });
+                    dudes.Add(scopeName);
+                }
+                else if (trimmedLine.StartsWith("VarBinary(\""))
+                {
+                    try
+                    {
+                        var varName = trimmedLine
+                            .Substring("VarBinary(\"".Length)
+                            .Split(new char[] { '\"', ')' }, StringSplitOptions.RemoveEmptyEntries)
+                            .First();
+                        dudes.Add(varName);
+                        builder.Append(String.Join(".", dudes.ToArray()));
+                        builder.Append("\n");
+                    }
+                    catch { }
+                }
+                lastLine = trimmedLine;
+            }
+            return builder.ToString();
+        }
+
+        private static void AdvanceToLine(string[] lines, ref int index, string line)
+        {
+            for (; index < lines.Length; index++)
+            {
+                if (lines[index].Trim() == line)
+                    break;
+            }
+        }
 
         /*
          *      string_id_hash (4 bytes)

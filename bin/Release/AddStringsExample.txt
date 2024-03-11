@@ -4,7 +4,7 @@ mapname.description.ABC="Your map description! Multiple lines are OK!
 Just need to make sure it ends with a douple-quote symbol.
 
 "
-escapt.quote.description.CHA=" You can use a double quote inside a string if you 'escape' it Like this: \" "
+escape.quote.description.CHA=" You can use a double quote inside a string if you 'escape' it Like this: \" "
 mapname.description.ABC="ABC, easy as 123 "
 mapname.description.CHA="One two, cha cha cha  "
 0x391b3ef0="If you don't know the actual string id, hashes (like this one) work too!"

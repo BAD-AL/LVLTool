@@ -8,6 +8,7 @@ using System.Text;
 using System.Windows.Forms;
 using System.Text.RegularExpressions;
 using System.Globalization;
+using System.IO;
 
 namespace LVLTool
 {
@@ -17,7 +18,16 @@ namespace LVLTool
         {
             InitializeComponent();
         }
+        protected override void OnHandleCreated(EventArgs e)
+        {
+            //https://stackoverflow.com/questions/57124243/winforms-dark-title-bar-on-windows-10 (thank you:)
+            if (DwmSetWindowAttribute(this.Handle, 19, new[] { 1 }, 4) != 0)
+                DwmSetWindowAttribute(this.Handle, 20, new[] { 1 }, 4);
+            base.OnHandleCreated(e);
+        }
 
+        [System.Runtime.InteropServices.DllImport("DwmApi")] //System.Runtime.InteropServices
+        private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, int[] attrValue, int attrSize);
         private void mInputTextBox_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Enter)
@@ -107,6 +117,8 @@ namespace LVLTool
                 List<string> stringsToAdd = new List<string>( result.Split(new char[] {'\n'}));
                 int numberAdded = HashHelper.AddStringsToDictionary(stringsToAdd);
                 txt_output.Text = string.Format("Added {0} previously unknown strings\n", numberAdded);
+                if(numberAdded > 0)
+                    HashHelper.WriteDictionary();
             }
         }
 
@@ -114,6 +126,70 @@ namespace LVLTool
         {
             uint result = HashHelper.HashString(txt_hashMe.Text);
             lbl_hashMe.Text = string.Format("0x{0:x}", result);
+        }
+
+        private void unmungeHashFinderToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog dlg = new OpenFileDialog();
+            if (dlg.ShowDialog() == DialogResult.OK)
+            {
+                List<String> newStrings = CollectHashes(dlg.FileName);
+                if (newStrings != null)
+                {
+                    MessageForm.ShowMessage("Found these", String.Join("\n", newStrings.ToArray()), SystemIcons.Information, false, false);
+                }
+            }
+            dlg.Dispose();
+
+        }
+
+        private List<String> CollectHashes(string fileName)
+        {
+            // unmunge 1.2.2
+            // swbf-unmunge.exe -platform pc -string_dict <my_dict> -gen_string_dict <new_dict> -folder <lvl_folder>
+            string current_dict = "dictionary.txt";
+            string gen_dict = "new_dict.txt";
+            string unmunge_1_2_2 = "unmunge_versions\\swbf-unmunge-v1.2.2\\swbf-unmunge.exe";
+            string unmunge_1_2_1 = "unmunge_versions\\swbf-unmunge-v1.2.1\\swbf-unmunge.exe";
+            string unmungeProgram = "";
+            string args = "";
+            if (File.Exists(unmunge_1_2_2))
+            {
+                unmungeProgram = unmunge_1_2_2;
+                FileInfo info = new FileInfo(fileName);
+                args = String.Format(
+                    "-platform pc -string_dict {0} -gen_string_dict {1} -folder {2} ",
+                    current_dict, gen_dict, info.Directory );
+            }
+            else if (File.Exists(unmunge_1_2_1))
+            {
+                unmungeProgram = unmunge_1_2_1;
+                args = String.Format(
+                    "-platform pc -file {0} -string_dict {1} -gen_string_dict {2} ",
+                    fileName, current_dict, gen_dict);
+            }
+            else
+            {
+                MessageBox.Show(String.Format("Could not find proper Unmunge program\n\n'{0}'\nor\n'{1}'\n",
+                    unmunge_1_2_2, unmunge_1_2_1));
+                return null;
+            }
+            string output =  Program.RunCommand(unmungeProgram, args, true);
+            // now figure out what we don't have
+            string[] found_strings = File.ReadAllText(gen_dict).Replace("\r\n","\n").Split("\n".ToCharArray());
+            List<string> retVal = new List<string>(200);
+            uint hashId = 0;
+            foreach (string str in found_strings)
+            {
+                if (!str.StartsWith("0x"))
+                {
+                    hashId = HashHelper.HashString(str);
+                    if (HashHelper.GetStringFromHash(hashId) == null)
+                        retVal.Add(str);
+                }
+            }
+            retVal.Sort();
+            return retVal;
         }
     }
 }

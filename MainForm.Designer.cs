@@ -45,18 +45,23 @@
             this.mMainTextBox = new LVLTool.SearchTextBox();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.luaSourceDirToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.enterBF2ToolsDirToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.createNewLVLToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.renameItemToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.coreMergeFormToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.runUnmungeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.viewToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.refreshLvlListBoxToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.sortListBoxToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.findToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.findKnownHashToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.reverseHashLookupToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.colorizeCodeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.localizationMenu = new System.Windows.Forms.ToolStripMenuItem();
             this.showAllStringsToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.showStringsLocFormatToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.applyStringsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.getToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.setStringMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -66,13 +71,14 @@
             this.createMungedLocFileFromDataToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.disableStringsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.addStringsifNotAlreadyPresentToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.extractStringsToTextFilesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.showStringIdsForLocFormatToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutProgramToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.mModToolsLabel = new System.Windows.Forms.Label();
             this.mStatusLabel = new System.Windows.Forms.Label();
             this.mModToolsSelection = new System.Windows.Forms.ComboBox();
-            this.runUnmungeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
             this.splitContainer1.SuspendLayout();
@@ -261,6 +267,7 @@
             this.mAssetListBox.Size = new System.Drawing.Size(208, 196);
             this.mAssetListBox.TabIndex = 19;
             this.mAssetListBox.SelectedIndexChanged += new System.EventHandler(this.mAssetListBox_SelectedIndexChanged);
+            this.mAssetListBox.KeyDown += new System.Windows.Forms.KeyEventHandler(this.mAssetListBox_KeyDown);
             // 
             // mMainTextBox
             // 
@@ -296,6 +303,7 @@
             // fileToolStripMenuItem
             // 
             this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.luaSourceDirToolStripMenuItem,
             this.enterBF2ToolsDirToolStripMenuItem,
             this.createNewLVLToolStripMenuItem,
             this.renameItemToolStripMenuItem,
@@ -306,38 +314,52 @@
             this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
             this.fileToolStripMenuItem.Text = "File";
             // 
+            // luaSourceDirToolStripMenuItem
+            // 
+            this.luaSourceDirToolStripMenuItem.Name = "luaSourceDirToolStripMenuItem";
+            this.luaSourceDirToolStripMenuItem.Size = new System.Drawing.Size(314, 22);
+            this.luaSourceDirToolStripMenuItem.Text = "Lua Source Dir (if different than modtools dir)";
+            this.luaSourceDirToolStripMenuItem.Click += new System.EventHandler(this.luaSourceDirToolStripMenuItem_Click);
+            // 
             // enterBF2ToolsDirToolStripMenuItem
             // 
             this.enterBF2ToolsDirToolStripMenuItem.Name = "enterBF2ToolsDirToolStripMenuItem";
-            this.enterBF2ToolsDirToolStripMenuItem.Size = new System.Drawing.Size(177, 22);
+            this.enterBF2ToolsDirToolStripMenuItem.Size = new System.Drawing.Size(314, 22);
             this.enterBF2ToolsDirToolStripMenuItem.Text = "Enter Mod Tools Dir";
             this.enterBF2ToolsDirToolStripMenuItem.Click += new System.EventHandler(this.enterBF2ToolsDirToolStripMenuItem_Click);
             // 
             // createNewLVLToolStripMenuItem
             // 
             this.createNewLVLToolStripMenuItem.Name = "createNewLVLToolStripMenuItem";
-            this.createNewLVLToolStripMenuItem.Size = new System.Drawing.Size(177, 22);
+            this.createNewLVLToolStripMenuItem.Size = new System.Drawing.Size(314, 22);
             this.createNewLVLToolStripMenuItem.Text = "Create new LVL";
             this.createNewLVLToolStripMenuItem.Click += new System.EventHandler(this.createNewLVLToolStripMenuItem_Click);
             // 
             // renameItemToolStripMenuItem
             // 
             this.renameItemToolStripMenuItem.Name = "renameItemToolStripMenuItem";
-            this.renameItemToolStripMenuItem.Size = new System.Drawing.Size(177, 22);
+            this.renameItemToolStripMenuItem.Size = new System.Drawing.Size(314, 22);
             this.renameItemToolStripMenuItem.Text = "Rename Item";
             this.renameItemToolStripMenuItem.Click += new System.EventHandler(this.renameItemToolStripMenuItem_Click);
             // 
             // coreMergeFormToolStripMenuItem
             // 
             this.coreMergeFormToolStripMenuItem.Name = "coreMergeFormToolStripMenuItem";
-            this.coreMergeFormToolStripMenuItem.Size = new System.Drawing.Size(177, 22);
+            this.coreMergeFormToolStripMenuItem.Size = new System.Drawing.Size(314, 22);
             this.coreMergeFormToolStripMenuItem.Text = "Loc Merge Form";
             this.coreMergeFormToolStripMenuItem.Click += new System.EventHandler(this.locMergeFormToolStripMenuItem_Click);
+            // 
+            // runUnmungeToolStripMenuItem
+            // 
+            this.runUnmungeToolStripMenuItem.Name = "runUnmungeToolStripMenuItem";
+            this.runUnmungeToolStripMenuItem.Size = new System.Drawing.Size(314, 22);
+            this.runUnmungeToolStripMenuItem.Text = "Run Unmunge";
+            this.runUnmungeToolStripMenuItem.Click += new System.EventHandler(this.runUnmungeToolStripMenuItem_Click);
             // 
             // exitToolStripMenuItem
             // 
             this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            this.exitToolStripMenuItem.Size = new System.Drawing.Size(177, 22);
+            this.exitToolStripMenuItem.Size = new System.Drawing.Size(314, 22);
             this.exitToolStripMenuItem.Text = "E&xit";
             this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
             // 
@@ -347,7 +369,9 @@
             this.refreshLvlListBoxToolStripMenuItem,
             this.sortListBoxToolStripMenuItem,
             this.findToolStripMenuItem,
-            this.findKnownHashToolStripMenuItem});
+            this.findKnownHashToolStripMenuItem,
+            this.reverseHashLookupToolStripMenuItem,
+            this.colorizeCodeToolStripMenuItem});
             this.viewToolStripMenuItem.Name = "viewToolStripMenuItem";
             this.viewToolStripMenuItem.Size = new System.Drawing.Size(44, 20);
             this.viewToolStripMenuItem.Text = "View";
@@ -355,35 +379,52 @@
             // refreshLvlListBoxToolStripMenuItem
             // 
             this.refreshLvlListBoxToolStripMenuItem.Name = "refreshLvlListBoxToolStripMenuItem";
-            this.refreshLvlListBoxToolStripMenuItem.Size = new System.Drawing.Size(169, 22);
+            this.refreshLvlListBoxToolStripMenuItem.Size = new System.Drawing.Size(187, 22);
             this.refreshLvlListBoxToolStripMenuItem.Text = "Refresh lvl list box";
             this.refreshLvlListBoxToolStripMenuItem.Click += new System.EventHandler(this.refreshLvlListBoxToolStripMenuItem_Click);
             // 
             // sortListBoxToolStripMenuItem
             // 
             this.sortListBoxToolStripMenuItem.Name = "sortListBoxToolStripMenuItem";
-            this.sortListBoxToolStripMenuItem.Size = new System.Drawing.Size(169, 22);
+            this.sortListBoxToolStripMenuItem.Size = new System.Drawing.Size(187, 22);
             this.sortListBoxToolStripMenuItem.Text = "Sort List box";
             this.sortListBoxToolStripMenuItem.Click += new System.EventHandler(this.sortListBoxToolStripMenuItem_Click);
             // 
             // findToolStripMenuItem
             // 
             this.findToolStripMenuItem.Name = "findToolStripMenuItem";
-            this.findToolStripMenuItem.Size = new System.Drawing.Size(169, 22);
+            this.findToolStripMenuItem.Size = new System.Drawing.Size(187, 22);
             this.findToolStripMenuItem.Text = "Find Item";
             this.findToolStripMenuItem.Click += new System.EventHandler(this.findToolStripMenuItem_Click);
             // 
             // findKnownHashToolStripMenuItem
             // 
             this.findKnownHashToolStripMenuItem.Name = "findKnownHashToolStripMenuItem";
-            this.findKnownHashToolStripMenuItem.Size = new System.Drawing.Size(169, 22);
+            this.findKnownHashToolStripMenuItem.Size = new System.Drawing.Size(187, 22);
             this.findKnownHashToolStripMenuItem.Text = "Find Known Hash";
             this.findKnownHashToolStripMenuItem.Click += new System.EventHandler(this.findKnownHashToolStripMenuItem_Click);
+            // 
+            // reverseHashLookupToolStripMenuItem
+            // 
+            this.reverseHashLookupToolStripMenuItem.Name = "reverseHashLookupToolStripMenuItem";
+            this.reverseHashLookupToolStripMenuItem.Size = new System.Drawing.Size(187, 22);
+            this.reverseHashLookupToolStripMenuItem.Text = "Reverse Hash Lookup";
+            this.reverseHashLookupToolStripMenuItem.Click += new System.EventHandler(this.reverseHashLookupToolStripMenuItem_Click);
+            // 
+            // colorizeCodeToolStripMenuItem
+            // 
+            this.colorizeCodeToolStripMenuItem.Checked = true;
+            this.colorizeCodeToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.colorizeCodeToolStripMenuItem.Name = "colorizeCodeToolStripMenuItem";
+            this.colorizeCodeToolStripMenuItem.Size = new System.Drawing.Size(187, 22);
+            this.colorizeCodeToolStripMenuItem.Text = "Colorize Code";
+            this.colorizeCodeToolStripMenuItem.Click += new System.EventHandler(this.colorizeCodeToolStripMenuItem_Click);
             // 
             // localizationMenu
             // 
             this.localizationMenu.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.showAllStringsToolStripMenuItem1,
+            this.showStringsLocFormatToolStripMenuItem,
             this.applyStringsToolStripMenuItem,
             this.getToolStripMenuItem,
             this.setStringMenuItem,
@@ -392,7 +433,9 @@
             this.addStringToolStripMenuItem,
             this.createMungedLocFileFromDataToolStripMenuItem,
             this.disableStringsToolStripMenuItem,
-            this.addStringsifNotAlreadyPresentToolStripMenuItem});
+            this.addStringsifNotAlreadyPresentToolStripMenuItem,
+            this.extractStringsToTextFilesToolStripMenuItem,
+            this.showStringIdsForLocFormatToolStripMenuItem});
             this.localizationMenu.Enabled = false;
             this.localizationMenu.Name = "localizationMenu";
             this.localizationMenu.Size = new System.Drawing.Size(82, 20);
@@ -404,6 +447,13 @@
             this.showAllStringsToolStripMenuItem1.Size = new System.Drawing.Size(282, 22);
             this.showAllStringsToolStripMenuItem1.Text = "Show All Strings";
             this.showAllStringsToolStripMenuItem1.Click += new System.EventHandler(this.showAllStringsToolStripMenuItem_Click);
+            // 
+            // showStringsLocFormatToolStripMenuItem
+            // 
+            this.showStringsLocFormatToolStripMenuItem.Name = "showStringsLocFormatToolStripMenuItem";
+            this.showStringsLocFormatToolStripMenuItem.Size = new System.Drawing.Size(282, 22);
+            this.showStringsLocFormatToolStripMenuItem.Text = "Show Strings Loc Format";
+            this.showStringsLocFormatToolStripMenuItem.Click += new System.EventHandler(this.showStringsLocFormatToolStripMenuItem_Click);
             // 
             // applyStringsToolStripMenuItem
             // 
@@ -470,6 +520,20 @@
             this.addStringsifNotAlreadyPresentToolStripMenuItem.Text = "Add Strings (if not already present)";
             this.addStringsifNotAlreadyPresentToolStripMenuItem.Click += new System.EventHandler(this.addStringsifNotAlreadyPresentToolStripMenuItem_Click);
             // 
+            // extractStringsToTextFilesToolStripMenuItem
+            // 
+            this.extractStringsToTextFilesToolStripMenuItem.Name = "extractStringsToTextFilesToolStripMenuItem";
+            this.extractStringsToTextFilesToolStripMenuItem.Size = new System.Drawing.Size(282, 22);
+            this.extractStringsToTextFilesToolStripMenuItem.Text = "Extract Strings to text files";
+            this.extractStringsToTextFilesToolStripMenuItem.Click += new System.EventHandler(this.extractLocasTextToolStripMenuItem_Click);
+            // 
+            // showStringIdsForLocFormatToolStripMenuItem
+            // 
+            this.showStringIdsForLocFormatToolStripMenuItem.Name = "showStringIdsForLocFormatToolStripMenuItem";
+            this.showStringIdsForLocFormatToolStripMenuItem.Size = new System.Drawing.Size(282, 22);
+            this.showStringIdsForLocFormatToolStripMenuItem.Text = "Show String ids for Loc Format";
+            this.showStringIdsForLocFormatToolStripMenuItem.Click += new System.EventHandler(this.showStringIdsForLocFormatToolStripMenuItem_Click);
+            // 
             // aboutToolStripMenuItem
             // 
             this.aboutToolStripMenuItem.BackColor = System.Drawing.Color.DimGray;
@@ -526,13 +590,6 @@
             this.mModToolsSelection.Name = "mModToolsSelection";
             this.mModToolsSelection.Size = new System.Drawing.Size(208, 21);
             this.mModToolsSelection.TabIndex = 23;
-            // 
-            // runUnmungeToolStripMenuItem
-            // 
-            this.runUnmungeToolStripMenuItem.Name = "runUnmungeToolStripMenuItem";
-            this.runUnmungeToolStripMenuItem.Size = new System.Drawing.Size(177, 22);
-            this.runUnmungeToolStripMenuItem.Text = "Run Unmunge";
-            this.runUnmungeToolStripMenuItem.Click += new System.EventHandler(this.runUnmungeToolStripMenuItem_Click);
             // 
             // MainForm
             // 
@@ -610,6 +667,12 @@
         private System.Windows.Forms.ToolStripMenuItem findKnownHashToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem renameItemToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem runUnmungeToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem colorizeCodeToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem luaSourceDirToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem extractStringsToTextFilesToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem showStringsLocFormatToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem reverseHashLookupToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem showStringIdsForLocFormatToolStripMenuItem;
     }
 }
 

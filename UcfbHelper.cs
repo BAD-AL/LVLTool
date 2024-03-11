@@ -526,6 +526,7 @@ namespace LVLTool
         public void SaveData(string fileName)
         {
             File.WriteAllBytes(fileName, mData);
+            Console.WriteLine("Saved file: '{0}'", fileName);
         }
 
         //private bool MatchType(string cur, string ct)
@@ -603,6 +604,8 @@ namespace LVLTool
             mData[5] = (byte)((headerLength & 0x0000FF00) >> 8);
             mData[6] = (byte)((headerLength & 0x00FF0000) >> 16);
             mData[7] = (byte)((headerLength & 0xFF000000) >> 24);
+
+            Console.WriteLine("Added '{0}'", mungedFile);
         }
     }
 

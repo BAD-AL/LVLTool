@@ -61,17 +61,17 @@
     <Compile Include="CreateLvlForm.Designer.cs">
       <DependentUpon>CreateLvlForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="HashFinderForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="HashFinderForm.Designer.cs">
-      <DependentUpon>HashFinderForm.cs</DependentUpon>
-    </Compile>
     <Compile Include="HashLookupForm.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="HashLookupForm.Designer.cs">
       <DependentUpon>HashLookupForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ListForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ListForm.designer.cs">
+      <DependentUpon>ListForm.cs</DependentUpon>
     </Compile>
     <Compile Include="LocHelper.cs" />
     <Compile Include="LocMergeForm.cs">
@@ -107,10 +107,6 @@
       <DependentUpon>CreateLvlForm.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="HashFinderForm.resx">
-      <DependentUpon>HashFinderForm.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
     <EmbeddedResource Include="HashLookupForm.resx">
       <DependentUpon>HashLookupForm.cs</DependentUpon>
       <SubType>Designer</SubType>
@@ -143,6 +139,7 @@
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
     </Compile>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -157,6 +154,12 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
     <Compile Include="ReqMaker.cs" />
+    <Compile Include="ReverseHashForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ReverseHashForm.designer.cs">
+      <DependentUpon>ReverseHashForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="SearchTextBox.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -167,13 +170,18 @@
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="UcfbHelper.cs" />
+    <Compile Include="UnmungeBugForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UnmungeBugForm.Designer.cs">
+      <DependentUpon>UnmungeBugForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="UnmungeForm.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="UnmungeForm.Designer.cs">
       <DependentUpon>UnmungeForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="WinFormThemeHelper.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="AddStringsExample.txt">
@@ -182,8 +190,21 @@
     <EmbeddedResource Include="dictionary.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </EmbeddedResource>
+    <EmbeddedResource Include="ListForm.resx">
+      <DependentUpon>ListForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ReverseHashForm.resx">
+      <DependentUpon>ReverseHashForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UnmungeBugForm.resx">
+      <DependentUpon>UnmungeBugForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
     <EmbeddedResource Include="UnmungeForm.resx">
       <DependentUpon>UnmungeForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <Content Include="LuaDC1.exe">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -192,6 +213,7 @@
     <Content Include="SWBF2CodeHelper.exe">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <None Include="Unmunge-bugs.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
