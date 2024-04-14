@@ -105,6 +105,8 @@ namespace LVLTool
                      newItemPath.EndsWith(".mcfg", StringComparison.OrdinalIgnoreCase)  ||
                      newItemPath.EndsWith(".sky", StringComparison.OrdinalIgnoreCase))
                 type = "config";
+            else if (newItemPath.EndsWith(".font", StringComparison.OrdinalIgnoreCase))
+                type = "font";
             if (String.IsNullOrEmpty(type))
             {
                 Console.WriteLine("Don't know how to replace file: "+ newItemPath);
