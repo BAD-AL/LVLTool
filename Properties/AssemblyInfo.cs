@@ -38,5 +38,8 @@ using System.Runtime.InteropServices;
 //[assembly: AssemblyFileVersion("0.9.0.2")]
 //[assembly: AssemblyVersion("0.9.0.3")]
 //[assembly: AssemblyFileVersion("0.9.0.3")]
-[assembly: AssemblyVersion("0.9.0.4")]
-[assembly: AssemblyFileVersion("0.9.0.4")]
+//[assembly: AssemblyVersion("0.9.0.4")]
+//[assembly: AssemblyFileVersion("0.9.0.4")]
+
+[assembly: AssemblyVersion("0.9.0.5")]   // use .gz compression on dict; expand command line replacement
+[assembly: AssemblyFileVersion("0.9.0.5")]

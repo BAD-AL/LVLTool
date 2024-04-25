@@ -5,6 +5,7 @@ using System.Text;
 using System.IO;
 using System.Globalization;
 using System.Reflection;
+using System.IO.Compression;
 
 namespace LVLTool
 {
@@ -41,7 +42,6 @@ namespace LVLTool
         }
 
         private static string sDictionaryFile = null;
-
 
         public static UInt32 HashString(string input)
         {
@@ -169,6 +169,9 @@ namespace LVLTool
         private static void ReadDictionary()
         {
             StreamReader reader = null;
+            Stream compressedStream = null;
+            GZipStream decompressionStream = null;
+
             string line = "";
             sHashes = new Dictionary<uint, string>(500);
             try
@@ -183,7 +186,12 @@ namespace LVLTool
                     Assembly assembly = Assembly.GetExecutingAssembly();
                     // when debugging use the line below to look through the different resources in 'resourceNames' to see the name of the target resource
                     //String[] resourceNames = assembly.GetManifestResourceNames();
-                    reader = new StreamReader(assembly.GetManifestResourceStream("LVLTool.dictionary.txt"));
+                    //reader = new StreamReader(assembly.GetManifestResourceStream("LVLTool.dictionary.txt"));
+                    compressedStream = assembly.GetManifestResourceStream("LVLTool.dictionary.txt.gz");
+                    if (compressedStream == null) throw new InvalidOperationException("Could not find the embedded resource.");
+                    decompressionStream = new GZipStream(compressedStream, CompressionMode.Decompress);
+                    reader = new StreamReader(decompressionStream, Encoding.UTF8);
+
                     Console.WriteLine("Using internal dictionary...");
                 }
                 while ((line = reader.ReadLine()) != null)
@@ -197,8 +205,9 @@ namespace LVLTool
             }
             finally
             {
-                if (reader != null)
-                    reader.Close();
+                if (reader != null) reader.Close();
+                if (decompressionStream != null) decompressionStream.Close();
+                if (compressedStream != null) compressedStream.Close();
             }
         }
 

@@ -94,7 +94,9 @@ namespace LVLTool
         internal bool ReplaceItem(string newItemPath, Platform p)
         {
             bool retVal = false;
-            string type = "";
+            FileInfo fi = new FileInfo(newItemPath);
+
+            string type = fi.Extension.Replace(".","");
             if (newItemPath.EndsWith(".lua", StringComparison.OrdinalIgnoreCase) || 
                 newItemPath.EndsWith(".script", StringComparison.OrdinalIgnoreCase))
                 type = "scr_";
@@ -107,11 +109,7 @@ namespace LVLTool
                 type = "config";
             else if (newItemPath.EndsWith(".font", StringComparison.OrdinalIgnoreCase))
                 type = "font";
-            if (String.IsNullOrEmpty(type))
-            {
-                Console.WriteLine("Don't know how to replace file: "+ newItemPath);
-                return retVal;
-            }
+
             int lastSlash = newItemPath.LastIndexOf("\\");
             string stem = newItemPath.Substring(lastSlash + 1);
             int dotIndex = stem.LastIndexOf(".");
@@ -386,7 +384,7 @@ namespace LVLTool
         private void aboutProgramToolStripMenuItem_Click(object sender, EventArgs e)
         {
             MessageBox.Show("LVLTool.exe Version " + Program.Version +
-                "\nReplace or add to .lvl files\n" +
+                "\nAdd to or replace contents of .lvl files\n" +
                 "https://github.com/BAD-AL/LVLTool"
                 );
         }
