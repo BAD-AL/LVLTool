@@ -53,8 +53,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BinUtils.cs" />
-    <Compile Include="CoreMerge.cs" />
+    <Compile Include="CoreCode\BinUtils.cs" />
+    <Compile Include="CoreCode\CoreMerge.cs" />
     <Compile Include="CreateLvlForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -73,28 +73,28 @@
     <Compile Include="ListForm.designer.cs">
       <DependentUpon>ListForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="LocHelper.cs" />
+    <Compile Include="CoreCode\LocHelper.cs" />
     <Compile Include="LocMergeForm.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="LocMergeForm.Designer.cs">
       <DependentUpon>LocMergeForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="LuaCodeHelper.cs" />
+    <Compile Include="CoreCode\LuaCodeHelper.cs" />
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="MainForm.Designer.cs">
       <DependentUpon>MainForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="HashHelper.cs" />
+    <Compile Include="CoreCode\HashHelper.cs" />
     <Compile Include="MessageForm.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="MessageForm.designer.cs">
       <DependentUpon>MessageForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Munger.cs" />
+    <Compile Include="CoreCode\Munger.cs" />
     <Compile Include="PlatformPrompt.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -153,7 +153,7 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="ReqMaker.cs" />
+    <Compile Include="CoreCode\ReqMaker.cs" />
     <Compile Include="ReverseHashForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -169,7 +169,7 @@
     <Compile Include="StringInputDlg.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="UcfbHelper.cs" />
+    <Compile Include="CoreCode\UcfbHelper.cs" />
     <Compile Include="UnmungeBugForm.cs">
       <SubType>Form</SubType>
     </Compile>
