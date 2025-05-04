@@ -14,10 +14,17 @@ namespace LVLTool
 {
     public partial class UnmungeForm : Form
     {
+        ToolTip toolTip = new ToolTip();
         public UnmungeForm()
         {
             InitializeComponent();
             PopulateListUnmunge();
+
+            toolTip.SetToolTip(treeViewExploded, "Drag/Drop .lvl file or exploded folder");
+            toolTip.SetToolTip(textBoxStringDict, "Drag/Drop aux dictionary file to help resolve strings.");
+            toolTip.SetToolTip(textFilename, "Drag/Drop .lvl file/press browse (...) button");
+            toolTip.SetToolTip(listUnmungeExe, "Choose Specific unmunge exe to use.\n"+
+                "If none appear, place swbf-unmunge.exe into the same folder.");
         }
 
         protected override void OnHandleCreated(EventArgs e)
@@ -155,11 +162,20 @@ namespace LVLTool
 
         private void textBox_DragDrop(object sender, DragEventArgs e)
         {
-            Control tb = sender as Control;
+            //Control tb = sender as Control;
             string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
-            if (files != null && files.Length == 1 && tb != null)
+            if (files != null && files.Length == 1 )
             {
-                tb.Text = files[0];
+                textFilename.Text = files[0];
+            }
+        }
+
+        private void textBoxStringDict_DragDrop(object sender, DragEventArgs e)
+        {
+            string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
+            if (files != null && files.Length == 1)
+            {
+                textBoxStringDict.Text = files[0];
             }
         }
 
@@ -199,13 +215,24 @@ namespace LVLTool
             else if (check_lod.Checked)
                 model_discard = " -modeldiscard lod ";
             string dictionary = "";
-            if (File.Exists("dictionary.txt") && CheckUnmungeDictionaryVersion())
-                dictionary = " -string_dict \"" + Path.GetFullPath("dictionary.txt") +"\" ";
+
+            if ( (File.Exists("dictionary.txt") || textBoxStringDict.Text.Length > 0) 
+                    && CheckUnmungeDictionaryVersion() )
+            {
+                if (textBoxStringDict.Text.Length > 0)
+                {
+                    if (!File.Exists(textBoxStringDict.Text))
+                        MessageBox.Show("Could not find: " + textBoxStringDict.Text);
+                    else
+                        dictionary = " -string_dict \"" + Path.GetFullPath(textBoxStringDict.Text) + "\" ";
+                }
+                else if (File.Exists("dictionary.txt"))
+                    dictionary = " -string_dict \"" + Path.GetFullPath("dictionary.txt") + "\" ";
+            }
             
             string args = string.Concat( file , in_version , out_version , image_format , model_discard , platform, dictionary);
             return args;
         }
-
 
         private bool CheckUnmungeDictionaryVersion()
         {
@@ -250,12 +277,11 @@ namespace LVLTool
                 {
                     retVal = "Error occured while running program:\n"+ ex.Message;
                 }
-                
             }
             return retVal;
         }
 
-        private void buttonGo_Click(object sender, EventArgs e)
+        private void buttonExtract_Click(object sender, EventArgs e)
         {
             // set unmunge location from the list box
             if(listUnmungeExe.SelectedItem != null)
@@ -266,11 +292,11 @@ namespace LVLTool
             }
             else
             {
-                buttonGo.Enabled = false;
+                buttonExtract.Enabled = false;
                 string output = ExecuteUnmunge(GetArgs(), true);
                 Console.WriteLine(output);
                 Console.WriteLine(SummerizeOutput(output));
-                buttonGo.Enabled = true;
+                buttonExtract.Enabled = true;
             }
         }
 
@@ -297,8 +323,12 @@ namespace LVLTool
 
         internal void SetStyle(Form prevForm)
         {
-            this.BackColor = prevForm.BackColor;
-            this.ForeColor = prevForm.ForeColor;
+            this.BackColor = tabControl1.TabPages[0].BackColor = 
+                treeViewExploded.BackColor =
+                tabControl1.TabPages[1].BackColor = prevForm.BackColor;
+            this.ForeColor = tabControl1.TabPages[0].ForeColor =
+                treeViewExploded.ForeColor =
+                tabControl1.TabPages[1].ForeColor = prevForm.ForeColor;
 
             this.listUnmungeExe.BackColor = prevForm.BackColor;
             this.listUnmungeExe.ForeColor = prevForm.ForeColor;
@@ -316,18 +346,22 @@ namespace LVLTool
             }
             if (tb != null)
             {
-                this.textFilename.BackColor = tb.BackColor;
-                this.textFilename.ForeColor = tb.ForeColor;
+                this.textFilename.BackColor = this.textBoxStringDict.BackColor = tb.BackColor;
+                this.textFilename.ForeColor = this.textBoxStringDict.ForeColor = tb.ForeColor;
             }
             if (b != null)
             {
-                buttonHelp.BackColor = 
-                buttonBrowse.BackColor = buttonGo.BackColor = b.BackColor;
-
+                buttonHelp.BackColor = buttonAssemble.BackColor = buttonExplode.BackColor =
+                    buttonBrowse.BackColor = buttonExtract.BackColor =
+                    b.BackColor;
+                
                 groupBox1.ForeColor = groupBox2.ForeColor = groupBox3.ForeColor =
-                groupBox4.ForeColor = groupBox5.ForeColor =
-                buttonBrowse.ForeColor = buttonGo.ForeColor = buttonHelp.ForeColor = b.ForeColor;
+                groupBox4.ForeColor = groupBox5.ForeColor = buttonExplode.ForeColor =
+                    buttonAssemble.ForeColor = buttonExtract.ForeColor =
+                    buttonBrowse.ForeColor = buttonHelp.ForeColor = b.ForeColor;
             }
+            //buttonExtract.BackColor = Color.Green;
+            //buttonExtract.ForeColor = Color.White;
         }
 
         private void buttonHelp_Click(object sender, EventArgs e)
@@ -361,11 +395,6 @@ namespace LVLTool
             }
         }
 
-        private void showKnownBugsForVersionsToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            new UnmungeBugForm().Show();
-        }
-
         private void tryToRenameFilesWithHashedNamesToolStripMenuItem_Click(object sender, EventArgs e)
         {
             RenameHashNameFiles();
@@ -374,6 +403,282 @@ namespace LVLTool
         private void fixRotationInlyrFilesToolStripMenuItem_Click(object sender, EventArgs e)
         {
             FixRotationInLyr();
+        }
+
+        private void treeViewExploded_DragDrop(object sender, DragEventArgs e)
+        {
+            Control tb = sender as Control;
+            string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
+            if (files != null && files.Length == 1 && tb != null)
+            {
+                if (Directory.Exists(files[0]))
+                {
+                    LoadDirectoryTree(treeViewExploded, files[0]);
+                }
+                else if (File.Exists(files[0]))
+                {
+                    textFilename.Text = files[0];
+                }
+            }
+        }
+
+        private void LoadHashHelperStrings()
+        {
+            if (File.Exists(textBoxStringDict.Text))
+            {
+                List<String> addThese = new List<string>( File.ReadAllLines(textBoxStringDict.Text));
+                HashHelper.AddStringsToDictionary(addThese);
+            }
+        }
+
+        private void LoadDirectoryTree(TreeView treeView, string rootPath)
+        {
+            treeView.Nodes.Clear();
+            try
+            {
+                DirectoryInfo rootDir = new DirectoryInfo(rootPath);
+                TreeNode rootNode = new TreeNode(rootDir.Name) { Tag = rootDir };
+                treeView.Nodes.Add(rootNode);
+                PopulateTreeNode(rootNode);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                MessageBox.Show("Access denied: " + ex.Message);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error: " + ex.Message);
+            }
+        }
+
+        private void PopulateTreeNode(TreeNode node)
+        {
+            DirectoryInfo dirInfo = (DirectoryInfo)node.Tag;
+            try
+            {
+                // Add subdirectories
+                DirectoryInfo[] subDirs = dirInfo.GetDirectories();
+                Array.Sort(subDirs, new NaturalStringComparer());
+                foreach (DirectoryInfo subDir in subDirs)
+                {
+                    TreeNode subNode = new TreeNode(GetSubDirName(subDir)) { Tag = subDir };
+                    node.Nodes.Add(subNode);
+                    // Recursively populate subdirectory
+                    PopulateTreeNode(subNode);
+                }
+                // Add files
+                foreach (FileInfo file in dirInfo.GetFiles())
+                {
+                    TreeNode fileNode = new TreeNode(file.Name) { Tag = file };
+                    node.Nodes.Add(fileNode);
+                }
+            }
+            catch (UnauthorizedAccessException)
+            {
+                // Skip inaccessible directories
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error loading directory: " + ex.Message);
+            }
+        }
+
+        private string GetSubDirName(DirectoryInfo subDir)
+        {
+            string retVal = subDir.Name;
+            FileInfo[] nameFile = subDir.GetFiles("*NAME.chunk");
+            if (nameFile.Length > 0)
+            {
+                //string chunkName = File.ReadAllText(nameFile[0].FullName);
+                //if (chunkName[chunkName.Length - 1] == 0)
+                //    chunkName = chunkName.Substring(0, chunkName.Length - 1);
+                string chunkName = ReadNameChunkFile(nameFile[0].FullName);
+
+                retVal = String.Format("{0} ({1})", subDir.Name, chunkName);
+            }
+            return retVal;
+        }
+
+        private string ReadNameChunkFile(string fileName)
+        {
+            string retVal = null;
+            if (File.Exists(fileName))
+            {
+                byte[] fileBytes = File.ReadAllBytes(fileName);
+                if (fileBytes.Length == 4)
+                {
+                    uint hash = BitConverter.ToUInt32(fileBytes, 0);
+                    retVal = HashHelper.ReverseLookup(hash);
+                }
+                if(retVal == null)
+                {
+                    string chunkName = File.ReadAllText(fileName);
+                    if (chunkName[chunkName.Length - 1] == 0)
+                        chunkName = chunkName.Substring(0, chunkName.Length - 1);
+                    retVal = chunkName;
+                }
+            }
+            return retVal;
+        }
+
+        private void buttonExplode_Click(object sender, EventArgs e)
+        {
+            string args = String.Format(" -file {0} -mode explode ", textFilename.Text);
+            ExecuteUnmunge(args, true);
+            string explodedFileDir = textFilename.Text.Trim();
+            if (explodedFileDir.EndsWith(".lvl", StringComparison.CurrentCultureIgnoreCase))
+                explodedFileDir = explodedFileDir.Substring(0, explodedFileDir.Length - 4);
+            LoadDirectoryTree(treeViewExploded, explodedFileDir);
+        }
+
+
+        private void buttonAssemble_Click(object sender, EventArgs e)
+        {
+            if (treeViewExploded.Nodes.Count > 0)
+            {
+                var di = treeViewExploded.Nodes[0].Tag as DirectoryInfo;
+                if (di != null)
+                {
+                    string folderToAssemble = di.FullName;
+                    string args = String.Format(" -file {0} -mode assemble ", folderToAssemble);
+                    ExecuteUnmunge(args, true);
+                    MessageBox.Show(String.Format("Check for\n '{0}.assembeled';\n rename to a .lvl file as desired.", folderToAssemble));
+                }
+            }
+            else
+            {
+                MessageBox.Show("Nothing Loaded; \ndrag exploded folder into Tree View or use 'Explode' button on .lvl file.");
+            }
+        }
+
+
+        private void deleteToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            TreeNode node = treeViewExploded.SelectedNode;
+            if (node != null)
+            {
+                DirectoryInfo info = node.Tag as DirectoryInfo;
+                if (info == null)
+                {
+                    MessageBox.Show(String.Format("Cannot delete just only '{0}', select a directory node.", node.Text));
+                }
+                else
+                {
+                    try
+                    {
+                        Directory.Delete(info.FullName, true);
+                        node.Remove();
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show("" + ex.Message);
+                    }
+                }
+            }
+        }
+
+        private void copyPathToClipboardToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            TreeNode node = treeViewExploded.SelectedNode;
+            if (node != null)
+            {
+                DirectoryInfo info = node.Tag as DirectoryInfo;
+                if (info != null)
+                {
+                    Clipboard.SetText(info.FullName);
+                }
+                else
+                {
+                    FileInfo fi = node.Tag as FileInfo;
+                    if (fi != null)
+                    {
+                        Clipboard.SetText(fi.FullName);
+                    }
+                }
+            }
+        }
+
+        private void contextMenuTreeViewExploded_Opened(object sender, EventArgs e)
+        {
+            TreeNode node = treeViewExploded.SelectedNode;
+            if (node != null)
+            {
+                DirectoryInfo di = node.Tag as DirectoryInfo;
+                FileInfo fi = node.Tag as FileInfo;
+
+                if (di != null)
+                    copyPathToClipboardToolStripMenuItem.ToolTipText = di.FullName;
+                else if (fi != null)
+                    copyPathToClipboardToolStripMenuItem.ToolTipText = fi.FullName;
+            }
+        }
+
+        private void textBoxStringDict_TextChanged(object sender, EventArgs e)
+        {
+            LoadHashHelperStrings();
+        }
+
+        private void textFilename_TextChanged(object sender, EventArgs e)
+        {
+            if (textFilename.Text.Length > 0)
+                buttonExtract.Enabled = true;
+        }
+
+        private void buttonExplodeAssembleHelp_Click(object sender, EventArgs e)
+        {
+            string link = "https://github.com/PrismaticFlower/swbf-unmunge/wiki/Explode-and-Assemble";
+            Process.Start(link);
+        }
+
+        private void openFolderInExplorerToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            TreeNode node = treeViewExploded.SelectedNode;
+            if (node != null)
+            {
+                DirectoryInfo di = node.Tag as DirectoryInfo;
+                FileInfo fi = node.Tag as FileInfo;
+
+                if (di != null)
+                    Process.Start("explorer.exe", di.FullName);
+                else if (fi != null)
+                    Process.Start("explorer.exe", fi.Directory.FullName);
+            }
+        }
+    }
+
+
+    public class NaturalStringComparer : IComparer<DirectoryInfo>
+    {
+        public int Compare(DirectoryInfo x, DirectoryInfo y)
+        {
+            string s1 = x.Name;
+            string s2 = y.Name;
+            int num1, num2;
+
+            // Split strings into parts (numbers and non-numbers)
+            string[] parts1 = Regex.Split(s1, "([0-9]+)");
+            string[] parts2 = Regex.Split(s2, "([0-9]+)");
+
+            // Compare each part
+            for (int i = 0; i < Math.Min(parts1.Length, parts2.Length); i++)
+            {
+                // If both parts are numbers, compare numerically
+                if (int.TryParse(parts1[i], out num1) && int.TryParse(parts2[i], out num2))
+                {
+                    if (num1 != num2)
+                        return num1.CompareTo(num2);
+                }
+                else
+                {
+                    // Compare strings case-insensitively
+                    int result = string.Compare(parts1[i], parts2[i], StringComparison.OrdinalIgnoreCase);
+                    if (result != 0)
+                        return result;
+                }
+            }
+
+            // If one string has more parts, it comes after
+            return parts1.Length.CompareTo(parts2.Length);
         }
     }
 }
