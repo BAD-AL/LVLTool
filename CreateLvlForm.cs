@@ -51,13 +51,16 @@ namespace LVLTool
 
             TextBox tb = null;
             Button b = null;
+            MenuStrip ms = null;
             foreach (Control tmp in prevForm.Controls)
             {
                 if (tb == null)
                     tb = tmp as TextBox;
                 if (b == null)
                     b = tmp as Button;
-                if (tb != null && b != null)
+                if (ms == null)
+                    ms = tmp as MenuStrip;
+                if (tb != null && b != null && ms != null)
                     break;
             }
             if (tb != null)
@@ -71,6 +74,11 @@ namespace LVLTool
             {
                 mClearButton.BackColor = mPlatformComboBox.BackColor = mCreateButton.BackColor = b.BackColor;
                 mClearButton.ForeColor = mPlatformComboBox.ForeColor = mCreateButton.ForeColor = b.ForeColor;
+            }
+            if (ms != null)
+            {
+                this.menuStrip1.ForeColor = ms.ForeColor;
+                this.menuStrip1.BackColor = ms.BackColor;
             }
         }
 

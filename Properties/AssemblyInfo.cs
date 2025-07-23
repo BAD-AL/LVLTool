@@ -40,9 +40,12 @@ using System.Runtime.InteropServices;
 //[assembly: AssemblyFileVersion("0.9.0.3")]
 //[assembly: AssemblyVersion("0.9.0.4")]
 //[assembly: AssemblyFileVersion("0.9.0.4")]
+
+//[assembly: AssemblyVersion("0.9.0.5")]   // use .gz compression on dict; expand command line replacement
+//[assembly: AssemblyFileVersion("0.9.0.5")]
 //////**************************************************************************************************************************
-[assembly: AssemblyVersion("0.9.0.5")]
-[assembly: AssemblyFileVersion("0.9.0.5")]
+[assembly: AssemblyVersion("0.9.0.6")]
+[assembly: AssemblyFileVersion("0.9.0.6")]
 //==== Changes ===
 //0. Added Explode/Assemble to the Unmunge UI Form
 //1. Fix For Bugs:
