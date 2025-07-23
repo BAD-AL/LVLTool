@@ -263,7 +263,7 @@ namespace LVLTool
                     RedirectStandardError = true,
                     RedirectStandardOutput = true
                 };
-                
+
                 try
                 {
                     var process = Process.Start(processStartInfo);
@@ -275,8 +275,12 @@ namespace LVLTool
                 }
                 catch (Exception ex)
                 {
-                    retVal = "Error occured while running program:\n"+ ex.Message;
+                    retVal = "Error occured while running program:\n" + ex.Message;
                 }
+            }
+            else
+            {
+                retVal = "Error! Could not locate unmunge program.\n\nPlease place in same folder.";
             }
             return retVal;
         }
@@ -524,7 +528,9 @@ namespace LVLTool
         private void buttonExplode_Click(object sender, EventArgs e)
         {
             string args = String.Format(" -file {0} -mode explode ", textFilename.Text);
-            ExecuteUnmunge(args, true);
+            string output = ExecuteUnmunge(args, true);
+            if (output.StartsWith("Error"))
+                Console.WriteLine(output);
             string explodedFileDir = textFilename.Text.Trim();
             if (explodedFileDir.EndsWith(".lvl", StringComparison.CurrentCultureIgnoreCase))
                 explodedFileDir = explodedFileDir.Substring(0, explodedFileDir.Length - 4);
@@ -541,7 +547,9 @@ namespace LVLTool
                 {
                     string folderToAssemble = di.FullName;
                     string args = String.Format(" -file {0} -mode assemble ", folderToAssemble);
-                    ExecuteUnmunge(args, true);
+                    string output = ExecuteUnmunge(args, true);
+                    if (output.StartsWith("Error"))
+                        Console.WriteLine(output);
                     MessageBox.Show(String.Format("Check for\n '{0}.assembeled';\n rename to a .lvl file as desired.", folderToAssemble));
                 }
             }
