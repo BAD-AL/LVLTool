@@ -1,0 +1,7 @@
+How To Run the tests
+1. Build LVLTool and LVLTool_Test projects
+2. Run  'CopyTools.bat' (to get the fresh builds of the programs)
+3. Run LVLTool_Test.exe
+4. Press 'Run Tests' button (or select specific test to run first)
+5. View results
+   Passing tests will show "Test name: PASS", test errors will display more details.

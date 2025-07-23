@@ -605,7 +605,7 @@ namespace LVLTool
             mData[6] = (byte)((headerLength & 0x00FF0000) >> 16);
             mData[7] = (byte)((headerLength & 0xFF000000) >> 24);
 
-            Console.WriteLine("Added '{0}'", mungedFile);
+            Console.WriteLine("info: Added '{0}'", mungedFile);
         }
     }
 

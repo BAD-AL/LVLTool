@@ -431,7 +431,7 @@ namespace LVLTool
                 UpdateModToolsLabel();
                 Program.SaveSettings();
                 LuaCodeHelper.ResetFileCache();
-                Console.WriteLine("Setting ModTols dir to: {0}", dir);
+                Console.WriteLine("info: Setting ModTols dir to: {0}", dir);
             }
             return dir;
         }
@@ -446,7 +446,7 @@ namespace LVLTool
                 //UpdateModToolsLabel();
                 //Program.SaveSettings();
                 LuaCodeHelper.ResetFileCache();
-                Console.WriteLine("Setting Lua Source dir to: {0}", dir);
+                Console.WriteLine("info: Setting Lua Source dir to: {0}", dir);
             }
             return dir;
         }
@@ -586,6 +586,11 @@ namespace LVLTool
         }
 
         private void showAllStringsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ShowAllStrings();
+        }
+
+        private void ShowAllStrings()
         {
             if (mAssetListBox.SelectedIndex > -1)
             {
@@ -953,7 +958,7 @@ namespace LVLTool
                 }
                 else
                 {
-                    Console.WriteLine("It is unsupported to change the length of the item's name.");
+                    Console.WriteLine("Error: It is unsupported to change the length of the item's name.");
                 }
             }
             else

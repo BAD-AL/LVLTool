@@ -114,9 +114,9 @@
             this.mPlatformComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.mPlatformComboBox.FormattingEnabled = true;
             this.mPlatformComboBox.Items.AddRange(new object[] {
-            "XBOX",
+            "PC",
             "PS2",
-            "PC"});
+            "XBOX"});
             this.mPlatformComboBox.Location = new System.Drawing.Point(203, 36);
             this.mPlatformComboBox.Name = "mPlatformComboBox";
             this.mPlatformComboBox.Size = new System.Drawing.Size(57, 21);

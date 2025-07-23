@@ -120,7 +120,7 @@ namespace LVLTool
                     else if (Directory.Exists(Program.LuaSourceDir))
                     {
                         sAllLuaFiles.AddRange(Directory.GetFiles(Program.LuaSourceDir, "*.lua", SearchOption.AllDirectories));
-                        Console.WriteLine("Found {0} lua files.", sAllLuaFiles.Count);
+                        Console.WriteLine("info: Found {0} lua files.", sAllLuaFiles.Count);
                     }
                     else
                     {

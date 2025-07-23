@@ -1,0 +1,4 @@
+info: Using internal dictionary...
+shell_movies.mcfg
+globals.scr_
+bf2_radiobutton_on.tex_

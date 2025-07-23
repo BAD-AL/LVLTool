@@ -1,0 +1,16 @@
+Boundary()
+{
+	Path("leaving03");
+	Path("leaving02");
+	Path("leaving01");
+	Path("leaving9");
+	Path("leaving9");
+	Path("leaving8");
+	Path("leaving7");
+	Path("leaving6");
+	Path("leaving5");
+	Path("leaving4");
+	Path("leaving3");
+	Path("leaving2");
+	Path("leaving1");
+}

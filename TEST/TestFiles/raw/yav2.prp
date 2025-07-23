@@ -1,0 +1,94 @@
+Layer(0)
+{
+    SpreadFactor(0.3);
+    Mesh()
+    {
+        GrassPatch("yav_prop_grass.odf", 60);
+        File("editor_grasspatch.msh", 50);
+        Frequency(100);
+        Scale(1);
+        Stiffness(0.0);
+        CollisionSound("foliage_collision");
+    }
+    Mesh()
+    {
+        GrassPatch("yav_prop_grass.odf", 50);
+        File("editor_grasspatch.msh", 40);
+        Frequency(100);
+        Scale(1);
+        Stiffness(0.0);
+        CollisionSound("foliage_collision");
+    }
+
+}
+
+Layer(1)
+{
+    SpreadFactor(0.2);
+    Mesh()
+    {
+        File("yav_prop_shrub1.msh", 35);
+        Frequency(10);
+        Scale(1);
+        Stiffness(0.0);
+        CollisionSound("foliage_collision");
+    }
+    
+}
+
+Layer(2)
+{
+    SpreadFactor(0.4);
+    Mesh()
+    {
+        LeafPatch("yav_prop_bush2.odf", 35);
+        File("editor_prop_bush.msh", 35);
+        Frequency(100);
+        Scale(1);
+        Stiffness(0.0);
+        CollisionSound("foliage_collision");
+    }
+}
+
+Layer(3)
+{
+    SpreadFactor(0.5);
+    Mesh()
+    {
+        LeafPatch("yav_prop_bush.odf", 40);
+        File("editor_prop_bush.msh", 40);
+        Frequency(100);
+        Scale(1);
+        Stiffness(0.0);
+        CollisionSound("foliage_collision");
+    }
+    
+}
+TreeLine()
+{
+    Path("jungle1")
+    {
+        Distance(28);
+        BorderOdf("yav2_prop_hellbush.odf");
+    }
+    Path("jungle2")
+    {
+        Distance(28);
+        BorderOdf("yav2_prop_hellbush.odf");
+    }
+    Path("jungle3")
+    {
+        Distance(28);
+        BorderOdf("yav2_prop_hellbush.odf");
+    }
+    Path("jungle4")
+    {
+        Distance(28);
+        BorderOdf("yav2_prop_hellbush.odf");
+    }
+
+}
+
+
+
+

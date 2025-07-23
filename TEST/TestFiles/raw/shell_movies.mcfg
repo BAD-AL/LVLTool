@@ -1,0 +1,387 @@
+// transition times used by all movies
+MovieProperties()
+{
+    Name("transition_template");
+    FadeInTime(0.0);
+    FadeOutTime(0.2);
+}
+
+MovieProperties()
+{
+    Name("screen_template");
+    FadeInTime(0.1);
+    FadeOutTime(0.5);
+}
+
+MovieProperties()
+{
+    Name("flythrough_template");
+    FadeInTime(1.0);
+    FadeOutTime(1.0);
+}
+
+//-----------------------------------------------------------------------------
+//- Shell screen background movies
+
+// Pandemic Logo
+//MovieProperties()
+//{
+//     Name("pandemic_logo");
+//     Inherit("transition_template");
+//     Movie("shell");
+//     SegmentList()
+//     {
+//        Segment("pandemic_logo", 1.0, 0);
+//     }
+//}
+
+//MovieProperties()
+//{
+//     Name("temp_shell");
+//     Inherit("screen_template");
+//     Movie("shell");
+//     SegmentList()
+//     {
+//        Segment("temp_shell", 1.0, -1);
+//     }
+//}
+
+//MovieProperties()
+//{
+//     Name("shell_main");
+//     Inherit("screen_template");
+//     Movie("shell");
+//     SegmentList()
+//     {
+//        Segment("shell_main1", 1.0, -1);
+//        Segment("shell_main2", 1.0, -1);
+//     }
+//}
+//
+//MovieProperties()
+//{
+//     Name("shell_sub_left");
+//     Inherit("screen_template");
+//     Movie("shell");
+//     CyclePlayback(1)
+//     SegmentList()
+//     {
+//        Segment("shell_suball1", 1.0, 0);
+//--        Segment("shell_suball2", 1.0, 0);
+//        Segment("shell_subcis1", 1.0, 0);
+//        Segment("shell_subcis2", 1.0, 0);
+//        Segment("shell_subimp1", 1.0, 0);
+//        Segment("shell_subimp2", 1.0, 0);
+//        Segment("shell_subrep1", 1.0, 0);
+//        Segment("shell_subrep2", 1.0, 0);
+//     }
+//}
+
+// Crawls
+
+MovieProperties()
+{
+     Name("crawl1");
+     Inherit("screen_template");
+     Movie("shell");
+     SegmentList()
+     {
+        Segment("crawl1", 1.0, 0);
+     }
+}
+
+MovieProperties()
+{
+     Name("crawl2");
+     Inherit("screen_template");
+     Movie("shell");
+     SegmentList()
+     {
+        Segment("crawl2", 1.0, 0);
+     }
+}
+
+
+//-----------------------------------------------------------------------------
+//- Transition movies
+
+// Coruscant Transition Movies
+MovieProperties()
+{
+     Name("cor1tran1");
+     Inherit("transition_template");
+     Movie("shell");
+     SegmentList()
+     {
+        Segment("cor1tran1", 1.0, 0);
+     }
+}
+
+// Deathstar Interior Transition Movies
+MovieProperties()
+{
+     Name("dea1tran1");
+     Inherit("transition_template");
+     Movie("shell");
+     SegmentList()
+     {
+        Segment("dea1tran1", 1.0, 0);
+     }
+}
+
+// Felucia Transition Movies
+MovieProperties()
+{
+     Name("fel1tran1");
+     Inherit("transition_template");
+     Movie("shell");
+     SegmentList()
+     {
+        Segment("fel1tran1", 1.0, 0);
+     }
+}
+
+
+// Hoth Transition Movies
+MovieProperties()
+{
+     Name("hot1tran1");
+     Inherit("transition_template");
+     Movie("shell");
+     SegmentList()
+     {
+        Segment("hot1tran1", 1.0, 0);
+     }
+}
+
+// Kamino Transition Movies
+MovieProperties()
+{
+     Name("kam1tran1");
+     Inherit("transition_template");
+     Movie("shell");
+     SegmentList()
+     {
+        Segment("kam1tran1", 1.0, 0);
+     }
+}
+
+// Kashyyyk Transition Movies
+MovieProperties()
+{
+     Name("kas2tran1");
+     Inherit("transition_template");
+     Movie("shell");
+     SegmentList()
+     {
+        Segment("kas2tran1", 1.0, 0);
+     }
+}
+
+// Mustafar Transition Movies
+MovieProperties()
+{
+     Name("mus1tran1");
+     Inherit("transition_template");
+     Movie("shell");
+     SegmentList()
+     {
+        Segment("mus1tran1", 1.0, 0);
+     }
+}
+
+// Mygeeto Transition Movies
+MovieProperties()
+{
+     Name("myg1tran1");
+     Inherit("transition_template");
+     Movie("shell");
+     SegmentList()
+     {
+        Segment("myg1tran1", 1.0, 0);
+     }
+}
+
+// Naboo Transition Movies
+MovieProperties()
+{
+     Name("nab1tran1");
+     Inherit("transition_template");
+     Movie("shell");
+     SegmentList()
+     {
+        Segment("nab1tran1", 1.0, 0);
+     }
+}
+
+// Polis Massa Transition Movies
+MovieProperties()
+{
+     Name("pol1tran1");
+     Inherit("transition_template");
+     Movie("shell");
+     SegmentList()
+     {
+        Segment("pol1tran1", 1.0, 0);
+     }
+}
+
+// Space Yavin Transition Movies
+MovieProperties()
+{
+     Name("sb1tran1");
+     Inherit("transition_template");
+     Movie("shell");
+     SegmentList()
+     {
+        Segment("sb1tran1", 1.0, 0);
+     }
+}
+
+// Space Coruscant Transition Movies
+MovieProperties()
+{
+     Name("sb2tran1");
+     Inherit("transition_template");
+     Movie("shell");
+     SegmentList()
+     {
+        Segment("sb2tran1", 1.0, 0);
+     }
+}
+
+// Space Kashyyyk Transition Movies
+MovieProperties()
+{
+     Name("sb3tran1");
+     Inherit("transition_template");
+     Movie("shell");
+     SegmentList()
+     {
+        Segment("sb3tran1", 1.0, 0);
+     }
+}
+
+// Space Mustafar Transition Movies
+MovieProperties()
+{
+     Name("sb4tran1");
+     Inherit("transition_template");
+     Movie("shell");
+     SegmentList()
+     {
+        Segment("sb4tran1", 1.0, 0);
+     }
+}
+
+
+// Tantive IV Transition Movies
+MovieProperties()
+{
+     Name("tan1tran1");
+     Inherit("transition_template");
+     Movie("shell");
+     SegmentList()
+     {
+        Segment("tan1tran1", 1.0, 0);
+     }
+}
+
+// Utapau Transition Movies
+MovieProperties()
+{
+     Name("uta1tran1");
+     Inherit("transition_template");
+     Movie("shell");
+     SegmentList()
+     {
+        Segment("uta1tran1", 1.0, 0);
+     }
+}
+
+// Yavin Transition Movies
+MovieProperties()
+{
+     Name("yav1tran1");
+     Inherit("transition_template");
+     Movie("shell");
+     SegmentList()
+     {
+        Segment("yav1tran1", 1.0, 0);
+     }
+}
+
+
+//-----------------------------------------------------------------------------
+// Galactic conquest victory movies
+
+// Alliance victory movie
+MovieProperties()
+{
+     Name("gcwinall1")
+     Inherit("transition_template")
+     Movie("shell");
+     FadeInTime(1.0);
+     FadeOutTime(1.0);
+     SegmentList()
+     {
+         Segment("gcwinall1", 1.0, 0)
+     }
+}
+
+// CIS victory movie
+MovieProperties()
+{
+     Name("gcwincis1")
+     Inherit("transition_template")
+     Movie("shell");
+     FadeInTime(1.0);
+     FadeOutTime(1.0);
+     SegmentList()
+     {
+         Segment("gcwincis1", 1.0, 0)
+     }
+}
+
+// Imperial victory movie
+MovieProperties()
+{
+     Name("gcwinimp1")
+     Inherit("transition_template")
+     Movie("shell");
+     FadeInTime(1.0);
+     FadeOutTime(1.0);
+     SegmentList()
+     {
+         Segment("gcwinimp1", 1.0, 0)
+     }
+}
+
+// Republic victory movie
+MovieProperties()
+{
+     Name("gcwinrep1")
+     Inherit("transition_template")
+     Movie("shell");
+     FadeInTime(1.0);
+     FadeOutTime(1.0);
+     SegmentList()
+     {
+         Segment("gcwinrep1", 1.0, 0)
+     }
+}
+
+//-----------------------------------------------------------------------------
+// space training movie
+
+MovieProperties()
+{
+     Name("training");
+     Inherit("screen_template");
+     Movie("shell");
+     SegmentList()
+     {
+        Segment("training1", 1.0, 0);
+     }
+}
+

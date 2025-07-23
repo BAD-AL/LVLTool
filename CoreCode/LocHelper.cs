@@ -619,7 +619,7 @@ namespace LVLTool
                     AddString(k, stringsToAdd[k]);
 
                     if (Program.Verbose)
-                        Console.WriteLine("adding string:'[{0}]: '{1}'", k, stringsToAdd[k]);
+                        Console.WriteLine("info: adding string:'[{0}]: '{1}'", k, stringsToAdd[k]);
                 }
             }
             if (hashThese.Count > 0)

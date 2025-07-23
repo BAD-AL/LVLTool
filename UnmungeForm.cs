@@ -85,7 +85,7 @@ namespace LVLTool
                         if (newName != null)
                         {
                             string path = dude.DirectoryName + "\\" + newName + dude.Extension;
-                            Console.WriteLine("Renaming file '{0}' to   '{1}' ", dude.FullName, path);
+                            Console.WriteLine("info: Renaming file '{0}' to   '{1}' ", dude.FullName, path);
                             dude.MoveTo(path);
                         }
                     }
@@ -252,7 +252,7 @@ namespace LVLTool
             {
                 if (logCommand)
                 {
-                    Console.WriteLine("Running : " + programName + " " + args);
+                    Console.WriteLine("info: Running : " + programName + " " + args);
                 }
                 ProcessStartInfo processStartInfo = new ProcessStartInfo
                 {

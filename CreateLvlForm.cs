@@ -164,6 +164,8 @@ namespace LVLTool
 
             string configMunge  = Program.ModToolsDir + "ToolsFL\\bin\\ConfigMunge.exe";
             string textureMunge = Program.ModToolsDir + "ToolsFL\\bin\\pc_TextureMunge.exe";
+            if (!File.Exists(textureMunge))
+                textureMunge = Path.GetFullPath(Program.ModToolsDir + "\\ToolsFL\\bin\\TextureMunge.exe");
             string scriptMunge  = Program.ModToolsDir + "ToolsFL\\bin\\ScriptMunge.exe";
             string lvlPack      = Program.ModToolsDir + "ToolsFL\\bin\\levelpack.exe";
 
@@ -174,13 +176,13 @@ namespace LVLTool
             
             string req_file_noext = reqFileName.Replace(".req", "");
             string configArgs = string.Format(
-                                " -inputfile $*.mcfg -continue  -QUIET -platform {0} -sourcedir  {1} -outputdir {2} -hashstrings ",
+                                " -inputfile *.mcfg -continue  -QUIET -platform {0} -sourcedir  {1} -outputdir {2} -hashstrings ",
                                 platform, workspace, munge_dir);
             string scriptArgs = string.Format(
                                 " -inputfile *.lua -continue  -QUIET -platform {0} -sourcedir  {1} -outputdir {2} ", 
                                 platform, Path.GetFullPath( workspace), munge_dir);
             string texArgs = string.Format(
-                                " -inputfile $*.tga -checkdate -continue -QUIET -platform {0} -sourcedir  {1} -outputdir {2}  ",
+                                " -inputfile *.tga -checkdate -continue -QUIET -platform {0} -sourcedir  {1} -outputdir {2}  ",
                                 platform, workspace, munge_dir);
             string lvlPackArgs = string.Format(
                                 "-inputfile {0}.req -writefiles {1}{0}.files -continue -QUIET -platform {2} -sourcedir  {3} -inputdir {1} -outputdir {3}  ",
@@ -196,9 +198,9 @@ namespace LVLTool
             programOutput     += Program.RunCommand(lvlPack,      lvlPackArgs, true);
             string batchFileContents = string.Format(
                 "md MUNGED \ndel /Y MUNGED\\*\n {0} {1}\n\n{2} {3}\n\n{4} {5}\n\n{6} {7}\n\nmove *.log MUNGED\n\n",
-                textureMunge, String.Format("-inputfile $*.tga  -checkdate -continue -platform {0} -sourcedir . -outputdir MUNGED ", platform),
+                textureMunge, String.Format("-inputfile *.tga  -checkdate -continue -platform {0} -sourcedir . -outputdir MUNGED ", platform),
                 scriptMunge,  String.Format("-inputfile *.lua   -continue -platform {0} -sourcedir  . -outputdir MUNGED  ", platform),
-                configMunge,  String.Format("-inputfile $*.mcfg -continue -platform {0} -sourcedir . -outputdir MUNGED -hashstrings ",platform),
+                configMunge,  String.Format("-inputfile *.mcfg -continue -platform {0} -sourcedir . -outputdir MUNGED -hashstrings ",platform),
                 lvlPack,      String.Format("-inputfile {0}.req -writefiles MUNGED\\{0}.files -continue -platform {1} -sourcedir  . -inputdir MUNGED\\ -outputdir . ", 
                                                 req_file_noext, platform)
                 );

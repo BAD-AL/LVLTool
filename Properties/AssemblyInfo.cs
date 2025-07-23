@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("LVLTool")]
-[assembly: AssemblyCopyright("Copyright ©  2020")]
+[assembly: AssemblyCopyright("Copyright ©  2025")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -38,5 +38,30 @@ using System.Runtime.InteropServices;
 //[assembly: AssemblyFileVersion("0.9.0.2")]
 //[assembly: AssemblyVersion("0.9.0.3")]
 //[assembly: AssemblyFileVersion("0.9.0.3")]
-[assembly: AssemblyVersion("0.9.0.4")]
-[assembly: AssemblyFileVersion("0.9.0.4")]
+//[assembly: AssemblyVersion("0.9.0.4")]
+//[assembly: AssemblyFileVersion("0.9.0.4")]
+//////**************************************************************************************************************************
+[assembly: AssemblyVersion("0.9.0.5")]
+[assembly: AssemblyFileVersion("0.9.0.5")]
+//==== Changes ===
+//0. Added Explode/Assemble to the Unmunge UI Form
+//1. Fix For Bugs:
+//   https://github.com/BAD-AL/LVLTool/issues/2
+// - BF1 CC common.lvl (TGA)      [error popup message]
+// - BF1 CC common.lvl (.texture) [out of memory]
+//   [LVLTool.csproj, Munger.cs, CreateLvlForm.cs]
+//2. Added Functionality to get embedded strings from command line
+//    CoreMerge.cs, Program.cs
+//3. Added 'info:' to informational print statements
+//    [CoreMerge.cs, HashHelper.cs, LocHelper.cs, LuaCodeHelper.cs,
+//    UcfbHelper.cs, MainForm.cs, Program.cs, UnmungeForm.cs]
+//4. Re-ordered Platform selections for PC first (File->Create LVL file).
+//    [CreateLvlForm.Designer.cs]
+//5. Add/Replace file (ConfigMunge) Support for FileTypes:[
+//         ".mcfg", ".fx",  ".prp", ".bnd", ".snd", ".mus", 
+//         ".combo",".sanm",".hud", ".cfg", ".pth", ".sky",
+//         ".lgt",  ".pvs", ".tsr"]
+//    [Munger.cs]
+//6. Fixed Help message error (for specifying mod tools folder)
+//    [Program.cs]
+//////**************************************************************************************************************************

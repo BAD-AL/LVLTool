@@ -20,6 +20,7 @@ namespace LVLTool
         private static string merge_strings_search_dir = null;
         private static string old_name = null;
         private static string new_name = null;
+        private static string loc_language = "all";
         public static bool Verbose = false;
 
         private static string sLuaSourceDir = null;
@@ -84,7 +85,7 @@ namespace LVLTool
                     ProcessArgs(args);
                     if (input_lvl != null && !File.Exists(input_lvl))
                     {
-                        Console.WriteLine("Could not find input file '{0}'", input_lvl);
+                        Console.WriteLine("Error! Could not find input file '{0}'", input_lvl);
                         return;
                     }
 
@@ -156,7 +157,7 @@ namespace LVLTool
                                         helper.Data[start + i] = (byte)new_name[i];
                                     }
                                     helper.SaveData(output_lvl);
-                                    Console.WriteLine("Changed {0} to {1}, saved to {2}", old_name, new_name, output_lvl);
+                                    Console.WriteLine("info: Changed {0} to {1}, saved to {2}", old_name, new_name, output_lvl);
                                 }
                                 else
                                 {
@@ -193,6 +194,25 @@ namespace LVLTool
 
                             CoreMerge.MergeLoc(input_lvl, output_lvl, theFiles);
                             break;
+                        case OperationMode.ListStrings:
+                            CoreMerge cm = new CoreMerge(input_lvl);
+                            cm.GatherStrings(input_lvl);
+                            string results = null;
+                            if (loc_language.ToLower() != "all")
+                                results = cm.GetStrings(loc_language);
+                            else
+                                results = cm.GetAllStrings();
+
+                            if (results != null)
+                            {
+                                Console.WriteLine("Localization strings:\r\n{0}", results);
+                            }
+                            else
+                            {
+                                Console.WriteLine("Error: No localization strings found inside file: '{0}'",input_lvl);
+                            }
+                            break;
+                        // Note: The following case is undocumented and doesn't result in a working result.
                         case OperationMode.PS2_BF1AddonScript:
                             // This code operates as expected; but currently the PS2 crashes when reading the generated .lvl .
                             string[] neededFiles = new String[] { 
@@ -390,6 +410,11 @@ namespace LVLTool
                         merge_strings_search_dir = args[i + 1];
                         i++;
                         break;
+                    case "-list_strings":
+                        operation = OperationMode.ListStrings;
+                        loc_language = args[i + 1];
+                        i++;
+                        break;
                     case "-ps2_bf1_addon_lvl":
                         operation = OperationMode.PS2_BF1AddonScript;
                         i++;
@@ -411,7 +436,8 @@ Use at the command line with the following arguments:
  -rename  <old_name> <new_name>  Rename a UCFB chunk (names must be same size).
  -p <platform> (pc|xbox|ps2) only important if specifying .tga files (pc=default)
  -l List the contents of the munged/lvl file.
- -mod_tools <mod_tools_folder_no_spaces> The modtools folder (needed for .lua & .tga files, default is 'C:\BF2_ModTools')
+ -list_strings (all|english|spanish|italian|french|german|japanese|uk_english)
+ -mod_tools_folder <mod_tools_folder_no_spaces> The modtools folder (needed for .lua & .tga files, default is 'C:\BF2_ModTools')
  -merge_strings <search_dir> Read in the '-file' arg, add the strings found in the 'core.lvl's 
                under 'search_dir' save to file specified with the '-o' arg.
  " + //"-ps2_bf1_addon_lvl  Create a PS2 Battlefront alt addon (workaround) lvl for PS2 BF1 (PS2 BF1 only)
@@ -435,6 +461,11 @@ LVLTool.exe -file mission.lvl -a XXXg_con.script;XXXc_con.script
 
     (Replace mode_icon_con in xbox shell.lvl )
 LVLTool.exe -file shell.lvl -r mode_icon_con.tga -p xbox  
+
+    (show all strings in the given .lvl)
+LVLTool.exe -file core.lvl -list_strings all
+    (show all english strings in the given .lvl)
+LVLTool.exe -file core.lvl -list_strings english
 
     (add the strings from core.lvl files under 'top_folder_with_cores', to 'base.core.lvl', save as 'core.lvl' )
 LVLTool.exe -file base.core.lvl -o core.lvl -merge_strings top_folder_with_cores
@@ -478,7 +509,7 @@ LVLTool.exe -file base.core.lvl -o core.lvl -merge_strings top_folder_with_cores
 
         public static string RunCommand(string programName, string args, bool includeStdErr)
         {
-            Console.WriteLine("Running command: " + programName + " " + args);
+            Console.WriteLine("info: Running command: " + programName + " " + args);
             ProcessStartInfo processStartInfo = new ProcessStartInfo
             {
                 FileName = programName,
@@ -546,6 +577,7 @@ LVLTool.exe -file base.core.lvl -o core.lvl -merge_strings top_folder_with_cores
         Replace,
         Rename,
         ListContents,
+        ListStrings,
         ShowHelp,
         MergeCore,
         PS2_BF1AddonScript

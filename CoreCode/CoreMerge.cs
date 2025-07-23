@@ -83,8 +83,39 @@ namespace LVLTool
             }
             else
             {
-                Console.WriteLine("skipping file '{0}'", file);
+                Console.WriteLine("info: skipping file '{0}'", file);
             }
+        }
+
+        /// <summary>
+        /// Returns the strings from the fiven language
+        /// </summary>
+        /// <param name="language">The language to get strings for</param>
+        /// <returns>The strings (line by line) for the given language; null if not found. </returns>
+        public string GetStrings(string language)
+        {
+            string retVal = null;
+            if (mStringsToAdd.ContainsKey(language))
+                retVal = mStringsToAdd[language].ToString();
+            return retVal;
+        }
+
+        /// <summary>
+        /// Retusns all the strings found so far; seperated by '//Language: xyz
+        /// </summary>
+        /// <returns>all the strings sucked up so far; null if no strings have been gathered yet.
+        /// </returns>
+        public string GetAllStrings()
+        {
+            StringBuilder retVal = new StringBuilder();
+            foreach (string key in mStringsToAdd.Keys)
+            {
+                retVal.Append(String.Format("//Language: {0}\r\n", key));
+                retVal.Append(mStringsToAdd[key].ToString());
+            }
+            if (retVal.Length > 0)
+                return retVal.ToString();
+            return null;
         }
 
         private void AddGatheredStrings()
@@ -129,7 +160,7 @@ namespace LVLTool
             CoreMerge cm = new CoreMerge(baseFileName);
             foreach (string file in files)
             {
-                Console.WriteLine("Gathering strings from '{0}'", file);
+                Console.WriteLine("info: Gathering strings from '{0}'", file);
                 try
                 {
                     cm.GatherStrings(file);

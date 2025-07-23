@@ -175,7 +175,7 @@ namespace LVLTool
             {
                 if (File.Exists(DictionaryFile))
                 {
-                    Console.WriteLine("Reading '{0}...", DictionaryFile);
+                    Console.WriteLine("info: Reading '{0}...", DictionaryFile);
                     reader = new StreamReader(DictionaryFile);
                 }
                 else
@@ -184,7 +184,7 @@ namespace LVLTool
                     // when debugging use the line below to look through the different resources in 'resourceNames' to see the name of the target resource
                     //String[] resourceNames = assembly.GetManifestResourceNames();
                     reader = new StreamReader(assembly.GetManifestResourceStream("LVLTool.dictionary.txt"));
-                    Console.WriteLine("Using internal dictionary...");
+                    Console.WriteLine("info: Using internal dictionary...");
                 }
                 while ((line = reader.ReadLine()) != null)
                 {
