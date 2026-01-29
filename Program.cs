@@ -21,6 +21,7 @@ namespace LVLTool
         private static string old_name = null;
         private static string new_name = null;
         private static string loc_language = "all";
+        private static string inner_lua_file= "addme";
         public static bool Verbose = false;
 
         private static string sLuaSourceDir = null;
@@ -86,6 +87,7 @@ namespace LVLTool
                     if (input_lvl != null && !File.Exists(input_lvl))
                     {
                         Console.WriteLine("Error! Could not find input file '{0}'", input_lvl);
+                        //Directory.GetCurrentDirectory();
                         return;
                     }
 
@@ -121,6 +123,13 @@ namespace LVLTool
                             }
                             else
                                 Console.WriteLine("Error! Must specify input file");
+                            break;
+                        case OperationMode.LuaList:
+                            string luaFileContent = ListLua(input_lvl, inner_lua_file);
+                            if (luaFileContent != null)
+                                Console.WriteLine(luaFileContent);
+                            else
+                                Console.WriteLine("Error! Could not find script file '{0}'", inner_lua_file);
                             break;
                         case OperationMode.Replace:
                             if (output_lvl == null)
@@ -286,6 +295,38 @@ namespace LVLTool
             }
         }
 
+        private static string ListLua(string inputLvlName, string innerLuaFile)
+        {
+            string retVal = null;
+            string fileToFind = innerLuaFile;
+            if(fileToFind.EndsWith(".scr_"))
+                fileToFind = fileToFind.Replace(".scr_", "");
+            if (fileToFind.EndsWith(".lvl_"))
+                fileToFind = fileToFind.Replace(".lvl_", "");
+
+            var ucfbFileHelper = new UcfbHelper();
+            ucfbFileHelper.FileName = inputLvlName;
+            ucfbFileHelper.InitializeRead();
+            Chunk cur = null;
+            while ((cur = ucfbFileHelper.RipChunk(false)) != null)
+            {
+                if( fileToFind == cur.Name && cur.Type == "scr_") // what about if it's inside an inner .lvl file?
+                {
+                    retVal = LuaCodeHelper.GetLuacListing(cur);
+                    break;
+                }
+                else if (fileToFind == cur.Name && cur.Type == "lvl_")
+                {
+                    string tmpFile = "tmp.lvl";
+                    UcfbHelper.SaveFileUCFB(tmpFile, cur.Data);
+                    retVal = ListLua(tmpFile, fileToFind);
+                    File.Delete(tmpFile);
+                    break;
+                }
+            }
+            return retVal;
+        }
+
         private static void ReplaceItem_WithForm(string inputLvlName,string outputLvlName, string[] files_)
         {
             MainForm form = new MainForm();// lame to use the form, but it works.
@@ -415,6 +456,11 @@ namespace LVLTool
                         loc_language = args[i + 1];
                         i++;
                         break;
+                    case "-ll":
+                        operation = OperationMode.LuaList;
+                        inner_lua_file = args[i + 1];
+                        i++;
+                        break;
                     case "-ps2_bf1_addon_lvl":
                         operation = OperationMode.PS2_BF1AddonScript;
                         i++;
@@ -436,6 +482,7 @@ Use at the command line with the following arguments:
  -rename  <old_name> <new_name>  Rename a UCFB chunk (names must be same size).
  -p <platform> (pc|xbox|ps2) only important if specifying .tga files (pc=default)
  -l List the contents of the munged/lvl file.
+ -ll <inner_file_name> print out a lua listing of the target file (must be a script, mod_tools_folder dependent)
  -list_strings (all|english|spanish|italian|french|german|japanese|uk_english)
  -mod_tools_folder <mod_tools_folder_no_spaces> The modtools folder (needed for .lua & .tga files, default is 'C:\BF2_ModTools')
  -merge_strings <search_dir> Read in the '-file' arg, add the strings found in the 'core.lvl's 
@@ -483,14 +530,20 @@ LVLTool.exe -file base.core.lvl -o core.lvl -merge_strings top_folder_with_cores
             }
         }
 
-        private static String FindLuac(string startDir)
+        private static String FindLuac(string referenceDir)
         {
-            string retVal = startDir + "ToolsFL\\bin\\Luac.exe";
+            string retVal = referenceDir + "ToolsFL\\bin\\Luac.exe";
             if (!File.Exists(retVal))
             {
-                string test = startDir + "..\\" + "ToolsFL\\bin\\Luac.exe";
-                if (File.Exists(test))
-                    retVal = test;
+                string fallback1_loc = referenceDir + "..\\" + "ToolsFL\\bin\\Luac.exe";
+                string fallback2_loc = ".\\luac.exe";
+                string fallback3_loc = System.Reflection.Assembly.GetExecutingAssembly().Location.Replace("LVLTool.exe", "luac.exe");
+                if (File.Exists(fallback1_loc))
+                    retVal = fallback1_loc;
+                else if (File.Exists(fallback2_loc))
+                    retVal = fallback2_loc;
+                else if (File.Exists(fallback3_loc))
+                    retVal = fallback3_loc;
             }
             return retVal;
         }
@@ -577,6 +630,7 @@ LVLTool.exe -file base.core.lvl -o core.lvl -merge_strings top_folder_with_cores
         Replace,
         Rename,
         ListContents,
+        LuaList,
         ListStrings,
         ShowHelp,
         MergeCore,

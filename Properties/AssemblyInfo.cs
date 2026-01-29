@@ -44,8 +44,8 @@ using System.Runtime.InteropServices;
 //[assembly: AssemblyVersion("0.9.0.5")]   // use .gz compression on dict; expand command line replacement
 //[assembly: AssemblyFileVersion("0.9.0.5")]
 //////**************************************************************************************************************************
-[assembly: AssemblyVersion("0.9.0.6")]
-[assembly: AssemblyFileVersion("0.9.0.6")]
+//[assembly: AssemblyVersion("0.9.0.6")]
+//[assembly: AssemblyFileVersion("0.9.0.6")]
 //==== Changes ===
 //0. Added Explode/Assemble to the Unmunge UI Form
 //1. Fix For Bugs:
@@ -68,3 +68,7 @@ using System.Runtime.InteropServices;
 //6. Fixed Help message error (for specifying mod tools folder)
 //    [Program.cs]
 //////**************************************************************************************************************************
+[assembly: AssemblyVersion("0.9.0.7")]
+[assembly: AssemblyFileVersion("0.9.0.7")]
+// Added -ll (lua list) support 
+// Made 'Program.FindLuac()' more robust (looks in current folder and LVLTool's execution folder as a fallback)
