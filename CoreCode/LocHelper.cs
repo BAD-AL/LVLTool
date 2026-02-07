@@ -615,7 +615,7 @@ namespace LVLTool
                 }
                 else
                 {
-                    hashThese.Add(k);
+                    if(!k.StartsWith("0x")) hashThese.Add(k);
                     AddString(k, stringsToAdd[k]);
 
                     if (Program.Verbose)
