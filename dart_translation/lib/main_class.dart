@@ -49,9 +49,9 @@ static void RunMain(List<String> args) {
       }
       if (input_lvl.length > 0) {
           List<String> files_ = getFiles(files);
-          String f = files_[0];
+          String f = Munger.ensureMungedFile( files_[0]);
           String name = getFileNameOnly(f);
-          verifyUcfbFile(f); // will throw exception if not valid
+          Munger.verifyUcfbFile(f); // will throw exception if not valid
           UcfbHelper helper = UcfbHelper();
           helper.fileName = input_lvl;
           helper.initializeRead();
@@ -118,7 +118,7 @@ static void RunMain(List<String> args) {
           helper.fileName = input_lvl;
           List<String> files_ = getFiles(files);
           for (String f in files_) {
-              String fileName = ensureMungedFile(f, platform);
+              String fileName = Munger.ensureMungedFile(f, platform);
               helper.addItemToEnd(fileName);
           }
           helper.saveData(output_lvl);

@@ -368,7 +368,7 @@ class UcfbHelper {
   }
 
   void addItemToEnd(String mungedFile) {
-    verifyUcfbFile(mungedFile);
+    Munger.verifyUcfbFile(mungedFile);
     Uint8List newData = File(mungedFile).readAsBytesSync();
     List<int> bigData = List<int>.from(_data!);
     final newDataStart = bigData.length;

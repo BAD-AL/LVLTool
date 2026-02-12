@@ -85,6 +85,25 @@ void main() {
         }
     });
 
+    test('replace munged file with .lua', () {
+        String commonFile = "test/common.lvl";
+        // replace munged
+        String globalsFile ="test/globals.lua";
+        final outFile = "test/common_test.lvl";
+        MainClass.RunMain(['-file', commonFile, '-o', outFile,  '-r', globalsFile]);
+        expect(File(outFile).existsSync(), isTrue);
+
+        File orig =File(commonFile);
+        File modified =File(outFile);
+        expect(orig.lengthSync() != modified.lengthSync(), isTrue, reason: "file sizes should differ after replace munged");
+    
+        // now delete the outFile 
+        final outF = File(outFile);
+        if (outF.existsSync()) {
+            outF.deleteSync();
+        }
+    });
+
     test('replace munged file ', () {
         String commonFile = "test/common.lvl";
         // replace munged
