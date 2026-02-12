@@ -1,0 +1,48 @@
+# Dart quick commands reminder
+
+# Create a new package (console application):
+dart create -t console-full my_app
+
+# Get dependencies:
+dart pub get
+
+# Add a dependency:
+dart pub add <package_name>
+
+# Run a Dart script or package executable:
+dart run bin/dart_translation.dart <args>
+
+# Run tests (verbose):
+dart test -r expanded
+
+# Run tests in sequence, not in parallel
+dart test --concurrency=1
+
+# Run a single test file:
+dart test test/pack_integration_test.dart
+
+# Format code:
+dart format .
+
+# Analyze static issues:
+dart analyze
+
+# Build an executable for the current platform:
+dart compile exe bin/dart_translation.dart -o LVLTool
+dart compile exe bin/dart_translation.dart -o LVLTool.exe
+
+# Create a self-contained snapshot (AOT):
+dart compile aot-snapshot bin/dart_translation.dart -o bin/dart_translation.aot
+
+# Create a native Linux executable (on Linux):
+dart compile exe bin/dart_translation.dart -o LVLTool
+
+# Create a tarball for distribution (example):
+tar -czvf dart_translation.tar.gz build/
+
+# Publish a package to pub.dev (ensure version updated and pubspec ready):
+dart pub publish --dry-run
+dart pub publish
+
+# Helpful: show Dart SDK version
+dart --version
