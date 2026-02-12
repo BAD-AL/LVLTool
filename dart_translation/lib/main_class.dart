@@ -291,13 +291,18 @@ static void processArgs(List<String>args){
       }
   }
 }
-
+/*
+  print('\x1B[31mThis is Red\x1B[0m');
+  print('\x1B[32mThis is Green\x1B[0m');
+  print('\x1B[34mThis is Blue\x1B[0m');
+  print('\x1B[33mThis is Yellow\x1B[0m');
+  */
 static void printHelp(){
   String help = 
-"""LVLTool
+"""\x1B[33mLVLTool\x1B[0m
 Use at the command line with the following arguments:
  -file <lvl file>  The file to operate on
- -r <munged file(s)>  to replace munged files in the target .lvl file.
+ -r <munged file(s)>  to replace munged files in the target .lvl file (if .lua is specified, it can be compiled if 'scriptmunge' is present).
  -a <munged file(s)>  to add munged files at the end of the target .lvl file.
  -o <lvl file>  The output file name. (default is input lvl file)
  -e             Extract contents
@@ -311,7 +316,7 @@ Use at the command line with the following arguments:
  -verbose       Display more info as operations are occuring.
  -h --help  /? Print help message
 
-Examples:
+\x1B[33mExamples:\x1B[0m
     (Replace shell_interface script inside shell.lvl)
 LVLTool -file shell.lvl -r shell_interface.script
  
