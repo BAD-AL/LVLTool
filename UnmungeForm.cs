@@ -27,16 +27,16 @@ namespace LVLTool
                 "If none appear, place swbf-unmunge.exe into the same folder.");
         }
 
-        protected override void OnHandleCreated(EventArgs e)
-        {
-            //https://stackoverflow.com/questions/57124243/winforms-dark-title-bar-on-windows-10 (thank you:)
-            if (DwmSetWindowAttribute(this.Handle, 19, new[] { 1 }, 4) != 0)
-                DwmSetWindowAttribute(this.Handle, 20, new[] { 1 }, 4);
-            base.OnHandleCreated(e);
-        }
+        //protected override void OnHandleCreated(EventArgs e)
+        //{
+        //    //https://stackoverflow.com/questions/57124243/winforms-dark-title-bar-on-windows-10 (thank you:)
+        //    if (DwmSetWindowAttribute(this.Handle, 19, new[] { 1 }, 4) != 0)
+        //        DwmSetWindowAttribute(this.Handle, 20, new[] { 1 }, 4);
+        //    base.OnHandleCreated(e);
+        //}
 
-        [System.Runtime.InteropServices.DllImport("DwmApi")] //System.Runtime.InteropServices
-        private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, int[] attrValue, int attrSize);
+        //[System.Runtime.InteropServices.DllImport("DwmApi")] //System.Runtime.InteropServices
+        //private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, int[] attrValue, int attrSize);
 
         #region
         // repair known bugs (rename files [from hash], Fix Rotation in .lyr files)

@@ -17,16 +17,17 @@ namespace LVLTool
             InitializeComponent();
         }
 
-        protected override void OnHandleCreated(EventArgs e)
-        {
-            //https://stackoverflow.com/questions/57124243/winforms-dark-title-bar-on-windows-10 (thank you:)
-            if (DwmSetWindowAttribute(this.Handle, 19, new[] { 1 }, 4) != 0)
-                DwmSetWindowAttribute(this.Handle, 20, new[] { 1 }, 4);
-            base.OnHandleCreated(e);
-        }
+        //protected override void OnHandleCreated(EventArgs e)
+        //{
+        //    //https://stackoverflow.com/questions/57124243/winforms-dark-title-bar-on-windows-10 (thank you:)
+        //    if (DwmSetWindowAttribute(this.Handle, 19, new[] { 1 }, 4) != 0)
+        //        DwmSetWindowAttribute(this.Handle, 20, new[] { 1 }, 4);
+        //    base.OnHandleCreated(e);
+        //}
 
-        [DllImport("DwmApi")] //System.Runtime.InteropServices
-        private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, int[] attrValue, int attrSize);
+        //[DllImport("DwmApi")] //System.Runtime.InteropServices
+        //private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, int[] attrValue, int attrSize);
+
         public string PromptString
         {
             get { return labSelectPrompt.Text; }
